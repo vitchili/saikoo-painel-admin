@@ -9,4 +9,9 @@ use Filament\Resources\Pages\CreateRecord;
 class CreateLembrete extends CreateRecord
 {
     protected static string $resource = LembreteResource::class;
+
+    protected function getRedirectUrl(): string
+    {
+        return '/admin/atendimento';
+    }
 }

@@ -10,7 +10,7 @@ class EditUser extends EditRecord
 {
     protected static string $resource = UserResource::class;
 
-    protected static ?string $title = 'Alterar perfil';
+    protected static ?string $title = 'Editar usuário';
 
     protected function getHeaderActions(): array
     {

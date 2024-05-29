@@ -7,6 +7,7 @@ use App\Filament\Resources\LembreteResource\RelationManagers;
 use App\Models\Lembrete;
 use App\Models\Periodicidade;
 use App\Models\User;
+use App\Rules\DataInicioMenorQueDataFim;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Forms\Components\RichEditor;
@@ -22,6 +23,8 @@ class LembreteResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
+    protected static ?string $navigationGroup = 'Agenda';
+
     public static function form(Form $form): Form
     {
         return $form
@@ -30,10 +33,14 @@ class LembreteResource extends Resource
                     ->required()
                     ->columnSpanFull(),
                 Forms\Components\DateTimePicker::make('data_hora_inicio')
-                    ->required(),
+                    ->required()
+                    ->seconds(false)
+                    ->afterOrEqual('today'),
                 Forms\Components\DateTimePicker::make('data_hora_fim')
-                    ->required(),
-                    RichEditor::make('observacoes')
+                    ->required()
+                    ->seconds(false)
+                    ->afterOrEqual('data_hora_inicio'),
+                Forms\Components\RichEditor::make('observacoes')
                     ->toolbarButtons([
                         'blockquote',
                         'bold',

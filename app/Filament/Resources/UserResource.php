@@ -22,11 +22,11 @@ class UserResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-users';
 
-    protected static ?string $navigationLabel = 'Acessos';
+    protected static ?string $navigationLabel = 'Usuários';
 
-    protected static ?string $slug = 'acessos';
+    protected static ?string $slug = 'usuarios';
 
-    protected static ?string $modelLabel = 'Acessos';
+    protected static ?string $modelLabel = 'Usuário';
 
     protected static ?string $navigationGroup = 'Acessos';
 
@@ -63,7 +63,10 @@ class UserResource extends Resource
                         auth()->user()->hasRole('Diretor(a)') ? null : $query->where('name', '!=', 'Diretor(a)')
                     )
                     ->required()
-                    ->preload()
+                    ->preload(),
+                Forms\Components\ColorPicker::make('color_hash')
+                    ->label('Cor (Para diferenciação na Agenda, Dashboard, entre outros)')
+                    ->default('#CCCCCC')
             ]);
     }
 
@@ -86,11 +89,13 @@ class UserResource extends Resource
                 Tables\Columns\TextColumn::make('roles.name')
                     ->label('Tipo de Perfil')
                     ->sortable(),
+                Tables\Columns\ColorColumn::make('color_hash')
+                    ->label('Cor'),
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Cadastrado em')
                     ->dateTime('d/m/Y H:i:s')
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: false),
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('updated_at')
                     ->label('Atualizado em')
                     ->dateTime('d/m/Y H:i:s')
