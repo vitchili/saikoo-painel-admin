@@ -23,4 +23,9 @@ class ContatoPessoaCliente extends Model
         'email',
         'cadastrado_por',
     ];
+
+    public function cliente()
+    {
+        return $this->belongsTo(Cliente::class);
+    }
 }

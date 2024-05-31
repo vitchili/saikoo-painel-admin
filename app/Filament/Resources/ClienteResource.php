@@ -6,6 +6,7 @@ use App\Filament\Resources\ClienteResource\Pages;
 use App\Models\Cliente\Cliente;
 use App\Models\Cliente\TipoCliente;
 use App\Models\Cliente\TipoContatoPessoaCliente;
+use App\Models\Cliente\TipoRedeSocialCliente;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Fieldset;
@@ -19,6 +20,7 @@ use Filament\Forms\Components\Tabs;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Resources\Resource;
+use Filament\Support\RawJs;
 use Filament\Tables;
 use Filament\Tables\Table;
 
@@ -27,6 +29,8 @@ class ClienteResource extends Resource
     protected static ?string $model = Cliente::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+
+    protected static ?string $navigationGroup = 'Clientes';
 
     public static function form(Form $form): Form
     {
@@ -38,6 +42,7 @@ class ClienteResource extends Resource
                             ->schema([
                                 Radio::make('tipo')
                                     ->label('Tipo')
+                                    ->required()
                                     ->options(TipoCliente::all()->pluck('nome', 'id'))
                                     ->inline()
                                     ->inlineLabel(false),
@@ -53,8 +58,9 @@ class ClienteResource extends Resource
                                 //     ])
                                 //     ->inline()
                                 //     ->inlineLabel(false),
-                                DateTimePicker::make('data_cadastro')
-                                    ->seconds(false),
+                                // DateTimePicker::make('data_cadastro')
+                                //     ->label('Data Cadastro')
+                                //     ->seconds(false),
                                 // Select::make('id_indicacao')
                                 //     ->label('Indicação')
                                 //     ->options([
@@ -68,7 +74,6 @@ class ClienteResource extends Resource
                                 //     ->searchable(),
                                 TextInput::make('codigo')
                                     ->label('Código')
-                                    ->required()
                                     ->maxLength(255),
                                 // Select::make('id_usuario_auto_repre')
                                 //     ->label('Aut. Repre. Visualizar')
@@ -81,12 +86,13 @@ class ClienteResource extends Resource
                                     ->maxLength(255),
                                 TextInput::make('nomefantasia')
                                     ->label('Fantasia')
-                                    ->required()
                                     ->maxLength(255),
                                 TextInput::make('cpf_cnpj')
                                     ->label('CNPJ')
-                                    ->required()
-                                    ->maxLength(18),
+                                    ->mask(RawJs::make(<<<'JS'
+                                        $input.length > 14 ? '99.999.999/9999-99' : '999.999.999-99'
+                                    JS))
+                                    ->rule('cpf_ou_cnpj'),
                                 TextInput::make('ie')
                                     ->label('Inscrição Estadual')
                                     ->maxLength(255),
@@ -100,82 +106,86 @@ class ClienteResource extends Resource
                                     ->label('Em implantação')
                                     ->inline(false),
 
-                            ])->columns(2),
+                            ])->columns(3),
                         Tabs\Tab::make('Responsáveis')
                             ->schema([
                                 Fieldset::make('1º Responsável')
                                     ->schema([
-                                        TextInput::make('inscricao_municipal')
+                                        TextInput::make('responsavel')
                                             ->label('Nome')
                                             ->placeholder('Nome do responsável')
                                             ->maxLength(255),
-                                        TextInput::make('inscricao_municipal')
-                                            ->label('CPF do responsável')
-                                            ->placeholder('Nome completo')
-                                            ->maxLength(255),
-                                        TextInput::make('inscricao_municipal')
+                                        TextInput::make('cpf_resp')
+                                            ->label('CPF')
+                                            ->placeholder('CPF do responsável')
+                                            ->mask('999.999.999-99')
+                                            ->rule('cpf'),
+                                        TextInput::make('rg')
                                             ->label('RG')
                                             ->placeholder('RG do responsável')
                                             ->maxLength(255),
-                                        TextInput::make('inscricao_municipal')
+                                        TextInput::make('orgao_expedidor')
                                             ->label('Órgão Expedidor')
                                             ->placeholder('Órgão expedidor do RG')
                                             ->maxLength(255),
-                                        DatePicker::make('inscricao_municipal')
+                                        DatePicker::make('data_nasc_resp')
                                             ->label('Data Nascimento'),
-                                        TextInput::make('inscricao_municipal')
+                                        TextInput::make('email_resp')
                                             ->label('E-mail')
                                             ->placeholder('E-mail do responsável')
+                                            ->email()
                                             ->maxLength(255),
-                                        TextInput::make('inscricao_municipal')
+                                        TextInput::make('fone_resp1')
                                             ->label('Telefone')
-                                            ->placeholder('(xx) xxxxx-xxxx')
-                                            ->maxLength(255),
-                                        TextInput::make('inscricao_municipal')
+                                            ->mask(RawJs::make(<<<'JS'
+                                                $input.length >= 14 ? '(99)99999-9999' : '(99)9999-9999'
+                                            JS)),
+                                        TextInput::make('senha_resp')
                                             ->label('Senha')
                                             ->placeholder('Senha do responsável')
+                                            ->password()
                                             ->maxLength(255),
-                                        Toggle::make('em_implantacao')
+                                        Toggle::make('aut_envio_email_resp')
                                             ->label('Autoriza o envio de e-mails')
                                             ->inline(false),
                                     ])->columns(4),
                                     Fieldset::make('2º Responsável')
                                     ->schema([
-                                        TextInput::make('inscricao_municipal')
+                                        TextInput::make('responsavel2')
                                             ->label('Nome')
-                                            ->placeholder('Nome do responsável')
+                                            ->placeholder('Nome do 2º responsável')
                                             ->maxLength(255),
-                                        TextInput::make('inscricao_municipal')
+                                        TextInput::make('cpf_resp2')
                                             ->label('CPF do responsável')
-                                            ->placeholder('Nome completo')
-                                            ->maxLength(255),
-                                        TextInput::make('inscricao_municipal')
+                                            ->placeholder('CPF do 2º responsável')
+                                            ->mask('999.999.999-99')
+                                            ->rule('cpf'),
+                                        TextInput::make('rg2')
                                             ->label('RG')
-                                            ->placeholder('RG do responsável')
+                                            ->placeholder('RG do 2º responsável')
                                             ->maxLength(255),
-                                        TextInput::make('inscricao_municipal')
+                                        TextInput::make('orgao_expedidor2')
                                             ->label('Órgão Expedidor')
                                             ->placeholder('Órgão expedidor do RG')
                                             ->maxLength(255),
-                                        DatePicker::make('inscricao_municipal')
+                                        DatePicker::make('data_nasc_resp2')
                                             ->label('Data Nascimento'),
-                                        TextInput::make('inscricao_municipal')
+                                        TextInput::make('email_resp2')
                                             ->label('E-mail')
-                                            ->placeholder('E-mail do responsável')
+                                            ->email()
+                                            ->placeholder('E-mail do 2º responsável')
                                             ->maxLength(255),
-                                        TextInput::make('inscricao_municipal')
+                                        TextInput::make('fone_resp2')
                                             ->label('Telefone')
-                                            ->placeholder('(xx) xxxxx-xxxx')
-                                            ->maxLength(255),
-                                        TextInput::make('inscricao_municipal')
-                                            ->label('Senha')
-                                            ->placeholder('Senha do responsável')
-                                            ->maxLength(255),
-                                        Toggle::make('em_implantacao')
+                                            ->mask(RawJs::make(<<<'JS'
+                                                $input.length >= 14 ? '(99)99999-9999' : '(99)9999-9999'
+                                            JS)),
+                                        Toggle::make('aut_envio_email_resp2')
                                             ->label('Autoriza o envio de e-mails')
                                             ->inline(false),
-                                        Toggle::make('em_implantacao')
-                                            ->label('Não faz parte do contrato social')
+                                        Toggle::make('nao_faz_parte_contrato2')
+                                            ->label('Não faz parte do contrato')
+                                            ->required()
                                             ->inline(false),
                                     ])->columns(4),
                             ])->columns(),
@@ -191,48 +201,70 @@ class ClienteResource extends Resource
                                         TextInput::make('nome')
                                             ->label('Nome'),
                                         TextInput::make('telefone')
-                                            ->label('Telefone'),
+                                            ->label('Telefone')
+                                            ->mask(RawJs::make(<<<'JS'
+                                                $input.length >= 14 ? '(99)99999-9999' : '(99)9999-9999'
+                                            JS)),
                                         TextInput::make('email')
-                                            ->label('E-mail'),
+                                            ->label('E-mail')
+                                            ->email(),
                                     ])
                                     ->columns(4)
                             ]),
                         Tabs\Tab::make('Acesso/Endereço')
                             ->schema([
-                                Fieldset::make('Acesso')
-                                    ->schema([
-                                        TextInput::make('email')
-                                            ->label('Usuário de acesso'),
-                                        TextInput::make('senha')
-                                            ->label('Senha de acesso'),
-                                    ]),
                                 Fieldset::make('Endereço')
                                     ->schema([
                                         TextInput::make('cep')
-                                            ->label('CEP'),
+                                            ->label('CEP')
+                                            ->maxLength(9)
+                                            ->required(),
                                         TextInput::make('end')
-                                            ->label('Logradouro'),
+                                            ->label('Logradouro')
+                                            ->required(),
                                         TextInput::make('numero')
-                                            ->label('Número'),
+                                            ->label('Número')
+                                            ->required(),
                                         TextInput::make('complemento')
                                             ->label('Complemento'),
                                         TextInput::make('bairro')
-                                            ->label('Bairro'),
+                                            ->label('Bairro')
+                                            ->required(),
                                         TextInput::make('cidade')
-                                            ->label('Cidade'),
+                                            ->label('Cidade')
+                                            ->required(),
                                         TextInput::make('uf')
-                                            ->label('UF'),
-                                    ]),
+                                            ->label('UF')
+                                            ->maxLength(2)
+                                            ->required(),
+                                    ])->columns(3),
                                 Fieldset::make('Telefones')
                                     ->schema([
                                         TextInput::make('ddd')
-                                        ->label('DDD'),
+                                        ->label('DDD')
+                                        ->maxLength(2),
                                         TextInput::make('telefone')
-                                            ->label('Telefone Residencial'),
+                                            ->label('Telefone Residencial')
+                                            ->mask(RawJs::make(<<<'JS'
+                                                $input.length >= 14 ? '(99)99999-9999' : '(99)9999-9999'
+                                            JS)),
                                         TextInput::make('telefone2')
-                                            ->label('Celular'),
-                                    ])
-                            ])->columns(2),
+                                            ->label('Celular')
+                                            ->mask(RawJs::make(<<<'JS'
+                                                $input.length >= 14 ? '(99)99999-9999' : '(99)9999-9999'
+                                            JS)),
+                                    ])->columns(3),
+                                Fieldset::make('Acesso')
+                                    ->schema([
+                                        TextInput::make('email')
+                                            ->label('Usuário de acesso')
+                                            ->email(),
+                                        TextInput::make('senha')
+                                            ->label('Senha de acesso')
+                                            ->password()
+                                            ->revealable(),
+                                    ]),
+                            ])->columns(3),
                         Tabs\Tab::make('Dados Bancários')
                             ->schema([
                                 Fieldset::make('Dados Banco')
@@ -254,31 +286,35 @@ class ClienteResource extends Resource
                                         TextInput::make('agencia')
                                             ->label('Agência'),
                                         TextInput::make('agenciadv')
-                                            ->label('Dv'),
+                                            ->label('Dv')
+                                            ->maxLength(2),
                                         TextInput::make('conta')
                                             ->label('Conta'),
                                         TextInput::make('contadv')
-                                            ->label('Dv'),
+                                            ->label('Dv')
+                                            ->maxLength(2),
                                     ])->columns(4),
                                 Fieldset::make('Pago')
                                     ->schema([
                                         TextInput::make('cod_pago')
                                             ->label('Cód. Pago'),
                                         TextInput::make('senha_pago')
-                                            ->label('Senha Pago'),
+                                            ->label('Senha Pago')
+                                            ->password()
+                                            ->revealable(),
                                     ])->columns(2)
                             ]),
                         Tabs\Tab::make('Redes Sociais')
                             ->schema([
-                                Repeater::make('redesSociaisClientes')
+                                Repeater::make('redesSociaisCliente')
                                     ->label('Rede social')
                                     ->schema([
-                                        Select::make('redesocial')
+                                        Select::make('tipo_rede_social_id')
                                             ->label('Rede Social')
-                                            ->options([])
+                                            ->options(TipoRedeSocialCliente::all()->pluck('nome', 'id'))
                                             ->searchable(),
-                                        TextInput::make('nomeredesocial')
-                                            ->label('Usuario'),
+                                        TextInput::make('url')
+                                            ->label('URL'),
                                     ])
                                     ->columns(2)
                             ]),
@@ -349,7 +385,23 @@ class ClienteResource extends Resource
     {
         return $table
             ->columns([
-                //
+                Tables\Columns\TextColumn::make('codigo')
+                    ->label('Código')
+                    ->sortable(),
+                Tables\Columns\ToggleColumn::make('status')
+                    ->label('Ativo'),
+                Tables\Columns\TextColumn::make('autor.name')
+                    ->label('Usuário')
+                    ->badge()
+                    ->color('gray'),
+                Tables\Columns\TextColumn::make('nome')
+                    ->label('Razão'),
+                Tables\Columns\TextColumn::make('nomefantasia')
+                    ->label('Fantasia'),
+                Tables\Columns\TextColumn::make('bairro')
+                    ->label('Bairro'),
+                Tables\Columns\TextColumn::make('cidade')
+                    ->label('Cidade'),
             ])
             ->filters([
                 //

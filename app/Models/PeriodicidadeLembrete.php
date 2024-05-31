@@ -6,9 +6,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
-class Periodicidade extends Model
+class PeriodicidadeLembrete extends Model
 {
     use HasFactory;
+
+    protected $table = 'periodicidades';
 
     const CREATED_AT = 'cadastrado_em';
 

@@ -5,7 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\LembreteResource\Pages;
 use App\Filament\Resources\LembreteResource\RelationManagers;
 use App\Models\Lembrete;
-use App\Models\Periodicidade;
+use App\Models\PeriodicidadeLembrete;
 use App\Models\User;
 use App\Rules\DataInicioMenorQueDataFim;
 use Filament\Forms;
@@ -57,7 +57,7 @@ class LembreteResource extends Resource
                 ->columnSpanFull(),
                 Forms\Components\Select::make('periodicidade_id')
                     ->label('Periodicidade')
-                    ->options(Periodicidade::all()->pluck('nome', 'id'))
+                    ->options(PeriodicidadeLembrete::all()->pluck('nome', 'id'))
                     ->required()
                     ->searchable(),
                 Forms\Components\Select::make('tecnicos')

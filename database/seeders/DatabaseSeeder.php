@@ -7,7 +7,8 @@ use App\Models\Chamado\MeioAberturaChamado;
 use App\Models\Chamado\SituacaoChamado;
 use App\Models\Cliente\TipoCliente;
 use App\Models\Cliente\TipoContatoPessoaCliente;
-use App\Models\Periodicidade;
+use App\Models\Cliente\TipoRedeSocialCliente;
+use App\Models\PeriodicidadeLembrete;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -18,28 +19,28 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        /* Periodicidade do chamado */
-        Periodicidade::create([
+        /* PeriodicidadeLembrete do chamado */
+        PeriodicidadeLembrete::create([
             'nome' => 'Atípico',
         ]);
 
-        Periodicidade::create([
+        PeriodicidadeLembrete::create([
             'nome' => 'Diário',
         ]);
 
-        Periodicidade::create([
+        PeriodicidadeLembrete::create([
             'nome' => 'Semanal',
         ]);
 
-        Periodicidade::create([
+        PeriodicidadeLembrete::create([
             'nome' => 'Quinzenal',
         ]);
 
-        Periodicidade::create([
+        PeriodicidadeLembrete::create([
             'nome' => 'Mensal',
         ]);
 
-        Periodicidade::create([
+        PeriodicidadeLembrete::create([
             'nome' => 'Anual',
         ]);
 
@@ -150,6 +151,39 @@ class DatabaseSeeder extends Seeder
 
         TipoContatoPessoaCliente::create([
             'nome' => 'TI',
+        ]);
+
+        /** Tipo Rede Social */
+        TipoRedeSocialCliente::create([
+            'nome' => 'Facebook',
+        ]);
+
+        TipoRedeSocialCliente::create([
+            'nome' => 'Github',
+        ]);
+
+        TipoRedeSocialCliente::create([
+            'nome' => 'Instagram',
+        ]);
+
+        TipoRedeSocialCliente::create([
+            'nome' => 'Linkedin',
+        ]);
+
+        TipoRedeSocialCliente::create([
+            'nome' => 'Outros',
+        ]);
+        
+        TipoRedeSocialCliente::create([
+            'nome' => 'Telegram',
+        ]);
+        
+        TipoRedeSocialCliente::create([
+            'nome' => 'Whatsapp',
+        ]);
+        
+        TipoRedeSocialCliente::create([
+            'nome' => 'X',
         ]);
 
     }

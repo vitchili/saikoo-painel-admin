@@ -73,7 +73,7 @@ return new class extends Migration
             $table->text('servicos_c')->nullable();
             $table->integer('nivel')->default(1);
             $table->timestamp('data')->useCurrent()->useCurrentOnUpdate();
-            $table->datetime('data_cadastro');
+            $table->datetime('data_cadastro')->useCurrent();
             $table->integer('id_usuario_cadastro')->nullable();
             $table->integer('id_usuario_auto_repre')->default(0);
             $table->string('versao')->nullable();
@@ -104,6 +104,7 @@ return new class extends Migration
             $table->datetime('termos_dta_concordo')->nullable();
             $table->string('solicita_dados', 1)->default('N');
             $table->string('cliente_parceiro', 1)->default('N');
+            $table->timestamp('atualizado_em')->nullable()->useCurrent()->useCurrentOnUpdate();
         });
     }
 

@@ -31,7 +31,7 @@ class Lembrete extends Model
 
     public function periodicidade(): BelongsTo
     {
-        return $this->belongsTo(Periodicidade::class);
+        return $this->belongsTo(PeriodicidadeLembrete::class);
     }
 
     public function criador(): BelongsTo

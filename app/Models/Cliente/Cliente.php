@@ -2,12 +2,18 @@
 
 namespace App\Models\Cliente;
 
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Cliente extends Model
 {
     use HasFactory;
+
+    const CREATED_AT = 'data_cadastro';
+
+    const UPDATED_AT = 'atualizado_em';
 
     protected $fillable = [
         'id_representante',
@@ -102,4 +108,20 @@ class Cliente extends Model
         'solicita_dados',
         'cliente_parceiro',
     ];
+
+    public function contatos()
+    {
+        return $this->hasMany(ContatoPessoaCliente::class);
+    }
+
+    public function redesSociais()
+    {
+        return $this->hasMany(RedeSocialCliente::class);
+    }
+
+    public function autor()
+    {
+        return $this->belongsTo(User::class, 'id_usuario_cadastro');
+    }
+
 }
