@@ -66,6 +66,7 @@ return new class extends Migration
             $table->string('agenciadv', 40)->nullable();
             $table->string('conta', 40)->nullable();
             $table->string('contadv', 40)->nullable();
+            $table->integer('id_tipo_financeira')->nullable();
             $table->string('cod_pago')->nullable();
             $table->string('senha_pago')->nullable();
             $table->text('obs')->nullable();
@@ -104,6 +105,7 @@ return new class extends Migration
             $table->datetime('termos_dta_concordo')->nullable();
             $table->string('solicita_dados', 1)->default('N');
             $table->string('cliente_parceiro', 1)->default('N');
+            $table->string('url_api')->nullable();
             $table->timestamp('atualizado_em')->nullable()->useCurrent()->useCurrentOnUpdate();
         });
     }

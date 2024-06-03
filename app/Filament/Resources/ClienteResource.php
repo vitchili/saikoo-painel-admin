@@ -40,72 +40,90 @@ class ClienteResource extends Resource
                     ->tabs([
                         Tabs\Tab::make('Dados da empresa')
                             ->schema([
-                                Radio::make('tipo')
-                                    ->label('Tipo')
-                                    ->required()
-                                    ->options(TipoCliente::all()->pluck('nome', 'id'))
-                                    ->inline()
-                                    ->inlineLabel(false),
-                                // Select::make('id_representante')
-                                //     ->label('Representante')
-                                //     ->options([])
-                                //     ->searchable(),
-                                // Radio::make('cliente_parceiro')
-                                //     ->label('Parceiro')
-                                //     ->options([
-                                //         'N' => 'Não',
-                                //         'S' => 'Sim',
-                                //     ])
-                                //     ->inline()
-                                //     ->inlineLabel(false),
-                                // DateTimePicker::make('data_cadastro')
-                                //     ->label('Data Cadastro')
-                                //     ->seconds(false),
-                                // Select::make('id_indicacao')
-                                //     ->label('Indicação')
-                                //     ->options([
-                                //         Cliente::all()->pluck('nomefantasia', 'id')
-                                //     ])
-                                //     ->searchable(),
-                                // Select::make('id_usuario_cadastro')
-                                //     ->label('Usuário cadastro')
-                                //     ->options([
-                                //     ])
-                                //     ->searchable(),
-                                TextInput::make('codigo')
-                                    ->label('Código')
-                                    ->maxLength(255),
-                                // Select::make('id_usuario_auto_repre')
-                                //     ->label('Aut. Repre. Visualizar')
-                                //     ->options([
-                                //     ])
-                                //     ->searchable(),
-                                TextInput::make('nome')
-                                    ->label('Razão Social')
-                                    ->required()
-                                    ->maxLength(255),
-                                TextInput::make('nomefantasia')
-                                    ->label('Fantasia')
-                                    ->maxLength(255),
-                                TextInput::make('cpf_cnpj')
-                                    ->label('CNPJ')
-                                    ->mask(RawJs::make(<<<'JS'
+                                Fieldset::make('Cadastrais')
+                                    ->schema([
+                                        Radio::make('tipo')
+                                            ->label('Tipo')
+                                            ->required()
+                                            ->options(TipoCliente::all()->pluck('nome', 'id'))
+                                            ->inline()
+                                            ->inlineLabel(false),
+                                        // Select::make('id_representante')
+                                        //     ->label('Representante')
+                                        //     ->options([])
+                                        //     ->searchable(),
+                                        // Radio::make('cliente_parceiro')
+                                        //     ->label('Parceiro')
+                                        //     ->options([
+                                        //         'N' => 'Não',
+                                        //         'S' => 'Sim',
+                                        //     ])
+                                        //     ->inline()
+                                        //     ->inlineLabel(false),
+                                        // DateTimePicker::make('data_cadastro')
+                                        //     ->label('Data Cadastro')
+                                        //     ->seconds(false),
+                                        // Select::make('id_indicacao')
+                                        //     ->label('Indicação')
+                                        //     ->options([
+                                        //         Cliente::all()->pluck('nomefantasia', 'id')
+                                        //     ])
+                                        //     ->searchable(),
+                                        // Select::make('id_usuario_cadastro')
+                                        //     ->label('Usuário cadastro')
+                                        //     ->options([
+                                        //     ])
+                                        //     ->searchable(),
+                                        TextInput::make('codigo')
+                                            ->label('Código')
+                                            ->maxLength(255),
+                                        // Select::make('id_usuario_auto_repre')
+                                        //     ->label('Aut. Repre. Visualizar')
+                                        //     ->options([
+                                        //     ])
+                                        //     ->searchable(),
+                                        TextInput::make('nome')
+                                            ->label('Razão Social')
+                                            ->required()
+                                            ->maxLength(255),
+                                        TextInput::make('nomefantasia')
+                                            ->label('Fantasia')
+                                            ->maxLength(255),
+                                        TextInput::make('cpf_cnpj')
+                                            ->label('CNPJ')
+                                            ->mask(RawJs::make(<<<'JS'
                                         $input.length > 14 ? '99.999.999/9999-99' : '999.999.999-99'
                                     JS))
-                                    ->rule('cpf_ou_cnpj'),
-                                TextInput::make('ie')
-                                    ->label('Inscrição Estadual')
-                                    ->maxLength(255),
-                                TextInput::make('inscricao_municipal')
-                                    ->label('Inscrição Municipal')
-                                    ->maxLength(255),
-                                // Toggle::make('status')
-                                //     ->label('Status')
-                                //     ->inline(false),
-                                Toggle::make('em_implantacao')
-                                    ->label('Em implantação')
-                                    ->inline(false),
-
+                                            ->rule('cpf_ou_cnpj'),
+                                        TextInput::make('ie')
+                                            ->label('Inscrição Estadual')
+                                            ->maxLength(255),
+                                        TextInput::make('inscricao_municipal')
+                                            ->label('Inscrição Municipal')
+                                            ->maxLength(255),
+                                        // Toggle::make('status')
+                                        //     ->label('Status')
+                                        //     ->inline(false),
+                                        Toggle::make('em_implantacao')
+                                            ->label('Em implantação')
+                                            ->inline(false),
+                                    ])->columns(2),
+                                Fieldset::make('Telefones')
+                                    ->schema([
+                                        TextInput::make('ddd')
+                                            ->label('DDD')
+                                            ->maxLength(2),
+                                        TextInput::make('telefone')
+                                            ->label('Telefone Residencial')
+                                            ->mask(RawJs::make(<<<'JS'
+                                                $input.length >= 14 ? '(99)99999-9999' : '(99)9999-9999'
+                                            JS)),
+                                        TextInput::make('telefone2')
+                                            ->label('Celular')
+                                            ->mask(RawJs::make(<<<'JS'
+                                                $input.length >= 14 ? '(99)99999-9999' : '(99)9999-9999'
+                                            JS)),
+                                    ])->columns(3),
                             ])->columns(3),
                         Tabs\Tab::make('Responsáveis')
                             ->schema([
@@ -149,7 +167,7 @@ class ClienteResource extends Resource
                                             ->label('Autoriza o envio de e-mails')
                                             ->inline(false),
                                     ])->columns(4),
-                                    Fieldset::make('2º Responsável')
+                                Fieldset::make('2º Responsável')
                                     ->schema([
                                         TextInput::make('responsavel2')
                                             ->label('Nome')
@@ -238,22 +256,6 @@ class ClienteResource extends Resource
                                             ->maxLength(2)
                                             ->required(),
                                     ])->columns(3),
-                                Fieldset::make('Telefones')
-                                    ->schema([
-                                        TextInput::make('ddd')
-                                        ->label('DDD')
-                                        ->maxLength(2),
-                                        TextInput::make('telefone')
-                                            ->label('Telefone Residencial')
-                                            ->mask(RawJs::make(<<<'JS'
-                                                $input.length >= 14 ? '(99)99999-9999' : '(99)9999-9999'
-                                            JS)),
-                                        TextInput::make('telefone2')
-                                            ->label('Celular')
-                                            ->mask(RawJs::make(<<<'JS'
-                                                $input.length >= 14 ? '(99)99999-9999' : '(99)9999-9999'
-                                            JS)),
-                                    ])->columns(3),
                                 Fieldset::make('Acesso')
                                     ->schema([
                                         TextInput::make('email')
@@ -294,12 +296,16 @@ class ClienteResource extends Resource
                                             ->label('Dv')
                                             ->maxLength(2),
                                     ])->columns(4),
-                                Fieldset::make('Pago')
+                                Fieldset::make('Financeira')
                                     ->schema([
+                                        Select::make('id_tipo_financeira')
+                                            ->label('Tipo Financeira')
+                                            ->options([])
+                                            ->searchable(),
                                         TextInput::make('cod_pago')
-                                            ->label('Cód. Pago'),
+                                            ->label('Cód. Financeira'),
                                         TextInput::make('senha_pago')
-                                            ->label('Senha Pago')
+                                            ->label('Senha Financeira')
                                             ->password()
                                             ->revealable(),
                                     ])->columns(2)
@@ -320,7 +326,7 @@ class ClienteResource extends Resource
                             ]),
                         Tabs\Tab::make('Outras Informações')
                             ->schema([
-                                RichEditor::make('obs')
+                                RichEditor::make('historicoObservacoesCliente')
                                     ->toolbarButtons([
                                         'blockquote',
                                         'bold',
@@ -368,14 +374,19 @@ class ClienteResource extends Resource
                                     ])
                                     ->columnSpanFull()
                                     ->label('Serviços'),
-                                FileUpload::make('contrato')
-                                    ->label('Contrato'),
                                 Fieldset::make('Atualizações')
                                     ->schema([
                                         TextInput::make('versao')
-                                        ->label('Versão')
-                                        ->placeholder('Versão') 
+                                            ->label('Versão')
+                                            ->placeholder('Versão')
                                     ])->columns(1),
+                                Fieldset::make('URL API')
+                                    ->schema([
+                                        TextInput::make('url_api')
+                                        ->label('Url')
+                                    ])->columns(1),
+                                FileUpload::make('contrato')
+                                    ->label('Contrato'),
                             ]),
                     ])
             ])->columns(1);

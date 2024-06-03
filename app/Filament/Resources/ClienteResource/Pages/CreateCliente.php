@@ -4,6 +4,7 @@ namespace App\Filament\Resources\ClienteResource\Pages;
 
 use App\Filament\Resources\ClienteResource;
 use App\Models\Cliente\ContatoPessoaCliente;
+use App\Models\Cliente\HistoricoObservacoesCliente;
 use App\Models\Cliente\RedeSocialCliente;
 use Filament\Actions;
 use Filament\Resources\Pages\CreateRecord;
@@ -14,15 +15,23 @@ class CreateCliente extends CreateRecord
 
     public array $contatosPessoasCliente;
 
-    public array $redesSociaisClientes;
+    public array $redesSociaisCliente;
+    
+    public array $historicoObservacoesCliente;
 
     protected function mutateFormDataBeforeCreate(array $data): array
     {
         $this->contatosPessoasCliente = $data['contatosPessoasCliente'] ?? [];
         unset($data['contatosPessoasCliente']);
 
-        $this->redesSociaisClientes = $data['redesSociaisClientes'] ?? [];
+        $this->redesSociaisCliente = $data['redesSociaisCliente'] ?? [];
         unset($data['redesSociaisCliente']);
+
+        $this->historicoObservacoesCliente = [
+            'observacao' => $data['obs'] ?? '',
+            'observacao_atendimento' => $data['obs_tendimento'] ?? '',
+            'servicos' => $data['servicos_c'] ?? ''
+        ];
 
         $data['id_usuario_cadastro'] = auth()->user()->id;
 
@@ -53,5 +62,12 @@ class CreateCliente extends CreateRecord
                 'url' => $rede['url']
             ]);
         }
+
+        HistoricoObservacoesCliente::create([
+            'cliente_id' => $clienteId,
+            'observacao' => $this->historicoObservacoesCliente['observacao'],
+            'observacao_atendimento' => $this->historicoObservacoesCliente['observacao_atendimento'],
+            'servicos' => $this->historicoObservacoesCliente['servicos'],
+        ]);
     }
 }
