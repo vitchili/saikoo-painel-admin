@@ -18,4 +18,9 @@ class MeioAberturaChamado extends Model
     protected $fillable = [
         'nome',
     ];
+
+    public function chamados()
+    {
+        return $this->hasMany(Chamado::class);
+    }
 }

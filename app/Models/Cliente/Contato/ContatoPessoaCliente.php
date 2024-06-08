@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Models\Cliente;
+namespace App\Models\Cliente\Contato;
 
+use App\Models\Cliente\Cliente;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -17,10 +18,11 @@ class ContatoPessoaCliente extends Model
 
     protected $fillable = [
         'cliente_id',
-        'tipo_contato_cliente_id',
+        'tipo_contato_pessoa_cliente_id',
         'nome',
         'telefone',
         'email',
+        'responsavel_id',
         'cadastrado_por',
     ];
 

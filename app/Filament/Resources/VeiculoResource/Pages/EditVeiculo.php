@@ -1,14 +1,14 @@
 <?php
 
-namespace App\Filament\Resources\SituacaoResource\Pages;
+namespace App\Filament\Resources\VeiculoResource\Pages;
 
-use App\Filament\Resources\SituacaoResource;
+use App\Filament\Resources\VeiculoResource;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
 
-class EditSituacao extends EditRecord
+class EditVeiculo extends EditRecord
 {
-    protected static string $resource = SituacaoResource::class;
+    protected static string $resource = VeiculoResource::class;
 
     protected function getHeaderActions(): array
     {

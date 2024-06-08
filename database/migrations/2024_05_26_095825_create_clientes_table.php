@@ -93,6 +93,7 @@ return new class extends Migration
             $table->string('id_remoto')->nullable();
             $table->string('senha_remoto')->nullable();
             $table->datetime('data_remoto')->nullable();
+            $table->string('tornar_cliente', 1)->nullable()->default('N');
             $table->datetime('data_torna_cliente')->nullable();
             $table->string('certificado')->nullable();
             $table->datetime('data_certificado')->nullable();

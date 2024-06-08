@@ -20,5 +20,6 @@ class HistoricoObservacoesCliente extends Model
         'observacao',
         'observacao_atendimento',
         'servicos',
+        'cadastrado_por',
     ];
 }

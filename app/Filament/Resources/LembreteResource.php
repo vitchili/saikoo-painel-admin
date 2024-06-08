@@ -4,8 +4,8 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\LembreteResource\Pages;
 use App\Filament\Resources\LembreteResource\RelationManagers;
-use App\Models\Lembrete;
-use App\Models\PeriodicidadeLembrete;
+use App\Models\Lembrete\Lembrete;
+use App\Models\Lembrete\PeriodicidadeLembrete;
 use App\Models\User;
 use App\Rules\DataInicioMenorQueDataFim;
 use Filament\Forms;

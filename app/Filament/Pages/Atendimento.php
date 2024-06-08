@@ -2,7 +2,7 @@
 
 namespace App\Filament\Pages;
 
-use App\Models\Lembrete;
+use App\Models\Lembrete\Lembrete;
 use Filament\Pages\Page;
 use Illuminate\Database\Eloquent\Collection;
 

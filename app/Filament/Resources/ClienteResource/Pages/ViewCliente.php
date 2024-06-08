@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\ClienteResource\Pages;
 
 use App\Filament\Resources\ClienteResource;
+use App\Models\Cliente\Cliente;
 use Filament\Actions;
 use Filament\Resources\Pages\ViewRecord;
 

@@ -2,6 +2,7 @@
 
 namespace App\Models\Cliente;
 
+use App\Models\Cliente\Contato\ContatoPessoaCliente;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -95,6 +96,7 @@ class Cliente extends Model
         'id_remoto',
         'senha_remoto',
         'data_remoto',
+        'tornar_cliente',
         'data_torna_cliente',
         'certificado',
         'data_certificado',
@@ -107,9 +109,10 @@ class Cliente extends Model
         'termos_dta_concordo',
         'solicita_dados',
         'cliente_parceiro',
+        'url_api',
     ];
 
-    public function contatos()
+    public function contatosPessoasCliente()
     {
         return $this->hasMany(ContatoPessoaCliente::class);
     }
@@ -123,5 +126,12 @@ class Cliente extends Model
     {
         return $this->belongsTo(User::class, 'id_usuario_cadastro');
     }
+
+    public function historicoObservacoesCliente()
+    {
+        return $this->hasMany(HistoricoObservacoesCliente::class);
+    }
+
+    
 
 }

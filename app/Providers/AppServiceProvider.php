@@ -2,7 +2,9 @@
 
 namespace App\Providers;
 
-use App\Models\Lembrete;
+use App\Models\Cliente\Contato\ContatoPessoaCliente;
+use App\Models\Lembrete\Lembrete;
+use App\Observers\ContatoPessoaClienteObserver;
 use App\Observers\LembreteObserver;
 use Illuminate\Support\ServiceProvider;
 
@@ -22,5 +24,6 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Lembrete::observe(LembreteObserver::class);
+        ContatoPessoaCliente::observe(ContatoPessoaClienteObserver::class);
     }
 }

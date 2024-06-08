@@ -2,7 +2,7 @@
 
 namespace App\Observers;
 
-use App\Models\Lembrete;
+use App\Models\Lembrete\Lembrete;
 
 class LembreteObserver
 {

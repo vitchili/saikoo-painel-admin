@@ -2,9 +2,9 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\SituacaoResource\Pages;
-use App\Filament\Resources\SituacaoResource\RelationManagers;
-use App\Models\Chamado\SituacaoChamado;
+use App\Filament\Resources\ComentarioChamadoResource\Pages;
+use App\Filament\Resources\ComentarioChamadoResource\RelationManagers;
+use App\Models\Chamado\ComentarioChamado;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -13,15 +13,11 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
-class SituacaoResource extends Resource
+class ComentarioChamadoResource extends Resource
 {
-    protected static ?string $model = SituacaoChamado::class;
+    protected static ?string $model = ComentarioChamado::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
-
-    protected static ?string $navigationLabel = 'Situações';
-
-    protected static ?string $modelLabel = 'Situações';
 
     protected static ?string $navigationGroup = 'Chamados';
 
@@ -29,10 +25,7 @@ class SituacaoResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('nome')
-                    ->label('Nome')
-                    ->required()
-                    ->maxLength(255),
+                //
             ]);
     }
 
@@ -40,7 +33,7 @@ class SituacaoResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('nome'),
+                //
             ])
             ->filters([
                 //
@@ -65,9 +58,9 @@ class SituacaoResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListSituacaos::route('/'),
-            'create' => Pages\CreateSituacao::route('/create'),
-            'edit' => Pages\EditSituacao::route('/{record}/edit'),
+            'index' => Pages\ListComentarioChamados::route('/'),
+            'create' => Pages\CreateComentarioChamado::route('/create'),
+            'edit' => Pages\EditComentarioChamado::route('/{record}/edit'),
         ];
     }
 }

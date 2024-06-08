@@ -4,9 +4,11 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\ClienteResource\Pages;
 use App\Models\Cliente\Cliente;
+use App\Models\Cliente\Contato\ContatoPessoaCliente;
 use App\Models\Cliente\TipoCliente;
 use App\Models\Cliente\TipoContatoPessoaCliente;
 use App\Models\Cliente\TipoRedeSocialCliente;
+use App\Models\User;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Fieldset;
@@ -23,6 +25,7 @@ use Filament\Resources\Resource;
 use Filament\Support\RawJs;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
 
 class ClienteResource extends Resource
 {
@@ -38,7 +41,7 @@ class ClienteResource extends Resource
             ->schema([
                 Tabs::make('Tabs')
                     ->tabs([
-                        Tabs\Tab::make('Dados da empresa')
+                        Tabs\Tab::make('Dados')
                             ->schema([
                                 Fieldset::make('Cadastrais')
                                     ->schema([
@@ -48,40 +51,31 @@ class ClienteResource extends Resource
                                             ->options(TipoCliente::all()->pluck('nome', 'id'))
                                             ->inline()
                                             ->inlineLabel(false),
-                                        // Select::make('id_representante')
-                                        //     ->label('Representante')
-                                        //     ->options([])
-                                        //     ->searchable(),
-                                        // Radio::make('cliente_parceiro')
-                                        //     ->label('Parceiro')
-                                        //     ->options([
-                                        //         'N' => 'Não',
-                                        //         'S' => 'Sim',
-                                        //     ])
-                                        //     ->inline()
-                                        //     ->inlineLabel(false),
-                                        // DateTimePicker::make('data_cadastro')
-                                        //     ->label('Data Cadastro')
-                                        //     ->seconds(false),
-                                        // Select::make('id_indicacao')
-                                        //     ->label('Indicação')
-                                        //     ->options([
-                                        //         Cliente::all()->pluck('nomefantasia', 'id')
-                                        //     ])
-                                        //     ->searchable(),
-                                        // Select::make('id_usuario_cadastro')
-                                        //     ->label('Usuário cadastro')
-                                        //     ->options([
-                                        //     ])
-                                        //     ->searchable(),
+                                        Select::make('id_representante')
+                                            ->label('Representante')
+                                            ->options([])
+                                            ->searchable(),
+                                        Radio::make('cliente_parceiro')
+                                            ->label('Parceiro')
+                                            ->options([
+                                                'N' => 'Não',
+                                                'S' => 'Sim',
+                                            ])
+                                            ->inline()
+                                            ->inlineLabel(false),
+                                        Radio::make('tornar_cliente')
+                                            ->label('Tornar Cliente')
+                                            ->required()
+                                            ->options([
+                                                'N' => 'Não',
+                                                'S' => 'Sim',
+                                            ])
+                                            ->inline()
+                                            ->inlineLabel(false),
                                         TextInput::make('codigo')
                                             ->label('Código')
+                                            ->unique()
                                             ->maxLength(255),
-                                        // Select::make('id_usuario_auto_repre')
-                                        //     ->label('Aut. Repre. Visualizar')
-                                        //     ->options([
-                                        //     ])
-                                        //     ->searchable(),
                                         TextInput::make('nome')
                                             ->label('Razão Social')
                                             ->required()
@@ -101,9 +95,6 @@ class ClienteResource extends Resource
                                         TextInput::make('inscricao_municipal')
                                             ->label('Inscrição Municipal')
                                             ->maxLength(255),
-                                        // Toggle::make('status')
-                                        //     ->label('Status')
-                                        //     ->inline(false),
                                         Toggle::make('em_implantacao')
                                             ->label('Em implantação')
                                             ->inline(false),
@@ -124,7 +115,7 @@ class ClienteResource extends Resource
                                                 $input.length >= 14 ? '(99)99999-9999' : '(99)9999-9999'
                                             JS)),
                                     ])->columns(3),
-                            ])->columns(3),
+                            ]),
                         Tabs\Tab::make('Responsáveis')
                             ->schema([
                                 Fieldset::make('1º Responsável')
@@ -149,12 +140,13 @@ class ClienteResource extends Resource
                                         DatePicker::make('data_nasc_resp')
                                             ->label('Data Nascimento'),
                                         TextInput::make('email_resp')
-                                            ->label('E-mail')
+                                            ->label('E-mail Responsavel')
                                             ->placeholder('E-mail do responsável')
                                             ->email()
                                             ->maxLength(255),
                                         TextInput::make('fone_resp1')
                                             ->label('Telefone')
+                                            ->placeholder('Telefone do responsável')
                                             ->mask(RawJs::make(<<<'JS'
                                                 $input.length >= 14 ? '(99)99999-9999' : '(99)9999-9999'
                                             JS)),
@@ -166,7 +158,7 @@ class ClienteResource extends Resource
                                         Toggle::make('aut_envio_email_resp')
                                             ->label('Autoriza o envio de e-mails')
                                             ->inline(false),
-                                    ])->columns(4),
+                                    ])->columns(3),
                                 Fieldset::make('2º Responsável')
                                     ->schema([
                                         TextInput::make('responsavel2')
@@ -195,6 +187,7 @@ class ClienteResource extends Resource
                                             ->maxLength(255),
                                         TextInput::make('fone_resp2')
                                             ->label('Telefone')
+                                            ->placeholder('Telefone do 2º responsável')
                                             ->mask(RawJs::make(<<<'JS'
                                                 $input.length >= 14 ? '(99)99999-9999' : '(99)9999-9999'
                                             JS)),
@@ -205,12 +198,13 @@ class ClienteResource extends Resource
                                             ->label('Não faz parte do contrato')
                                             ->required()
                                             ->inline(false),
-                                    ])->columns(4),
-                            ])->columns(),
+                                    ])->columns(3),
+                            ]),
                         Tabs\Tab::make('Contatos')
                             ->schema([
                                 Repeater::make('contatosPessoasCliente')
                                     ->label('Contatos')
+                                    ->relationship('contatosPessoasCliente')
                                     ->schema([
                                         Select::make('tipo_contato_pessoa_cliente_id')
                                             ->label('Tipo')
@@ -224,10 +218,12 @@ class ClienteResource extends Resource
                                                 $input.length >= 14 ? '(99)99999-9999' : '(99)9999-9999'
                                             JS)),
                                         TextInput::make('email')
-                                            ->label('E-mail')
-                                            ->email(),
+                                            ->label('E-mail'),
+                                        Select::make('responsavel_id')
+                                            ->label('Responsavel pelo contato')
+                                            ->options(User::all()->pluck('name', 'id'))
                                     ])
-                                    ->columns(4)
+                                    ->columns(3)
                             ]),
                         Tabs\Tab::make('Acesso/Endereço')
                             ->schema([
@@ -259,8 +255,7 @@ class ClienteResource extends Resource
                                 Fieldset::make('Acesso')
                                     ->schema([
                                         TextInput::make('email')
-                                            ->label('Usuário de acesso')
-                                            ->email(),
+                                            ->label('Usuário de acesso'),
                                         TextInput::make('senha')
                                             ->label('Senha de acesso')
                                             ->password()
@@ -310,10 +305,11 @@ class ClienteResource extends Resource
                                             ->revealable(),
                                     ])->columns(2)
                             ]),
-                        Tabs\Tab::make('Redes Sociais')
+                        Tabs\Tab::make('Rede Social')
                             ->schema([
-                                Repeater::make('redesSociaisCliente')
+                                Repeater::make('redesSociais')
                                     ->label('Rede social')
+                                    ->relationship('redesSociais')
                                     ->schema([
                                         Select::make('tipo_rede_social_id')
                                             ->label('Rede Social')
@@ -324,9 +320,9 @@ class ClienteResource extends Resource
                                     ])
                                     ->columns(2)
                             ]),
-                        Tabs\Tab::make('Outras Informações')
+                        Tabs\Tab::make('Outras')
                             ->schema([
-                                RichEditor::make('historicoObservacoesCliente')
+                                RichEditor::make('obs')
                                     ->toolbarButtons([
                                         'blockquote',
                                         'bold',
@@ -374,19 +370,18 @@ class ClienteResource extends Resource
                                     ])
                                     ->columnSpanFull()
                                     ->label('Serviços'),
-                                Fieldset::make('Atualizações')
-                                    ->schema([
-                                        TextInput::make('versao')
-                                            ->label('Versão')
-                                            ->placeholder('Versão')
-                                    ])->columns(1),
-                                Fieldset::make('URL API')
-                                    ->schema([
-                                        TextInput::make('url_api')
-                                        ->label('Url')
-                                    ])->columns(1),
+                                TextInput::make('versao')
+                                    ->label('Atualização Versão')
+                                    ->placeholder('Versão'),
+                                TextInput::make('url_api')
+                                    ->label('URL API')
+                                    ->placeholder('URL API'),
                                 FileUpload::make('contrato')
                                     ->label('Contrato'),
+                                FileUpload::make('certificado')
+                                    ->label('Certificado Digital'),
+                                FileUpload::make('logo')
+                                    ->label('Logotipo'),
                             ]),
                     ])
             ])->columns(1);
@@ -442,6 +437,60 @@ class ClienteResource extends Resource
             'create' => Pages\CreateCliente::route('/create'),
             'view' => Pages\ViewCliente::route('/{record}'),
             'edit' => Pages\EditCliente::route('/{record}/edit'),
-        ];
+        ]; 
     }
+
+    // public static function sidebar(Model $record): FilamentPageSidebar
+    // {
+    //     return FilamentPageSidebar::make()
+    //         ->setDescription('Cadastrado em ' . now()->format('d/m/Y'))
+    //         ->sidebarNavigation()
+    //         ->setNavigationItems([
+    //             PageNavigationItem::make('Dados')
+    //                 ->url(function () use ($record) {
+    //                     return static::getUrl('edit', ['record' => $record->id]);
+    //                 })
+    //                 ->icon('heroicon-o-rectangle-stack'),
+    //             PageNavigationItem::make('Contatos com o cliente')
+    //                 ->url(function () use ($record) {
+    //                     return static::getUrl('contatos', ['clienteId' => $record->id]);
+    //                 })
+    //                 ->icon('heroicon-o-rectangle-stack'),
+    //             PageNavigationItem::make('Faturas')
+    //                 ->url(function () use ($record) {
+    //                     return static::getUrl('view', ['record' => $record->id]);
+    //                 })
+    //                 ->icon('heroicon-o-rectangle-stack'),
+    //             PageNavigationItem::make('Seriais')
+    //                 ->url(function () use ($record) {
+    //                     return static::getUrl('view', ['record' => $record->id]);
+    //                 })
+    //                 ->icon('heroicon-o-rectangle-stack'),
+    //             PageNavigationItem::make('Serviços')
+    //                 ->url(function () use ($record) {
+    //                     return static::getUrl('view', ['record' => $record->id]);
+    //                 })
+    //                 ->icon('heroicon-o-rectangle-stack'),
+    //             PageNavigationItem::make('Nº Profissionais')
+    //                 ->url(function () use ($record) {
+    //                     return static::getUrl('view', ['record' => $record->id]);
+    //                 })
+    //                 ->icon('heroicon-o-rectangle-stack'),
+    //             PageNavigationItem::make('Saikoo Web')
+    //                 ->url(function () use ($record) {
+    //                     return static::getUrl('view', ['record' => $record->id]);
+    //                 })
+    //                 ->icon('heroicon-o-rectangle-stack'),
+    //             PageNavigationItem::make('Implantação')
+    //                 ->url(function () use ($record) {
+    //                     return static::getUrl('view', ['record' => $record->id]);
+    //                 })
+    //                 ->icon('heroicon-o-rectangle-stack'),
+    //             PageNavigationItem::make('Parceiros')
+    //                 ->url(function () use ($record) {
+    //                     return static::getUrl('view', ['record' => $record->id]);
+    //                 })
+    //                 ->icon('heroicon-o-rectangle-stack'),
+    //         ]);
+    // }
 }

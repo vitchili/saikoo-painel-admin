@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('nome');
             $table->string('telefone');
             $table->string('email')->nullable();
+            $table->foreignIdFor(\App\Models\User::class, 'responsavel_id');
             $table->foreignIdFor(\App\Models\User::class, 'cadastrado_por');
             $table->timestamp('cadastrado_em')->useCurrent();
             $table->timestamp('atualizado_em')->useCurrent()->useCurrentOnUpdate();

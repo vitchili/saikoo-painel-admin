@@ -13,19 +13,13 @@ class CreateCliente extends CreateRecord
 {
     protected static string $resource = ClienteResource::class;
 
-    public array $contatosPessoasCliente;
-
-    public array $redesSociaisCliente;
-    
     public array $historicoObservacoesCliente;
 
     protected function mutateFormDataBeforeCreate(array $data): array
     {
-        $this->contatosPessoasCliente = $data['contatosPessoasCliente'] ?? [];
-        unset($data['contatosPessoasCliente']);
+        $data['data_torna_cliente'] = ! empty($data['tornar_cliente']) ? now() : null;
 
-        $this->redesSociaisCliente = $data['redesSociaisCliente'] ?? [];
-        unset($data['redesSociaisCliente']);
+        $data['data_certificado'] = ! empty($data['certificado']) ? now() : null;
 
         $this->historicoObservacoesCliente = [
             'observacao' => $data['obs'] ?? '',
@@ -44,30 +38,12 @@ class CreateCliente extends CreateRecord
 
         $clienteId = $this->record->id;
 
-        foreach ($this->contatosPessoasCliente as $contato) {
-            ContatoPessoaCliente::create([
-                'cliente_id' => $clienteId,
-                'tipo_contato_pessoa_cliente_id' => $contato['tipo_contato_pessoa_cliente_id'],
-                'nome' => $contato['nome'],
-                'telefone' => $contato['telefone'],
-                'email' => $contato['email'],
-                'cadastrado_por' => auth()->user()->id
-            ]);
-        }
-
-        foreach ($this->redesSociaisCliente as $rede) {
-            RedeSocialCliente::create([
-                'cliente_id' => $clienteId,
-                'tipo_rede_social_id' => $rede['tipo_rede_social_id'],
-                'url' => $rede['url']
-            ]);
-        }
-
         HistoricoObservacoesCliente::create([
             'cliente_id' => $clienteId,
             'observacao' => $this->historicoObservacoesCliente['observacao'],
             'observacao_atendimento' => $this->historicoObservacoesCliente['observacao_atendimento'],
             'servicos' => $this->historicoObservacoesCliente['servicos'],
+            'cadastrado_por' => auth()->user()->id
         ]);
     }
 }

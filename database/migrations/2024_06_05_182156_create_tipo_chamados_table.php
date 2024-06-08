@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('situacoes_chamados', function (Blueprint $table) {
+        Schema::create('tipo_chamados', function (Blueprint $table) {
             $table->id();
             $table->string('nome');
             $table->timestamp('cadastrado_em')->useCurrent();
@@ -24,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('situacoes_chamados');
+        Schema::dropIfExists('tipo_chamados');
     }
 };
