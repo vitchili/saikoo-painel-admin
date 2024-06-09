@@ -3,10 +3,7 @@
 namespace App\Filament\Resources\ClienteResource\Pages;
 
 use App\Filament\Resources\ClienteResource;
-use App\Models\Cliente\Cliente;
-use App\Models\Cliente\ContatoPessoaCliente;
 use App\Models\Cliente\HistoricoObservacoesCliente;
-use App\Models\Cliente\RedeSocialCliente;
 use Illuminate\Database\Eloquent\Model;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
@@ -23,6 +20,10 @@ class EditCliente extends EditRecord
 
         if (empty($record->certificado) && ! empty($data['certificado'])) {
             $data['data_certificado'] = now();
+        }
+
+        if (! empty($data['telefone'])) {
+            $data['ddd'] = substr($data['telefone'], 1, 2);
         }
 
         $historicosAnteriores = $record->historicoObservacoesCliente;

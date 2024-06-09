@@ -10,6 +10,7 @@
         "laravel/framework": "^11.0",
         "laravel/tinker": "^2.9",
         "laravellegends/pt-br-validator": "^11.0",
+        "njxqlus/filament-relation-manager-component": "^1.0",
         "spatie/laravel-permission": "^6.7"
     },
     "require-dev": {

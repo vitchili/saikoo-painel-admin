@@ -127,7 +127,7 @@ class Cliente extends Model
         return $this->belongsTo(User::class, 'id_usuario_cadastro');
     }
 
-    public function historicoObservacoesCliente()
+    public function historicoObservacoes()
     {
         return $this->hasMany(HistoricoObservacoesCliente::class);
     }

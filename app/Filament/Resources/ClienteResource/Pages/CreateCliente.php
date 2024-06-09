@@ -21,6 +21,8 @@ class CreateCliente extends CreateRecord
 
         $data['data_certificado'] = ! empty($data['certificado']) ? now() : null;
 
+        $data['ddd'] = substr($data['telefone'], 0, 2);
+
         $this->historicoObservacoesCliente = [
             'observacao' => $data['obs'] ?? '',
             'observacao_atendimento' => $data['obs_tendimento'] ?? '',
