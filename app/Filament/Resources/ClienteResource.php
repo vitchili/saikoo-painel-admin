@@ -3,7 +3,6 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\ClienteResource\Pages;
-use App\Filament\Resources\ClienteResource\RelationManagers\ClienteRelationManager;
 use App\Filament\Resources\ClienteResource\RelationManagers\ContatosPessoasClienteRelationManager;
 use App\Filament\Resources\ClienteResource\RelationManagers\HistoricoObservacoesRelationManager;
 use App\Models\Cliente\Cliente;
@@ -24,7 +23,6 @@ use Filament\Forms\Components\Tabs;
 use Filament\Forms\Components\Tabs\Tab;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
-use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Resources\Resource;
 use Filament\Support\RawJs;
 use Filament\Tables;
@@ -415,7 +413,7 @@ class ClienteResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
+                // Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
@@ -424,14 +422,6 @@ class ClienteResource extends Resource
                 ]),
             ]);
     }
-
-    // public static function getRelations(): array
-    // {
-    //     return [
-    //         ContatosPessoasClienteRelationManager::class,
-    //         HistoricoObservacoesRelationManager::class
-    //     ];
-    // }
 
     public static function getPages(): array
     {

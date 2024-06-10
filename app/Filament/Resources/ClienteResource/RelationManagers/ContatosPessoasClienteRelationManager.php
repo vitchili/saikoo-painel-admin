@@ -2,6 +2,9 @@
 
 namespace App\Filament\Resources\ClienteResource\RelationManagers;
 
+use App\Models\Chamado\Enum\SituacaoChamado;
+use App\Models\Chamado\Enum\SituacaoContato;
+use App\Models\Cliente\TipoContatoPessoaCliente;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Pages\Concerns\HasSubNavigation;
@@ -22,9 +25,31 @@ class ContatosPessoasClienteRelationManager extends RelationManager
     {
         return $form
             ->schema([
+                Forms\Components\Select::make('tipo_contato_pessoa_id')
+                    ->required()
+                    ->label('Tipo Contato')
+                    ->options(TipoContatoPessoaCliente::all()->pluck('nome', 'id')),
                 Forms\Components\TextInput::make('nome')
                     ->required()
+                    ->label('Nome')
                     ->maxLength(255),
+                Forms\Components\TextInput::make('telefone')
+                    ->label('Telefone'),
+                Forms\Components\TextInput::make('email')
+                    ->label('E-mail'),
+                Forms\Components\Select::make('situacao_id')
+                    ->label('Situação')
+                    ->options([]),
+                    //->options(SituacaoContato::getEnumArray()),
+                Forms\Components\Select::make('responsavel_id')
+                    ->required()
+                    ->label('Responsável')
+                    ->options(TipoContatoPessoaCliente::all()->pluck('nome', 'id')),
+                Forms\Components\DatePicker::make('data_contato')
+                    ->required()
+                    ->label('Data Contato'),
+                Forms\Components\DatePicker::make('data_contato')
+                    ->label('Data Retorno'),
             ]);
     }
 
@@ -34,6 +59,12 @@ class ContatosPessoasClienteRelationManager extends RelationManager
             ->recordTitleAttribute('nome')
             ->columns([
                 Tables\Columns\TextColumn::make('nome'),
+                Tables\Columns\TextColumn::make('telefone'),
+                Tables\Columns\TextColumn::make('email'),
+                Tables\Columns\TextColumn::make('data_contato'),
+                Tables\Columns\TextColumn::make('data_retorno'),
+                Tables\Columns\TextColumn::make('responsavel.name'),
+
             ])
             ->filters([
                 //
@@ -42,14 +73,18 @@ class ContatosPessoasClienteRelationManager extends RelationManager
                 Tables\Actions\CreateAction::make()->label('Novo Contato'),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\ViewAction::make(),
+                // Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
             ]);
+    }
+
+    public static function getRelations(): array
+    {
+        return [
+            ComentariosRelationManager::class,
+        ];
     }
 
 }
