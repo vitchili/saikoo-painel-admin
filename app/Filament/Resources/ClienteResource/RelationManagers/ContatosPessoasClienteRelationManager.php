@@ -40,7 +40,7 @@ class ContatosPessoasClienteRelationManager extends RelationManager
                 Forms\Components\Select::make('situacao_id')
                     ->label('Situação')
                     ->options([]),
-                    //->options(SituacaoContato::getEnumArray()),
+                //->options(SituacaoContato::getEnumArray()),
                 Forms\Components\Select::make('responsavel_id')
                     ->required()
                     ->label('Responsável')
@@ -50,6 +50,14 @@ class ContatosPessoasClienteRelationManager extends RelationManager
                     ->label('Data Contato'),
                 Forms\Components\DatePicker::make('data_contato')
                     ->label('Data Retorno'),
+                Forms\Components\Section::make('Comentários')
+                    ->schema([
+                        Forms\Components\Repeater::make('comentarios')
+                            ->relationship('comentarios')
+                            ->schema([
+                                Forms\Components\TextInput::make('content')->required(),
+                            ]),
+                    ]),
             ]);
     }
 
@@ -64,7 +72,6 @@ class ContatosPessoasClienteRelationManager extends RelationManager
                 Tables\Columns\TextColumn::make('data_contato'),
                 Tables\Columns\TextColumn::make('data_retorno'),
                 Tables\Columns\TextColumn::make('responsavel.name'),
-
             ])
             ->filters([
                 //
@@ -73,18 +80,9 @@ class ContatosPessoasClienteRelationManager extends RelationManager
                 Tables\Actions\CreateAction::make()->label('Novo Contato'),
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
+                Tables\Actions\EditAction::make(),
                 // Tables\Actions\DeleteAction::make(),
             ])
-            ->bulkActions([
-            ]);
+            ->bulkActions([]);
     }
-
-    public static function getRelations(): array
-    {
-        return [
-            ComentariosRelationManager::class,
-        ];
-    }
-
 }
