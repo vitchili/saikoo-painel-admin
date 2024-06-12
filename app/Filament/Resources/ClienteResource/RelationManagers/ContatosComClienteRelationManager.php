@@ -2,22 +2,19 @@
 
 namespace App\Filament\Resources\ClienteResource\RelationManagers;
 
-use App\Models\Chamado\Enum\SituacaoChamado;
-use App\Models\Chamado\Enum\SituacaoContato;
 use App\Models\Cliente\TipoContatoPessoaCliente;
+use App\Models\User;
 use Filament\Forms;
 use Filament\Forms\Form;
-use Filament\Pages\Concerns\HasSubNavigation;
-use Filament\Pages\SubNavigationPosition;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Filament\Support\RawJs;
+use Parallax\FilamentComments\Tables\Actions\CommentsAction;
 
-class ContatosPessoasClienteRelationManager extends RelationManager
+class ContatosComClienteRelationManager extends RelationManager
 {
-    protected static string $relationship = 'contatosPessoasCliente';
+    protected static string $relationship = 'contatosComCliente';
 
     protected static ?string $title = 'Contatos com o Cliente';
 
@@ -25,7 +22,7 @@ class ContatosPessoasClienteRelationManager extends RelationManager
     {
         return $form
             ->schema([
-                Forms\Components\Select::make('tipo_contato_pessoa_id')
+                Forms\Components\Select::make('tipo_contato_com_cliente_id')
                     ->required()
                     ->label('Tipo Contato')
                     ->options(TipoContatoPessoaCliente::all()->pluck('nome', 'id')),
@@ -34,9 +31,13 @@ class ContatosPessoasClienteRelationManager extends RelationManager
                     ->label('Nome')
                     ->maxLength(255),
                 Forms\Components\TextInput::make('telefone')
-                    ->label('Telefone'),
+                    ->label('Telefone')
+                    ->mask(RawJs::make(<<<'JS'
+                        $input.length >= 14 ? '(99)99999-9999' : '(99)9999-9999'
+                    JS)),
                 Forms\Components\TextInput::make('email')
-                    ->label('E-mail'),
+                    ->label('E-mail')
+                    ->email(),
                 Forms\Components\Select::make('situacao_id')
                     ->label('Situação')
                     ->options([]),
@@ -44,20 +45,12 @@ class ContatosPessoasClienteRelationManager extends RelationManager
                 Forms\Components\Select::make('responsavel_id')
                     ->required()
                     ->label('Responsável')
-                    ->options(TipoContatoPessoaCliente::all()->pluck('nome', 'id')),
+                    ->options(User::all()->pluck('name', 'id')),
                 Forms\Components\DatePicker::make('data_contato')
                     ->required()
                     ->label('Data Contato'),
-                Forms\Components\DatePicker::make('data_contato')
+                Forms\Components\DatePicker::make('data_retorno')
                     ->label('Data Retorno'),
-                Forms\Components\Section::make('Comentários')
-                    ->schema([
-                        Forms\Components\Repeater::make('comentarios')
-                            ->relationship('comentarios')
-                            ->schema([
-                                Forms\Components\TextInput::make('content')->required(),
-                            ]),
-                    ]),
             ]);
     }
 
@@ -66,11 +59,12 @@ class ContatosPessoasClienteRelationManager extends RelationManager
         return $table
             ->recordTitleAttribute('nome')
             ->columns([
+                Tables\Columns\TextColumn::make('tipoContato.nome'),
                 Tables\Columns\TextColumn::make('nome'),
                 Tables\Columns\TextColumn::make('telefone'),
                 Tables\Columns\TextColumn::make('email'),
-                Tables\Columns\TextColumn::make('data_contato'),
-                Tables\Columns\TextColumn::make('data_retorno'),
+                Tables\Columns\TextColumn::make('data_contato')->date('d/m/Y'),
+                Tables\Columns\TextColumn::make('data_retorno')->date('d/m/Y'),
                 Tables\Columns\TextColumn::make('responsavel.name'),
             ])
             ->filters([
@@ -81,6 +75,7 @@ class ContatosPessoasClienteRelationManager extends RelationManager
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+                CommentsAction::make(),
                 // Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([]);

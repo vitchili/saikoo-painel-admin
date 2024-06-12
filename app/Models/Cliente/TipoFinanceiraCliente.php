@@ -9,7 +9,7 @@ class TipoFinanceiraCliente extends Model
 {
     use HasFactory;
 
-    protected $table = 'tipo_financeira_clientes';
+    protected $table = 'tipos_financeiras_clientes';
 
     const CREATED_AT = 'cadastrado_em';
 

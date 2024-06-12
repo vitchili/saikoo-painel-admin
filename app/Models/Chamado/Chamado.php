@@ -31,7 +31,6 @@ class Chamado extends Model
         'veiculo_id',
         'tecnico_condutor_ida_id',
         'tecnico_condutor_volta_id',
-        'tipo_servico_cliente_id',
         'sera_cobrado',
         'fatura_foi_alterada',
         'vencimento_fatura',
@@ -78,14 +77,15 @@ class Chamado extends Model
         return $this->belongsTo(User::class, 'tecnico_condutor_volta_id');
     }
 
-    public function tipoServicoCliente()
+    public function tecnicos()
     {
-        return $this->belongsTo(TipoServicoCliente::class, 'tipo_servico_cliente_id');
+        return $this->belongsToMany(User::class, 'chamados_tecnicos', 'tecnico_id', 'chamado_id');
     }
 
-    public function comentarios()
+    public function servicos()
     {
-        return $this->hasMany(ComentarioChamado::class);
+        return $this->hasMany(TipoServicoCliente::class);
     }
 
+    
 }

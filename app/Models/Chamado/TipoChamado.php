@@ -9,6 +9,8 @@ class TipoChamado extends Model
 {
     use HasFactory;
 
+    protected $table = 'tipos_chamados';
+
     const CREATED_AT = 'cadastrado_em';
 
     const UPDATED_AT = 'atualizado_em';

@@ -27,7 +27,6 @@ return new class extends Migration
             $table->foreignIdFor(\App\Models\Diversos\Veiculo::class, 'veiculo_id');
             $table->foreignIdFor(\App\Models\User::class, 'tecnico_condutor_ida_id');
             $table->foreignIdFor(\App\Models\User::class, 'tecnico_condutor_volta_id');
-            $table->foreignIdFor(\App\Models\Cliente\Servico\TipoServicoCliente::class, 'tipo_servico_cliente_id');
             $table->boolean('sera_cobrado')->nullable();
             $table->boolean('fatura_foi_alterada')->nullable();
             $table->date('vencimento_fatura')->nullable();

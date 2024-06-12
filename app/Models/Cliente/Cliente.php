@@ -2,7 +2,8 @@
 
 namespace App\Models\Cliente;
 
-use App\Models\Cliente\Contato\ContatoPessoaCliente;
+use App\Models\Cliente\Contato\ContatoComCliente;
+use App\Models\Cliente\ContatoPessoaCliente;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -111,6 +112,11 @@ class Cliente extends Model
         'cliente_parceiro',
         'url_api',
     ];
+
+    public function contatosComCliente()
+    {
+        return $this->hasMany(ContatoComCliente::class);
+    }
 
     public function contatosPessoasCliente()
     {

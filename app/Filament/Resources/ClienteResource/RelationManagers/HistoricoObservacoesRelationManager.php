@@ -18,9 +18,6 @@ class HistoricoObservacoesRelationManager extends RelationManager
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('observacao')
-                    ->required()
-                    ->maxLength(255),
             ]);
     }
 

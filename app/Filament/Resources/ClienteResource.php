@@ -3,13 +3,14 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\ClienteResource\Pages;
-use App\Filament\Resources\ClienteResource\RelationManagers\ContatosPessoasClienteRelationManager;
+use App\Filament\Resources\ClienteResource\RelationManagers\ContatosComClienteRelationManager;
 use App\Filament\Resources\ClienteResource\RelationManagers\HistoricoObservacoesRelationManager;
 use App\Models\Cliente\Cliente;
 use App\Models\Cliente\TipoCliente;
 use App\Models\Cliente\TipoContatoPessoaCliente;
 use App\Models\Cliente\TipoRedeSocialCliente;
 use App\Models\User;
+use Filament\Forms\ComponentContainer;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Fieldset;
 use Filament\Forms\Components\FileUpload;
@@ -23,6 +24,9 @@ use Filament\Forms\Components\Tabs;
 use Filament\Forms\Components\Tabs\Tab;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
+use Filament\Infolists\Components\Tabs as ComponentsTabs;
+use Filament\Infolists\Components\Tabs\Tab as TabsTab;
+use Filament\Resources\Pages\CreateRecord;
 use Filament\Resources\Resource;
 use Filament\Support\RawJs;
 use Filament\Tables;
@@ -212,9 +216,6 @@ class ClienteResource extends Resource
                                             JS)),
                                             TextInput::make('email')
                                                 ->label('E-mail'),
-                                            Select::make('responsavel_id')
-                                                ->label('Responsavel pelo contato')
-                                                ->options(User::all()->pluck('name', 'id'))
                                         ])
                                         ->columns(3)
                                 ]),
@@ -375,13 +376,17 @@ class ClienteResource extends Resource
                                         ->label('Certificado Digital'),
                                     FileUpload::make('logo')
                                         ->label('Logotipo'),
-                                    \Njxqlus\Filament\Components\Forms\RelationManager::make()->manager(HistoricoObservacoesRelationManager::class)->lazy(false)
+                                    \Njxqlus\Filament\Components\Forms\RelationManager::make()
+                                        ->manager(HistoricoObservacoesRelationManager::class)
+                                        ->lazy(true)
+                                        ->hidden(fn (mixed $livewire) => $livewire instanceof CreateRecord)
                                 ]),
                         ]),
                     ]),
                     Tab::make('Contatos com cliente')->schema([
-                        \Njxqlus\Filament\Components\Forms\RelationManager::make()->manager(ContatosPessoasClienteRelationManager::class)->lazy(false)
-                    ]),
+                        \Njxqlus\Filament\Components\Forms\RelationManager::make()->manager(ContatosComClienteRelationManager::class)
+                        ->lazy(true)
+                    ])->hidden(fn (mixed $livewire) => $livewire instanceof CreateRecord),
                 ]),
 
             ])->columns(1);
@@ -432,4 +437,5 @@ class ClienteResource extends Resource
             'edit' => Pages\EditCliente::route('/{record}/edit'),
         ];
     }
+
 }

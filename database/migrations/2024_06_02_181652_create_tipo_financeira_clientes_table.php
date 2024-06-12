@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('tipo_financeira_clientes', function (Blueprint $table) {
+        Schema::create('tipos_financeiras_clientes', function (Blueprint $table) {
             $table->id();
             $table->string('nome');
             $table->timestamp('cadastrado_em')->useCurrent();
@@ -24,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('tipo_financeira_clientes');
+        Schema::dropIfExists('tipos_financeiras_clientes');
     }
 };

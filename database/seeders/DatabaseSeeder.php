@@ -6,6 +6,7 @@ use App\Models\Chamado\DepartamentoChamado;
 use App\Models\Chamado\MeioAberturaChamado;
 use App\Models\Chamado\SituacaoChamado;
 use App\Models\Chamado\TipoChamado;
+use App\Models\Cliente\Contato\TipoContatoComCliente;
 use App\Models\Cliente\Servico\TipoServicoCliente;
 use App\Models\Cliente\TipoCliente;
 use App\Models\Cliente\TipoContatoPessoaCliente;
@@ -482,6 +483,17 @@ class DatabaseSeeder extends Seeder
         ]);
         TipoChamado::create([
             'nome' => 'Externo',
+        ]);
+
+        //Tipo Contato com Cliente
+        TipoContatoComCliente::create([
+            'nome' => 'Telefone',
+        ]);
+        TipoContatoComCliente::create([
+            'nome' => 'Visita',
+        ]);
+        TipoContatoComCliente::create([
+            'nome' => 'Cobranca',
         ]);
     }
 }

@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Cliente\Contato\Enum\SituacaoContato;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -11,7 +12,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('tipos_servicos_clientes', function (Blueprint $table) {
+        Schema::create('tipos_contatos_com_clientes', function (Blueprint $table) {
             $table->id();
             $table->string('nome');
             $table->timestamp('cadastrado_em')->useCurrent();
@@ -24,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('tipo_servico_clientes');
+        Schema::dropIfExists('tipos_contatos_com_clientes');
     }
 };

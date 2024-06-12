@@ -11,11 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('comentarios_contatos_pessoas_clientes', function (Blueprint $table) {
+        Schema::create('tipos_chamados', function (Blueprint $table) {
             $table->id();
-            $table->foreignIdFor(\App\Models\Cliente\Contato\ContatoPessoaCliente::class, 'contato_pessoa_cliente_id');
-            $table->text('descricao');
-            $table->foreignIdFor(\App\Models\User::class, 'cadastrado_por');
+            $table->string('nome');
             $table->timestamp('cadastrado_em')->useCurrent();
             $table->timestamp('atualizado_em')->useCurrent()->useCurrentOnUpdate();
         });
@@ -26,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('comentarios_contatos_pessoas_clientes');
+        Schema::dropIfExists('tipos_chamados');
     }
 };

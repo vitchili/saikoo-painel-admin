@@ -3,10 +3,7 @@
 namespace App\Filament\Resources\ClienteResource\Pages;
 
 use App\Filament\Resources\ClienteResource;
-use App\Models\Cliente\ContatoPessoaCliente;
 use App\Models\Cliente\HistoricoObservacoesCliente;
-use App\Models\Cliente\RedeSocialCliente;
-use Filament\Actions;
 use Filament\Resources\Pages\CreateRecord;
 
 class CreateCliente extends CreateRecord
