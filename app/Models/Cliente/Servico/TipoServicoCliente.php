@@ -5,6 +5,7 @@ namespace App\Models\Cliente\Servico;
 use App\Models\Chamado\Chamado;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class TipoServicoCliente extends Model
 {
@@ -20,8 +21,8 @@ class TipoServicoCliente extends Model
         'nome',
     ];
 
-    public function chamados()
+    public function chamados(): BelongsToMany
     {
-        return $this->hasMany(Chamado::class);
+        return $this->belongsToMany(Chamado::class, 'chamados_servicos', 'tipo_servico_id', 'chamado_id');
     }
 }

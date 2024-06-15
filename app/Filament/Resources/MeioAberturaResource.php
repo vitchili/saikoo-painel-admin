@@ -19,11 +19,9 @@ class MeioAberturaResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
-    protected static ?string $navigationLabel = 'Meios Aberturas';
-
-    protected static ?string $modelLabel = 'Meios Aberturas';
-
-    protected static ?string $navigationGroup = 'Chamados';
+    protected static ?string $navigationParentItem = 'Chamados';
+    
+    protected static ?string $modelLabel = 'Meios de Aberturas';
 
     public static function form(Form $form): Form
     {

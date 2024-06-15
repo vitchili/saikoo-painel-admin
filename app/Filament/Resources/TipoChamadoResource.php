@@ -19,13 +19,18 @@ class TipoChamadoResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
-    protected static ?string $navigationGroup = 'Chamados';
+    protected static ?string $navigationParentItem = 'Chamados';
+
+    protected static ?string $modelLabel = 'Tipos de Chamados';
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                //
+                Forms\Components\TextInput::make('nome')
+                ->label('Nome')
+                ->required()
+                ->maxLength(255),
             ]);
     }
 
@@ -33,7 +38,7 @@ class TipoChamadoResource extends Resource
     {
         return $table
             ->columns([
-                //
+                Tables\Columns\TextColumn::make('nome'),
             ])
             ->filters([
                 //

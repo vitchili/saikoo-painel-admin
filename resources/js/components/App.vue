@@ -21,6 +21,7 @@
 
 <script>
 import VueCal from 'vue-cal';
+import 'vue-cal/dist/vuecal.css';
 import EventContent from './EventContent.vue';
 import { put } from "@/services/api.js";
 
@@ -35,7 +36,6 @@ export default {
     this.lembretes.forEach((item) => {
         var tecnicos = item.tecnicos;
         var tecnicosStr = '- ';
-
         
         tecnicos.forEach((tecnico) => {
             var tecnicoStr = tecnico.name.length > 1 ? tecnico.name.trim().split(" "): tecnico.name;
@@ -50,19 +50,48 @@ export default {
             content: 'Lembrete',
             descricao: item.descricao,
             class: `health criador-${item.criador.id}`,
-            backgroundColor: item.criador.color_hash, // Assuming the color is stored here
-            color: '#fff' // Default text color
+            backgroundColor: item.criador.color_hash,
+            color: '#fff'
         };
 
         this.events.push(lembrete);
     });
+
+    this.chamados.forEach((item) => {
+        var tecnicos = item.tecnicos;
+        var tecnicosStr = '- ';
+        
+        tecnicos.forEach((tecnico) => {
+            var tecnicoStr = tecnico.name.length > 1 ? tecnico.name.trim().split(" "): tecnico.name;
+            tecnicosStr += tecnicoStr[0] + " - " 
+        });
+
+        var chamado = {
+            id: item.id,
+            start: item.data_hora_inicial,
+            end: item.data_hora_final,
+            title: tecnicosStr,
+            content: 'Chamado #' + item.id,
+            descricao: item.descricao.replace(/(<([^>]+)>)/ig, ''),
+            class: `health criador-${item.criador.id}`,
+            backgroundColor: item.criador.color_hash,
+            color: '#fff'
+        };
+
+        this.events.push(chamado);
+    });
   },
   props: {
-    lembretes: Array
+    lembretes: Array,
+    chamados: Array,
   },
   methods: {
     onEventClick (event, e) {
-        window.location.href = `/admin/lembretes/${event.id}/edit`;
+        if (event.content == 'Lembrete'){
+          window.location.href = `/admin/lembretes/${event.id}/edit`;
+        }else{
+          window.location.href = `/admin/chamados/${event.id}/edit`;
+        }
 
         e.stopPropagation();
     },

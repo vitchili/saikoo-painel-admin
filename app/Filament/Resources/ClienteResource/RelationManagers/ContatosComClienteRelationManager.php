@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\ClienteResource\RelationManagers;
 
+use App\Models\Cliente\Contato\Enum\SituacaoContato;
 use App\Models\Cliente\TipoContatoPessoaCliente;
 use App\Models\User;
 use Filament\Forms;
@@ -40,8 +41,7 @@ class ContatosComClienteRelationManager extends RelationManager
                     ->email(),
                 Forms\Components\Select::make('situacao_id')
                     ->label('Situação')
-                    ->options([]),
-                //->options(SituacaoContato::getEnumArray()),
+                    ->options(collect(SituacaoContato::cases())->mapWithKeys(fn ($situacao) => [$situacao->value => $situacao->label()])),
                 Forms\Components\Select::make('responsavel_id')
                     ->required()
                     ->label('Responsável')
@@ -50,7 +50,8 @@ class ContatosComClienteRelationManager extends RelationManager
                     ->required()
                     ->label('Data Contato'),
                 Forms\Components\DatePicker::make('data_retorno')
-                    ->label('Data Retorno'),
+                    ->label('Data Retorno')
+                    ->afterOrEqual('data_contato'),
             ]);
     }
 

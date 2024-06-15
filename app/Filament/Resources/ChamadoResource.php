@@ -3,19 +3,17 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\ChamadoResource\Pages;
-use App\Filament\Resources\ChamadoResource\RelationManagers;
 use App\Models\Chamado\Chamado;
 use App\Models\Chamado\DepartamentoChamado;
 use App\Models\Chamado\Enum\SituacaoChamado;
 use App\Models\Chamado\MeioAberturaChamado;
 use App\Models\Chamado\TipoChamado;
 use App\Models\Cliente\Cliente;
+use App\Models\Cliente\Servico\TipoServicoCliente;
 use App\Models\Diversos\Veiculo;
 use App\Models\User;
-use Filament\Forms;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Radio;
-use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
@@ -24,17 +22,15 @@ use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Columns\TextColumn\TextColumnSize;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Parallax\FilamentComments\Tables\Actions\CommentsAction;
 
 class ChamadoResource extends Resource
 {
     protected static ?string $model = Chamado::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
-
-    protected static ?string $navigationGroup = 'Chamados';
 
     public static function form(Form $form): Form
     {
@@ -93,13 +89,22 @@ class ChamadoResource extends Resource
                             ->visible(fn ($get) => $get('tipo_chamado_id') == TipoChamado::where('nome', '=', 'Interno com Cliente')->first()->id),
                         TimePicker::make('data_hora_inicial')
                             ->label('Hora inicial')
+                            ->seconds(false)
                             ->visible(fn ($get) => $get('tipo_chamado_id') == TipoChamado::where('nome', '=', 'Interno com Cliente')->first()->id),
                         TimePicker::make('data_hora_final')
                             ->label('Hora final')
+                            ->seconds(false)
                             ->visible(fn ($get) => $get('tipo_chamado_id') == TipoChamado::where('nome', '=', 'Interno com Cliente')->first()->id),
                         Select::make('situacao_id')
                             ->label('Situação')
-                            ->options([])
+                            ->options(collect(SituacaoChamado::cases())->mapWithKeys(fn ($situacao) => [$situacao->value => $situacao->label()]))
+                            ->searchable(),
+                        Select::make('servicos')
+                            ->label('Serviços')
+                            ->options(TipoServicoCliente::all()->pluck('nome', 'id'))
+                            ->multiple()
+                            ->relationship('servicos', 'nome')
+                            ->preload()
                             ->searchable(),
                         RichEditor::make('descricao')
                             ->toolbarButtons([
@@ -137,13 +142,35 @@ class ChamadoResource extends Resource
     {
         return $table
             ->columns([
-                //
+                Tables\Columns\TextColumn::make('id')
+                    ->label('Código')
+                    ->sortable(),
+                    Tables\Columns\TextColumn::make('cadastrado_em')
+                    ->label('Data')
+                    ->dateTime('d/m/Y')
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('cliente.nome')
+                    ->label('Cliente'),
+                Tables\Columns\TextColumn::make('descricao')
+                    ->label('Descrição')
+                    ->size(TextColumnSize::ExtraSmall)
+                    ->formatStateUsing(function ($state) {
+                        return \Illuminate\Support\Str::limit(strip_tags($state), 200);
+                    })
+                    ->wrap(),
+                Tables\Columns\TextColumn::make('departamento.nome')
+                    ->label('Departamento'),
+                Tables\Columns\TextColumn::make('tipoChamado.nome')
+                    ->label('Tipo'),
+                Tables\Columns\TextColumn::make('meioAbertura.nome')
+                    ->label('Meio Abertura'),
             ])
             ->filters([
                 //
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+                CommentsAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

@@ -8,10 +8,14 @@ use App\Models\Diversos\Veiculo;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Parallax\FilamentComments\Models\Traits\HasFilamentComments;
 
 class Chamado extends Model
 {
     use HasFactory;
+
+    use HasFilamentComments;
 
     const CREATED_AT = 'cadastrado_em';
 
@@ -79,13 +83,16 @@ class Chamado extends Model
 
     public function tecnicos()
     {
-        return $this->belongsToMany(User::class, 'chamados_tecnicos', 'tecnico_id', 'chamado_id');
+        return $this->belongsToMany(User::class, 'chamados_tecnicos', 'chamado_id', 'tecnico_id');
     }
 
-    public function servicos()
+    public function servicos(): BelongsToMany
     {
-        return $this->hasMany(TipoServicoCliente::class);
+        return $this->belongsToMany(TipoServicoCliente::class, 'chamados_servicos', 'chamado_id', 'tipo_servico_id');
     }
 
-    
+    public function criador()
+    {
+        return $this->belongsTo(User::class, 'cadastrado_por');
+    }
 }

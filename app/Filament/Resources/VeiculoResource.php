@@ -19,13 +19,24 @@ class VeiculoResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
-    protected static ?string $navigationGroup = 'Configurações';
+    protected static ?string $navigationGroup = 'Gerais';
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                //
+                Forms\Components\TextInput::make('tipo')
+                    ->label('Tipo')
+                    ->required()
+                    ->maxLength(255),
+                    Forms\Components\TextInput::make('nome')
+                    ->label('Nome')
+                    ->required()
+                    ->maxLength(255),
+                    Forms\Components\TextInput::make('placa')
+                    ->label('Placa')
+                    ->required()
+                    ->maxLength(255),
             ]);
     }
 
@@ -33,7 +44,9 @@ class VeiculoResource extends Resource
     {
         return $table
             ->columns([
-                //
+                Tables\Columns\TextColumn::make('tipo')->label('Tipo'),
+                Tables\Columns\TextColumn::make('nome')->label('Nome'),
+                Tables\Columns\TextColumn::make('placa')->label('Placa'),
             ])
             ->filters([
                 //

@@ -1,13 +1,13 @@
 <?php
 
 return [
-    'comments' => 'Comentários',
-    'comments.add' => 'Adicionar comentário',
-    'comments.empty' => 'Não há comentários ainda.',
-    'comments.placeholder' => 'Adicionar um comentário...',
+    'comments' => 'Histórico',
+    'comments.add' => 'Adicionar registro',
+    'comments.empty' => 'Não há registros no histórico.',
+    'comments.placeholder' => 'Adicionar um registro...',
 
-    'notifications.created' => 'Comentário adicionando.',
-    'notifications.deleted' => 'Comentário deletado.',
+    'notifications.created' => 'Registro adicionado.',
+    'notifications.deleted' => 'Registro deletado.',
 
-    'modal.heading' => 'Comentários',
+    'modal.heading' => 'Histórico',
 ];

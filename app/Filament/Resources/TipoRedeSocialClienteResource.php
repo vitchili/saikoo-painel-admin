@@ -19,7 +19,9 @@ class TipoRedeSocialClienteResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
-    protected static ?string $navigationGroup = 'Clientes';
+    protected static ?string $navigationParentItem = 'Clientes';
+
+    protected static ?string $modelLabel = 'Tipos de Rede Sociais';
 
     public static function form(Form $form): Form
     {

@@ -11,6 +11,6 @@
 
         </div>
     </div>
-    <App :lembretes="{{ json_encode($lembretes) }}"/>
+    <App :lembretes="{{ json_encode($lembretes) }}" :chamados="{{ json_encode($chamados) }}"/>
 </x-filament-panels::page>
 @endsection
