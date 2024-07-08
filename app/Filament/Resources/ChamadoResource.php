@@ -30,7 +30,7 @@ class ChamadoResource extends Resource
 {
     protected static ?string $model = Chamado::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-rectangle-group';
 
     public static function form(Form $form): Form
     {
@@ -49,7 +49,8 @@ class ChamadoResource extends Resource
                             ->options(TipoChamado::all()->pluck('nome', 'id'))
                             ->inline()
                             ->inlineLabel(false)
-                            ->reactive(),
+                            ->reactive()
+                            ->default(1),
                         Select::make('gerente_id')
                             ->label('Gerente')
                             ->options(User::all()->pluck('name', 'id'))
@@ -73,28 +74,28 @@ class ChamadoResource extends Resource
                             ->label('Veículo')
                             ->options(Veiculo::all()->pluck('nome', 'id'))
                             ->searchable()
-                            ->visible(fn ($get) => $get('tipo_chamado_id') == TipoChamado::where('nome', '=', 'Interno com Cliente')->first()->id),
+                            ->visible(fn ($get) => $get('tipo_chamado_id') == TipoChamado::where('nome', '=', 'Externo')->first()->id),
                         Select::make('tecnico_condutor_ida_id')
                             ->label('Técnico Condutor Ida')
                             ->options(User::all()->pluck('name', 'id'))
                             ->searchable()
-                            ->visible(fn ($get) => $get('tipo_chamado_id') == TipoChamado::where('nome', '=', 'Interno com Cliente')->first()->id),
+                            ->visible(fn ($get) => $get('tipo_chamado_id') == TipoChamado::where('nome', '=', 'Externo')->first()->id),
                         Select::make('tecnico_condutor_volta_id')
                             ->label('Técnico Condutor Volta')
                             ->options(User::all()->pluck('name', 'id'))
                             ->searchable()
-                            ->visible(fn ($get) => $get('tipo_chamado_id') == TipoChamado::where('nome', '=', 'Interno com Cliente')->first()->id),
+                            ->visible(fn ($get) => $get('tipo_chamado_id') == TipoChamado::where('nome', '=', 'Externo')->first()->id),
                         DatePicker::make('data_visita')
                             ->label('Data da visita')
-                            ->visible(fn ($get) => $get('tipo_chamado_id') == TipoChamado::where('nome', '=', 'Interno com Cliente')->first()->id),
+                            ->hidden(fn ($get) => $get('tipo_chamado_id') == TipoChamado::where('nome', '=', 'Interno')->first()->id),
                         TimePicker::make('data_hora_inicial')
                             ->label('Hora inicial')
                             ->seconds(false)
-                            ->visible(fn ($get) => $get('tipo_chamado_id') == TipoChamado::where('nome', '=', 'Interno com Cliente')->first()->id),
+                            ->hidden(fn ($get) => $get('tipo_chamado_id') == TipoChamado::where('nome', '=', 'Interno')->first()->id),
                         TimePicker::make('data_hora_final')
                             ->label('Hora final')
                             ->seconds(false)
-                            ->visible(fn ($get) => $get('tipo_chamado_id') == TipoChamado::where('nome', '=', 'Interno com Cliente')->first()->id),
+                            ->hidden(fn ($get) => $get('tipo_chamado_id') == TipoChamado::where('nome', '=', 'Interno')->first()->id),
                         Select::make('situacao_id')
                             ->label('Situação')
                             ->options(collect(SituacaoChamado::cases())->mapWithKeys(fn ($situacao) => [$situacao->value => $situacao->label()]))

@@ -12,8 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('chamados_servicos', function (Blueprint $table) {
-            $table->foreignId('chamado_id')->constrained('chamadosServicos')->onDelete('cascade');
-            $table->foreignId('tipo_servico_id')->constrained('tipoServicoChamado')->onDelete('cascade');
+            $table->foreignId('chamado_id')->constrained('chamados')->onDelete('cascade');
+            $table->foreignId('tipo_servico_id')->constrained('lista_servico')->onDelete('cascade');
             $table->timestamp('cadastrado_em')->useCurrent();
             $table->timestamp('atualizado_em')->nullable()->useCurrent()->useCurrentOnUpdate();
         });

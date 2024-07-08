@@ -26,8 +26,8 @@ class EditCliente extends EditRecord
             $data['ddd'] = substr($data['telefone'], 1, 2);
         }
 
-        $historicosAnteriores = $record->historicoObservacoesCliente;
-
+        $historicosAnteriores = $record->historicoObservacoes ?? [];
+        
         foreach($historicosAnteriores as $historicoAnterior) {
             if (
                 $historicoAnterior->observacao != $data['obs'] ||

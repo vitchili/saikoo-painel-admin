@@ -36,12 +36,6 @@ class PermissionResource extends Resource
                     ->required()
                     ->unique(ignoreRecord: true)
                     ->maxLength(255),
-                Forms\Components\Select::make('roles')
-                    ->label('Tipo de Perfil')
-                    ->multiple()
-                    ->relationship(titleAttribute: 'name')
-                    ->required()
-                    ->preload()
             ]);
     }
 

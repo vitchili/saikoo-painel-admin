@@ -22,4 +22,9 @@ class HistoricoObservacoesCliente extends Model
         'servicos',
         'cadastrado_por',
     ];
+
+    public function cliente()
+    {
+        return $this->belongsTo(Cliente::class, 'cliente_id');
+    }
 }

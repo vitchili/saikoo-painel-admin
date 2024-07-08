@@ -4,6 +4,11 @@ namespace App\Models\Cliente;
 
 use App\Models\Cliente\Contato\ContatoComCliente;
 use App\Models\Cliente\ContatoPessoaCliente;
+use App\Models\Cliente\Fatura\FaturaCliente;
+use App\Models\Cliente\HistoricoNumeroProfissionais\HistoricoNumeroProfissionaisCliente;
+use App\Models\Cliente\Parceiro\ParceiroCliente;
+use App\Models\Cliente\SaikooWeb\SaikooWebCliente;
+use App\Models\Cliente\Servico\ServicoCliente;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -135,9 +140,31 @@ class Cliente extends Model
 
     public function historicoObservacoes()
     {
-        return $this->hasMany(HistoricoObservacoesCliente::class);
+        return $this->hasMany(HistoricoObservacoesCliente::class, 'cliente_id');
     }
 
-    
+    public function faturas()
+    {
+        return $this->hasMany(FaturaCliente::class, 'id_cliente');
+    }
 
+    public function servicosCliente()
+    {
+        return $this->hasMany(ServicoCliente::class, 'id_cliente');
+    }
+
+    public function historicoNumeroProfissionais()
+    {
+        return $this->hasMany(HistoricoNumeroProfissionaisCliente::class, 'cliente_id');
+    }
+
+    public function conexaoSaikooWeb()
+    {
+        return $this->hasOne(SaikooWebCliente::class, 'cliente_id');
+    }
+
+    public function parceiros()
+    {
+        return $this->hasMany(ParceiroCliente::class, 'cliente_id');
+    }
 }

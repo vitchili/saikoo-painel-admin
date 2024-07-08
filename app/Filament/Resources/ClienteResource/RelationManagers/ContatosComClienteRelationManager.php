@@ -60,22 +60,30 @@ class ContatosComClienteRelationManager extends RelationManager
         return $table
             ->recordTitleAttribute('nome')
             ->columns([
-                Tables\Columns\TextColumn::make('tipoContato.nome'),
-                Tables\Columns\TextColumn::make('nome'),
-                Tables\Columns\TextColumn::make('telefone'),
-                Tables\Columns\TextColumn::make('email'),
-                Tables\Columns\TextColumn::make('data_contato')->date('d/m/Y'),
-                Tables\Columns\TextColumn::make('data_retorno')->date('d/m/Y'),
-                Tables\Columns\TextColumn::make('responsavel.name'),
+                Tables\Columns\TextColumn::make('tipoContato.nome')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('nome')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('telefone')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('email')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('data_contato')->date('d/m/Y')
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('data_retorno')->date('d/m/Y')
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('responsavel.name')
+                    ->label('Responsável')
+                    ->searchable(),
             ])
             ->filters([
                 //
             ])
             ->headerActions([
-                Tables\Actions\CreateAction::make()->label('Novo Contato'),
+                Tables\Actions\CreateAction::make()->label('Novo Contato')->slideOver(),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                Tables\Actions\EditAction::make()->slideOver(),
                 CommentsAction::make(),
                 // Tables\Actions\DeleteAction::make(),
             ])

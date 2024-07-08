@@ -11,7 +11,7 @@ class TipoServicoCliente extends Model
 {
     use HasFactory;
 
-    protected $table = 'tipos_servicos_clientes';
+    protected $table = 'lista_servico';
 
     const CREATED_AT = 'cadastrado_em';
 

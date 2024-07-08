@@ -26,7 +26,21 @@ class HistoricoObservacoesRelationManager extends RelationManager
         return $table
             ->recordTitleAttribute('observacao')
             ->columns([
-                Tables\Columns\TextColumn::make('observacao'),
+                Tables\Columns\TextColumn::make('observacao')
+                ->formatStateUsing(function ($state) {
+                    return \Illuminate\Support\Str::limit(strip_tags($state), 200);
+                })
+                ->wrap(),
+                Tables\Columns\TextColumn::make('observacao_atendimento')
+                ->formatStateUsing(function ($state) {
+                    return \Illuminate\Support\Str::limit(strip_tags($state), 200);
+                })
+                ->wrap(),
+                Tables\Columns\TextColumn::make('servicos')
+                ->formatStateUsing(function ($state) {
+                    return \Illuminate\Support\Str::limit(strip_tags($state), 200);
+                })
+                ->wrap(),
             ])
             ->filters([
                 //

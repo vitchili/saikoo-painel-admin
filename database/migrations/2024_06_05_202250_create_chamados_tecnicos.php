@@ -12,8 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('chamados_tecnicos', function (Blueprint $table) {
-            $table->foreignId('chamado_id')->constrained('chamadoTecnico')->onDelete('cascade');
-            $table->foreignId('tecnico_id')->constrained('tecnicoChamado')->onDelete('cascade');
+            $table->foreignId('chamado_id')->constrained('chamados')->onDelete('cascade');
+            $table->foreignId('tecnico_id')->constrained('users')->onDelete('cascade');
             $table->timestamp('cadastrado_em')->useCurrent();
             $table->timestamp('atualizado_em')->nullable()->useCurrent()->useCurrentOnUpdate();
         });

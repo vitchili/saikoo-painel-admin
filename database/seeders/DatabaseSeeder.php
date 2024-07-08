@@ -13,6 +13,8 @@ use App\Models\Cliente\TipoContatoPessoaCliente;
 use App\Models\Cliente\TipoRedeSocialCliente;
 use App\Models\Diversos\Veiculo;
 use App\Models\Lembrete\PeriodicidadeLembrete;
+use App\Models\Permission;
+use App\Models\Role;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -494,6 +496,323 @@ class DatabaseSeeder extends Seeder
         ]);
         TipoContatoComCliente::create([
             'nome' => 'Cobranca',
+        ]);
+
+        //Permissoes
+        Permission::create([
+            'name' => 'Cobranca',
+            'guard_name' => 'web',
+        ]);
+
+        Permission::create([
+            'name' => 'Mostrar valor tela atendimento',
+            'guard_name' => 'web',
+        ]);
+        Permission::create([
+            'name' => 'Pedidos Realizados',
+            'guard_name' => 'web',
+        ]);
+        Permission::create([
+            'name' => 'Dashboard Suporte',
+            'guard_name' => 'web',
+        ]);
+        Permission::create([
+            'name' => 'Dashboard BHair',
+            'guard_name' => 'web',
+        ]);
+        Permission::create([
+            'name' => 'Menu Clientes',
+            'guard_name' => 'web',
+        ]);
+        Permission::create([
+            'name' => 'Menu Cliente.Cadastrar Cliente',
+            'guard_name' => 'web',
+        ]);
+        Permission::create([
+            'name' => 'Menu Cliente.Dados',
+            'guard_name' => 'web',
+        ]);
+        Permission::create([
+            'name' => 'Menu Cliente.Dados.Status Cliente',
+            'guard_name' => 'web',
+        ]);
+        Permission::create([
+            'name' => 'Menu Cliente.Dados.Alterar Termos',
+            'guard_name' => 'web',
+        ]);
+        Permission::create([
+            'name' => 'Menu Cliente.Dados.Enviar Boas Vindas',
+            'guard_name' => 'web',
+        ]);
+        Permission::create([
+            'name' => 'Menu Cliente.Dados.Senha Cliente',
+            'guard_name' => 'web',
+        ]);
+        Permission::create([
+            'name' => 'Menu Cliente.Dados.Ver Dados Bancários',
+            'guard_name' => 'web',
+        ]);
+        Permission::create([
+            'name' => 'Faturas',
+            'guard_name' => 'web',
+        ]);
+        Permission::create([
+            'name' => 'Faturas.Alterar status da fatura',
+            'guard_name' => 'web',
+        ]);
+        Permission::create([
+            'name' => 'Faturas.Reprocessar Serial',
+            'guard_name' => 'web',
+        ]);
+        Permission::create([
+            'name' => 'Faturas.Cadastrar faturas',
+            'guard_name' => 'web',
+        ]);
+        Permission::create([
+            'name' => 'Faturas.Alterar fatura',
+            'guard_name' => 'web',
+        ]);
+        Permission::create([
+            'name' => 'Faturas.Excluir fatura',
+            'guard_name' => 'web',
+        ]);
+        Permission::create([
+            'name' => 'Serial',
+            'guard_name' => 'web',
+        ]);
+        Permission::create([
+            'name' => 'Serial.Gerar serial temporário com limite excedido',
+            'guard_name' => 'web',
+        ]);
+        Permission::create([
+            'name' => 'Serviços',
+            'guard_name' => 'web',
+        ]);
+        Permission::create([
+            'name' => 'Serviços.Adicionar Serviços',
+            'guard_name' => 'web',
+        ]);
+        Permission::create([
+            'name' => 'Serviços.Excluir Serviços',
+            'guard_name' => 'web',
+        ]);
+        Permission::create([
+            'name' => 'Serviços.Alterar Serviços',
+            'guard_name' => 'web',
+        ]);
+        Permission::create([
+            'name' => 'Serviços.Alterar Serviços (Versão)',
+            'guard_name' => 'web',
+        ]);
+        Permission::create([
+            'name' => 'Serviços.Alterar Serviços (Implantação)',
+            'guard_name' => 'web',
+        ]);
+        Permission::create([
+            'name' => 'Serviços.Serviços (Log)',
+            'guard_name' => 'web',
+        ]);
+        Permission::create([
+            'name' => 'Serviços.Visualizar Serviços',
+            'guard_name' => 'web',
+        ]);
+        Permission::create([
+            'name' => 'Serviços.Gerar Serial Serviços',
+            'guard_name' => 'web',
+        ]);
+        Permission::create([
+            'name' => 'Nº Profissionais',
+            'guard_name' => 'web',
+        ]);
+        Permission::create([
+            'name' => 'Saikoo Web',
+            'guard_name' => 'web',
+        ]);
+        Permission::create([
+            'name' => 'Manual de Implantação',
+            'guard_name' => 'web',
+        ]);
+        Permission::create([
+            'name' => 'Relato de implantação',
+            'guard_name' => 'web',
+        ]);
+        Permission::create([
+            'name' => 'Contatos com o cliente',
+            'guard_name' => 'web',
+        ]);
+        Permission::create([
+            'name' => 'Propostas',
+            'guard_name' => 'web',
+        ]);
+        Permission::create([
+            'name' => 'Menu Ata de reunião',
+            'guard_name' => 'web',
+        ]);
+        Permission::create([
+            'name' => 'Cadastrar Ata de reunião',
+            'guard_name' => 'web',
+        ]);
+        Permission::create([
+            'name' => 'Menu Chamado',
+            'guard_name' => 'web',
+        ]);
+        Permission::create([
+            'name' => 'Menu Agenda',
+            'guard_name' => 'web',
+        ]);
+        Permission::create([
+            'name' => 'Menu CI',
+            'guard_name' => 'web',
+        ]);
+        Permission::create([
+            'name' => 'Menu Relatórios',
+            'guard_name' => 'web',
+        ]);
+        Permission::create([
+            'name' => 'Menu Relatórios.Pagto aprovados',
+            'guard_name' => 'web',
+        ]);
+        Permission::create([
+            'name' => 'Menu Relatórios.Pagto em aberto',
+            'guard_name' => 'web',
+        ]);
+        Permission::create([
+            'name' => 'Menu Relatórios.Versão do sistema',
+            'guard_name' => 'web',
+        ]);
+        Permission::create([
+            'name' => 'Menu Relatórios.Log Faturas e Serviços',
+            'guard_name' => 'web',
+        ]);
+        Permission::create([
+            'name' => 'Menu Relatórios.Serviços contratados',
+            'guard_name' => 'web',
+        ]);
+        Permission::create([
+            'name' => 'Menu Relatórios.Tickets Dev. Prazo',
+            'guard_name' => 'web',
+        ]);
+        Permission::create([
+            'name' => 'Menu Relatórios.List. cliente chamados nos últimos 20 dias',
+            'guard_name' => 'web',
+        ]);
+        Permission::create([
+            'name' => 'Ver Remunerações',
+            'guard_name' => 'web',
+        ]);
+        Permission::create([
+            'name' => 'Lançamento de Remuneração',
+            'guard_name' => 'web',
+        ]);
+        Permission::create([
+            'name' => 'Ticket Desenvolvimento',
+            'guard_name' => 'web',
+        ]);
+        Permission::create([
+            'name' => 'Menu prioridade de tickets',
+            'guard_name' => 'web',
+        ]);
+        Permission::create([
+            'name' => 'Alterar prioridade de ticket',
+            'guard_name' => 'web',
+        ]);
+        Permission::create([
+            'name' => 'Atualizações',
+            'guard_name' => 'web',
+        ]);
+        Permission::create([
+            'name' => 'Clientes Versões',
+            'guard_name' => 'web',
+        ]);
+        Permission::create([
+            'name' => 'Arquivos',
+            'guard_name' => 'web',
+        ]);
+        Permission::create([
+            'name' => 'Marketing',
+            'guard_name' => 'web',
+        ]);
+        Permission::create([
+            'name' => 'Configurações',
+            'guard_name' => 'web',
+        ]);
+        Permission::create([
+            'name' => 'Configurações.Representantes',
+            'guard_name' => 'web',
+        ]);
+        Permission::create([
+            'name' => 'Configurações.Versão do sistema',
+            'guard_name' => 'web',
+        ]);
+        Permission::create([
+            'name' => 'Cadastros',
+        ]);
+        Permission::create([
+            'name' => 'Menu Acesso',
+            'guard_name' => 'web',
+        ]);
+        Permission::create([
+            'name' => 'Menu Acesso.Usuários',
+            'guard_name' => 'web',
+        ]);
+        Permission::create([
+            'name' => 'Menu Acesso.Perfil',
+            'guard_name' => 'web',
+        ]);
+
+        //Perfis Acesso
+
+        Role::create([
+            'name' => 'Suporte TI',
+            'guard_name' => 'web',
+        ]);
+        Role::create([
+            'name' => 'Gerente',
+            'guard_name' => 'web',
+        ]);
+        Role::create([
+            'name' => 'Financeiro',
+            'guard_name' => 'web',
+        ]);
+        Role::create([
+            'name' => 'Desenvolvedor',
+            'guard_name' => 'web',
+        ]);
+        Role::create([
+            'name' => 'Comercial Interno',
+            'guard_name' => 'web',
+        ]);
+        Role::create([
+            'name' => 'Diretor(a)',
+            'guard_name' => 'web',
+        ]);
+        Role::create([
+            'name' => 'Web Master',
+            'guard_name' => 'web',
+        ]);
+        Role::create([
+            'name' => 'Em treinamento',
+            'guard_name' => 'web',
+        ]);
+        Role::create([
+            'name' => 'REPRESENTANTE',
+            'guard_name' => 'web',
+        ]);
+        Role::create([
+            'name' => 'Coordenador',
+            'guard_name' => 'web',
+        ]);
+        Role::create([
+            'name' => 'REPRESENTANTE MEIOS DE PAGAMENTO',
+            'guard_name' => 'web',
+        ]);
+        Role::create([
+            'name' => 'Comercial Interno Trainee',
+            'guard_name' => 'web',
+        ]);
+        Role::create([
+            'name' => 'Bhair',
+            'guard_name' => 'web',
         ]);
     }
 }

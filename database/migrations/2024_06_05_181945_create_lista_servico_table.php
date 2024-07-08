@@ -11,9 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('tipos_servicos_clientes', function (Blueprint $table) {
+        Schema::create('lista_servico', function (Blueprint $table) { //tipos_servicos_clientes. O nome da tabela atual é restrição da migração do sistema antigo.
             $table->id();
             $table->string('nome');
+            $table->string('sigla')->nullable();
             $table->timestamp('cadastrado_em')->useCurrent();
             $table->timestamp('atualizado_em')->useCurrent()->useCurrentOnUpdate();
         });
@@ -24,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('tipos_servicos_clientes');
+        Schema::dropIfExists('lista_servico');
     }
 };

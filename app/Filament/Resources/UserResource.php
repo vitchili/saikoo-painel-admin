@@ -81,8 +81,9 @@ class UserResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\ImageColumn::make('avatar_url')
+                    ->label('Avatar')
                     ->circular()
-                    ->height(50),
+                    ->height(40),
                 Tables\Columns\TextColumn::make('name')
                     ->label('Nome completo')
                     ->sortable()

@@ -4,13 +4,19 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\ClienteResource\Pages;
 use App\Filament\Resources\ClienteResource\RelationManagers\ContatosComClienteRelationManager;
+use App\Filament\Resources\ClienteResource\RelationManagers\FaturasRelationManager;
+use App\Filament\Resources\ClienteResource\RelationManagers\HistoricoNumeroProfissionaisRelationManager;
 use App\Filament\Resources\ClienteResource\RelationManagers\HistoricoObservacoesRelationManager;
+use App\Filament\Resources\ClienteResource\RelationManagers\ParceirosRelationManager;
+use App\Filament\Resources\ClienteResource\RelationManagers\ServicosClienteRelationManager;
 use App\Models\Cliente\Cliente;
+use App\Models\Cliente\Contato\Enum\Estado;
 use App\Models\Cliente\TipoCliente;
 use App\Models\Cliente\TipoContatoPessoaCliente;
 use App\Models\Cliente\TipoRedeSocialCliente;
 use App\Models\User;
 use Filament\Forms\ComponentContainer;
+use Filament\Forms\Components\Actions\Action;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Fieldset;
 use Filament\Forms\Components\FileUpload;
@@ -30,13 +36,17 @@ use Filament\Resources\Pages\CreateRecord;
 use Filament\Resources\Resource;
 use Filament\Support\RawJs;
 use Filament\Tables;
+use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Validation\ValidationException;
 
 class ClienteResource extends Resource
 {
     protected static ?string $model = Cliente::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-user-group';
 
     public static function form(Form $form): Form
     {
@@ -76,8 +86,45 @@ class ClienteResource extends Resource
                                         ->inlineLabel(false),
                                     TextInput::make('codigo')
                                         ->label('Código')
-                                        ->unique()
+                                        ->unique(ignoreRecord: true)
                                         ->maxLength(255),
+                                    TextInput::make('cpf_cnpj')
+                                        ->label('CNPJ')
+                                        ->mask(RawJs::make(<<<'JS'
+                                        $input.length > 14 ? '99.999.999/9999-99' : '999.999.999-99'
+                                    JS))
+                                        ->rule('cpf_ou_cnpj')
+                                        ->suffixAction(
+                                            fn ($state, $livewire, $set) => Action::make('search-action')
+                                                ->icon('heroicon-o-rectangle-stack')
+                                                ->action(function () use ($state, $livewire, $set) {
+                                                    $livewire->validateOnly('data.cpf_ou_cnpj');
+                                                    $state = preg_replace('/[^0-9]/', '', $state);
+
+                                                    $cnpjData = Http::get(
+                                                        "https://brasilapi.com.br/api/cnpj/v1/{$state}"
+                                                    )->json();
+
+                                                    if (!empty($cnpjData['message'])) {
+                                                        throw ValidationException::withMessages([
+                                                            'data.cpf_ou_cnpj' => $cnpjData['message']
+                                                        ]);
+                                                    }
+
+                                                    $set('nome', $cnpjData['razao_social'] ?? null);
+                                                    $set('nomefantasia', $cnpjData['nome_fantasia'] ?? null);
+                                                    $set('telefone', $cnpjData['ddd_telefone_1'] ?? null);
+                                                    $set('telefone2', $cnpjData['ddd_telefone_2'] ?? null);
+                                                    $set('responsavel', $cnpjData['qsa'][0]['nome_socio'] ?? null);
+                                                    $set('fone_resp1', $cnpjData['ddd_telefone_1'] ?? null);
+                                                    $set('responsavel2', $cnpjData['qsa'][1]['nome_socio'] ?? null);
+                                                    $set('fone_resp2', $cnpjData['ddd_telefone_2'] ?? null);
+                                                })
+                                        ),
+
+
+
+
                                     TextInput::make('nome')
                                         ->label('Razão Social')
                                         ->required()
@@ -85,12 +132,6 @@ class ClienteResource extends Resource
                                     TextInput::make('nomefantasia')
                                         ->label('Fantasia')
                                         ->maxLength(255),
-                                    TextInput::make('cpf_cnpj')
-                                        ->label('CNPJ')
-                                        ->mask(RawJs::make(<<<'JS'
-                                        $input.length > 14 ? '99.999.999/9999-99' : '999.999.999-99'
-                                    JS))
-                                        ->rule('cpf_ou_cnpj'),
                                     TextInput::make('ie')
                                         ->label('Inscrição Estadual')
                                         ->maxLength(255),
@@ -224,7 +265,30 @@ class ClienteResource extends Resource
                                             TextInput::make('cep')
                                                 ->label('CEP')
                                                 ->maxLength(9)
-                                                ->required(),
+                                                ->required()
+                                                ->mask('99999-999')
+                                                ->suffixAction(
+                                                    fn ($state, $livewire, $set) => Action::make('search-action')
+                                                        ->icon('heroicon-o-rectangle-stack')
+                                                        ->action(function () use ($state, $livewire, $set) {
+                                                            $livewire->validateOnly('data.cep');
+
+                                                            $cepData = Http::get(
+                                                                "https://viacep.com.br/ws/{$state}/json"
+                                                            )->throw()->json();
+
+                                                            if (in_array('erro', $cepData)) {
+                                                                throw ValidationException::withMessages([
+                                                                    'data.cep' => 'Erro ao buscar CEP'
+                                                                ]);
+                                                            }
+
+                                                            $set('end', $cepData['logradouro'] ?? null);
+                                                            $set('cidade', $cepData['localidade'] ?? null);
+                                                            $set('uf', $cepData['uf'] ?? null);
+                                                            $set('bairro', $cepData['bairro'] ?? null);
+                                                        })
+                                                ),
                                             TextInput::make('end')
                                                 ->label('Logradouro')
                                                 ->required(),
@@ -239,10 +303,10 @@ class ClienteResource extends Resource
                                             TextInput::make('cidade')
                                                 ->label('Cidade')
                                                 ->required(),
-                                            TextInput::make('uf')
+                                            Select::make('uf')
                                                 ->label('UF')
-                                                ->maxLength(2)
-                                                ->required(),
+                                                ->options(collect(Estado::cases())->mapWithKeys(fn ($situacao) => [$situacao->value => $situacao->label()]))
+                                                ->searchable(),
                                         ])->columns(3),
                                     Fieldset::make('Acesso')
                                         ->schema([
@@ -373,7 +437,9 @@ class ClienteResource extends Resource
                                     FileUpload::make('certificado')
                                         ->label('Certificado Digital'),
                                     FileUpload::make('logo')
-                                        ->label('Logotipo'),
+                                        ->label('Logotipo')
+                                        ->image()
+                                        ->directory('logos_clientes'),
                                     \Njxqlus\Filament\Components\Forms\RelationManager::make()
                                         ->manager(HistoricoObservacoesRelationManager::class)
                                         ->lazy(true)
@@ -383,10 +449,55 @@ class ClienteResource extends Resource
                     ]),
                     Tab::make('Contatos com cliente')->schema([
                         \Njxqlus\Filament\Components\Forms\RelationManager::make()->manager(ContatosComClienteRelationManager::class)
-                        ->lazy(true)
+                            ->lazy(true)
+                    ])->hidden(fn (mixed $livewire) => $livewire instanceof CreateRecord),
+                    Tab::make('Faturas')->schema([
+                        \Njxqlus\Filament\Components\Forms\RelationManager::make()->manager(FaturasRelationManager::class)
+                            ->lazy(true)
+                    ])->hidden(fn (mixed $livewire) => $livewire instanceof CreateRecord),
+                    Tab::make('Serviços')->schema([
+                        \Njxqlus\Filament\Components\Forms\RelationManager::make()->manager(ServicosClienteRelationManager::class)
+                            ->lazy(true)
+                    ])->hidden(fn (mixed $livewire) => $livewire instanceof CreateRecord),
+                    Tab::make('Nº Profissionais')->schema([
+                        \Njxqlus\Filament\Components\Forms\RelationManager::make()->manager(HistoricoNumeroProfissionaisRelationManager::class)
+                            ->lazy(true)
+                    ])->hidden(fn (mixed $livewire) => $livewire instanceof CreateRecord),
+                    Tab::make('Saikoo Web')->schema([
+                        Fieldset::make('Saikoo Web')
+                            ->relationship('conexaoSaikooWeb')
+                            ->schema([
+                                TextInput::make('url_app')
+                                    ->label('URL do App')
+                                    ->nullable(),
+                                TextInput::make('url')
+                                    ->label('URL')
+                                    ->nullable(),
+                                TextInput::make('host')
+                                    ->label('Host')
+                                    ->nullable(),
+                                TextInput::make('usuario')
+                                    ->label('Usuário')
+                                    ->nullable(),
+                                TextInput::make('senha')
+                                    ->label('Senha')
+                                    ->password()
+                                    ->nullable(),
+                                TextInput::make('bd')
+                                    ->label('Banco de Dados')
+                                    ->nullable(),
+                                Toggle::make('status')
+                                    ->label('Status')
+                                    ->nullable()
+                                    ->default(1),
+                            ])
+                            ->columns(3)
+                    ])->hidden(fn (mixed $livewire) => $livewire instanceof CreateRecord),
+                    Tab::make('Parceiros')->schema([
+                        \Njxqlus\Filament\Components\Forms\RelationManager::make()->manager(ParceirosRelationManager::class)
+                            ->lazy(true)
                     ])->hidden(fn (mixed $livewire) => $livewire instanceof CreateRecord),
                 ]),
-
             ])->columns(1);
     }
 
@@ -394,26 +505,99 @@ class ClienteResource extends Resource
     {
         return $table
             ->columns([
+                Tables\Columns\ImageColumn::make('logo')
+                    ->label('Logo')
+                    ->circular()
+                    ->height(40),
                 Tables\Columns\TextColumn::make('codigo')
                     ->label('Código')
-                    ->sortable(),
+                    ->sortable()
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('nome')
+                    ->label('Razão')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('nomefantasia')
+                    ->label('Fantasia')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('bairro')
+                    ->label('Bairro')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('cidade')
+                    ->label('Cidade')
+                    ->searchable(),
                 Tables\Columns\ToggleColumn::make('status')
                     ->label('Ativo'),
-                Tables\Columns\TextColumn::make('autor.name')
-                    ->label('Usuário')
-                    ->badge()
-                    ->color('gray'),
-                Tables\Columns\TextColumn::make('nome')
-                    ->label('Razão'),
-                Tables\Columns\TextColumn::make('nomefantasia')
-                    ->label('Fantasia'),
-                Tables\Columns\TextColumn::make('bairro')
-                    ->label('Bairro'),
-                Tables\Columns\TextColumn::make('cidade')
-                    ->label('Cidade'),
             ])
             ->filters([
-                //
+                Filter::make('status')
+                    ->query(fn (Builder $query): Builder => $query->where('status', 'A'))
+                    ->label('Apenas ativos'),
+                Filter::make('em_implantacao')
+                    ->query(fn (Builder $query): Builder => $query->where('em_implantacao', true)),
+                Filter::make('dynamic_filters')
+                    ->form([
+                        Repeater::make('filters')
+                            ->schema([
+                                Select::make('field')
+                                    ->options([
+                                        'codigo' => 'Código',
+                                        'nome' => 'Razão',
+                                        'nomefantasia' => 'Fantasia',
+                                        'bairro' => 'Bairro',
+                                        'cidade' => 'Cidade',
+                                        'uf' => 'UF',
+                                    ])
+                                    ->label('Campo')
+                                    ->required(),
+                                Select::make('condition')
+                                    ->options([
+                                        'equals' => 'Igual',
+                                        'not_equals' => 'Diferente',
+                                        'contains' => 'Contém',
+                                        'starts_with' => 'Começa com',
+                                        'ends_with' => 'Termina com',
+                                        'greater_than' => 'Maior que',
+                                        'less_than' => 'Menor que',
+                                    ])
+                                    ->label('Condição')
+                                    ->required(),
+                                TextInput::make('value')
+                                    ->label('Valor')
+                                    ->required(),
+                            ])
+                            ->label('Filtros')
+                    ])
+                    ->query(function (Builder $query, array $data) {
+                        foreach ($data['filters'] as $filter) {
+                            $field = $filter['field'];
+                            $condition = $filter['condition'];
+                            $value = $filter['value'];
+
+                            switch ($condition) {
+                                case 'equals':
+                                    $query->where($field, '=', $value);
+                                    break;
+                                case 'not_equals':
+                                    $query->where($field, '!=', $value);
+                                    break;
+                                case 'contains':
+                                    $query->where($field, 'like', '%' . $value . '%');
+                                    break;
+                                case 'starts_with':
+                                    $query->where($field, 'like', $value . '%');
+                                    break;
+                                case 'ends_with':
+                                    $query->where($field, 'like', '%' . $value);
+                                    break;
+                                case 'greater_than':
+                                    $query->where($field, '>', $value);
+                                    break;
+                                case 'less_than':
+                                    $query->where($field, '<', $value);
+                                    break;
+                            }
+                        }
+                    }),
             ])
             ->actions([
                 // Tables\Actions\ViewAction::make(),
@@ -435,5 +619,4 @@ class ClienteResource extends Resource
             'edit' => Pages\EditCliente::route('/{record}/edit'),
         ];
     }
-
 }

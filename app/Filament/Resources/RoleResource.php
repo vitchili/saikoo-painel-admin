@@ -4,14 +4,20 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\RoleResource\Pages;
 use App\Filament\Resources\RoleResource\RelationManagers;
+use App\Models\Permission;
 use App\Models\Role;
 use Filament\Forms;
+use Filament\Forms\Components\Checkbox;
+use Filament\Forms\Components\CheckboxList;
+use Filament\Forms\Components\Fieldset;
+use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Arr;
 
 class RoleResource extends Resource
 {
@@ -29,6 +35,8 @@ class RoleResource extends Resource
 
     public static function form(Form $form): Form
     {
+        $options = Permission::all()->pluck('name', 'id')->toArray();
+
         return $form
             ->schema([
                 Forms\Components\TextInput::make('name')
@@ -36,12 +44,6 @@ class RoleResource extends Resource
                     ->required()
                     ->unique(ignoreRecord: true)
                     ->maxLength(255),
-                Forms\Components\Select::make('permissions')
-                    ->label('Permissões')
-                    ->multiple()
-                    ->relationship(titleAttribute: 'name')
-                    ->required()
-                    ->preload()
             ]);
     }
 
