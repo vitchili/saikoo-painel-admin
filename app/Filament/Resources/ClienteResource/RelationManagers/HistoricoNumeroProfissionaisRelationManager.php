@@ -18,9 +18,6 @@ class HistoricoNumeroProfissionaisRelationManager extends RelationManager
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('id_cliente')
-                    ->required()
-                    ->maxLength(255),
             ]);
     }
 
@@ -29,7 +26,16 @@ class HistoricoNumeroProfissionaisRelationManager extends RelationManager
         return $table
             ->recordTitleAttribute('id_cliente')
             ->columns([
-                Tables\Columns\TextColumn::make('id_cliente'),
+                Tables\Columns\TextColumn::make('qtd_profissionais')
+                    ->label('Qtd Profissionais')
+                    ->sortable()
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('dta_atualizacao')
+                    ->label('Data atualização')
+                    ->datetime(),
+                Tables\Columns\TextColumn::make('cadastrado_em')
+                    ->label('Data atualização')
+                    ->datetime(),
             ])
             ->filters([
                 //

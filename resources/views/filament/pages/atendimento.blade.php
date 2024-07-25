@@ -1,5 +1,5 @@
-@extends('master')
-@section('content')
+
+<div id="app">
 <x-filament-panels::page style="width: 100%; margin-left: 0px">
     <div class="flex justify-end m-0">
         <div class="fi-ac gap-3 flex flex-wrap items-center justify-start shrink-0 sm:mt-0">
@@ -13,4 +13,5 @@
     </div>
     <App :lembretes="{{ json_encode($lembretes) }}" :chamados="{{ json_encode($chamados) }}"/>
 </x-filament-panels::page>
-@endsection
+@vite('resources/js/app.js')
+</div>

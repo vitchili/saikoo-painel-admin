@@ -151,7 +151,8 @@ class ChamadoResource extends Resource
                     ->dateTime('d/m/Y')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('cliente.nome')
-                    ->label('Cliente'),
+                    ->label('Cliente')
+                    ->limit(20),
                 Tables\Columns\TextColumn::make('descricao')
                     ->label('Descrição')
                     ->size(TextColumnSize::ExtraSmall)
@@ -165,13 +166,18 @@ class ChamadoResource extends Resource
                     ->label('Tipo'),
                 Tables\Columns\TextColumn::make('meioAbertura.nome')
                     ->label('Meio Abertura'),
+                Tables\Columns\TextColumn::make('situacao_id')
+                    ->label('Situação')
+                    ->formatStateUsing(fn ($state) => SituacaoChamado::from($state)->label())
+                    ->badge()
+                    ->sortable()
+                    ->searchable(),
             ])
             ->filters([
                 //
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
-                CommentsAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

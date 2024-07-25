@@ -48,4 +48,9 @@ class ContatoComCliente extends Model
         return $this->belongsTo(TipoContatoComCliente::class, 'tipo_contato_com_cliente_id');
     }
 
+    public function historicoContatoComCliente()
+    {
+        return $this->hasMany(HistoricoContatoComCliente::class, 'cliente_id');
+    }
+
 }

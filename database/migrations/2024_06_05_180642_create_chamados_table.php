@@ -24,9 +24,9 @@ return new class extends Migration
             $table->datetime('data_hora_final')->nullable();
             $table->integer('situacao_id')->nullable()->default(SituacaoChamado::ABERTO->value);
             $table->text('descricao')->nullable();
-            $table->foreignIdFor(\App\Models\Diversos\Veiculo::class, 'veiculo_id');
-            $table->foreignIdFor(\App\Models\User::class, 'tecnico_condutor_ida_id');
-            $table->foreignIdFor(\App\Models\User::class, 'tecnico_condutor_volta_id');
+            $table->foreignIdFor(\App\Models\Diversos\Veiculo::class, 'veiculo_id')->nullable();
+            $table->foreignIdFor(\App\Models\User::class, 'tecnico_condutor_ida_id')->nullable();
+            $table->foreignIdFor(\App\Models\User::class, 'tecnico_condutor_volta_id')->nullable();
             $table->boolean('sera_cobrado')->nullable();
             $table->boolean('fatura_foi_alterada')->nullable();
             $table->date('vencimento_fatura')->nullable();

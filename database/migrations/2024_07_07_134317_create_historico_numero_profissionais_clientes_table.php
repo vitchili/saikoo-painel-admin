@@ -11,12 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('historico_numero_profissionais_clientes', function (Blueprint $table) {
-            $table->id();
-            $table->foreignIdFor(\App\Models\Cliente\Cliente::class, 'cliente_id');
-            $table->integer('quantidade');
+        Schema::create('numero_profissionais_sistema', function (Blueprint $table) {
+            $table->id('id_numero_profissionais_sistema');
+            $table->foreignIdFor(\App\Models\Cliente\Cliente::class, 'id_cliente');
+            $table->integer('qtd_profissionais');
             $table->timestamp('cadastrado_em')->useCurrent();
-            $table->timestamp('atualizado_em')->nullable()->useCurrent()->useCurrentOnUpdate();
+            $table->timestamp('dta_atualizacao')->nullable()->useCurrent()->useCurrentOnUpdate();
         });
     }
 
@@ -25,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('historico_numero_profissionais_clientes');
+        Schema::dropIfExists('numero_profissionais_sistema');
     }
 };

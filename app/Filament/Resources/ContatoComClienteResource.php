@@ -4,20 +4,22 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\ContatoComClienteResource\Pages;
 use App\Filament\Resources\ContatoComClienteResource\RelationManagers\ClienteRelationManager;
+use App\Filament\Resources\ContatoComClienteResource\RelationManagers\HistoricoContatoComClienteRelationManager;
 use App\Models\Cliente\Cliente;
 use App\Models\Cliente\Contato\ContatoComCliente;
 use App\Models\Cliente\Contato\Enum\SituacaoContato;
 use App\Models\Cliente\TipoContatoPessoaCliente;
 use App\Models\User;
 use Filament\Forms;
+use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Tabs;
 use Filament\Forms\Components\Tabs\Tab;
 use Filament\Forms\Form;
+use Filament\Resources\Pages\CreateRecord;
 use Filament\Resources\Resource;
 use Filament\Support\RawJs;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Parallax\FilamentComments\Tables\Actions\CommentsAction;
 
 class ContatoComClienteResource extends Resource
 {
@@ -71,7 +73,28 @@ class ContatoComClienteResource extends Resource
                         Forms\Components\DatePicker::make('data_retorno')
                             ->label('Data Retorno')
                             ->afterOrEqual('data_contato'),
+                        RichEditor::make('descricao')
+                            ->toolbarButtons([
+                                'blockquote',
+                                'bold',
+                                'bulletList',
+                                'codeBlock',
+                                'italic',
+                                'link',
+                                'orderedList',
+                                'redo',
+                                'strike',
+                                'underline',
+                                'undo',
+                            ])
+                            ->columnSpanFull()
+                            ->label('Descrição do contato'),
+                        \Njxqlus\Filament\Components\Forms\RelationManager::make()
+                            ->manager(HistoricoContatoComClienteRelationManager::class)
+                            ->lazy(true)
+                            ->hidden(fn (mixed $livewire) => $livewire instanceof CreateRecord)
                     ])->columns(2),
+
                 ]),
             ])->columns(1);
     }
@@ -81,12 +104,17 @@ class ContatoComClienteResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('cliente.codigo')
+                    ->label('Código')    
                     ->searchable(),
                 Tables\Columns\TextColumn::make('cliente.nome')
-                    ->searchable(),
+                    ->label('Nome')
+                    ->searchable()
+                    ->limit(20),
                 Tables\Columns\TextColumn::make('tipoContato.nome')
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('nome')
+                    ->label('Resp. Contato')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('telefone')
                     ->searchable(),
@@ -100,7 +128,6 @@ class ContatoComClienteResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
-                CommentsAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -112,7 +139,7 @@ class ContatoComClienteResource extends Resource
     public static function getRelations(): array
     {
         return [
-            ClienteRelationManager::class
+            // ClienteRelationManager::class
         ];
     }
 

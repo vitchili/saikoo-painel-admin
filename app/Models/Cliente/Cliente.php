@@ -6,9 +6,12 @@ use App\Models\Cliente\Contato\ContatoComCliente;
 use App\Models\Cliente\ContatoPessoaCliente;
 use App\Models\Cliente\Fatura\FaturaCliente;
 use App\Models\Cliente\HistoricoNumeroProfissionais\HistoricoNumeroProfissionaisCliente;
+use App\Models\Cliente\Implantacao\ImplantacaoCliente;
 use App\Models\Cliente\Parceiro\ParceiroCliente;
 use App\Models\Cliente\SaikooWeb\SaikooWebCliente;
+use App\Models\Cliente\Serial\SerialCliente;
 use App\Models\Cliente\Servico\ServicoCliente;
+use App\Models\Cliente\TicketDesenvolvimento\TicketDesenvolvimento;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -155,7 +158,7 @@ class Cliente extends Model
 
     public function historicoNumeroProfissionais()
     {
-        return $this->hasMany(HistoricoNumeroProfissionaisCliente::class, 'cliente_id');
+        return $this->hasMany(HistoricoNumeroProfissionaisCliente::class, 'id_cliente');
     }
 
     public function conexaoSaikooWeb()
@@ -166,5 +169,20 @@ class Cliente extends Model
     public function parceiros()
     {
         return $this->hasMany(ParceiroCliente::class, 'cliente_id');
+    }
+
+    public function seriais()
+    {
+        return $this->hasMany(SerialCliente::class, 'id_cliente');
+    }
+
+    public function implantacaoCliente()
+    {
+        return $this->hasOne(ImplantacaoCliente::class, 'cliente_id');
+    }
+
+    public function ticketsDesenvolvimento()
+    {
+        return $this->hasMany(TicketDesenvolvimento::class, 'cliente_id');
     }
 }

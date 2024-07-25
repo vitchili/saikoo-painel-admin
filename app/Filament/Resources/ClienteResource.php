@@ -2,13 +2,17 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Resources\ClienteResource\FormImplantacao\FormImplantacaoCliente;
 use App\Filament\Resources\ClienteResource\Pages;
 use App\Filament\Resources\ClienteResource\RelationManagers\ContatosComClienteRelationManager;
 use App\Filament\Resources\ClienteResource\RelationManagers\FaturasRelationManager;
 use App\Filament\Resources\ClienteResource\RelationManagers\HistoricoNumeroProfissionaisRelationManager;
 use App\Filament\Resources\ClienteResource\RelationManagers\HistoricoObservacoesRelationManager;
 use App\Filament\Resources\ClienteResource\RelationManagers\ParceirosRelationManager;
+use App\Filament\Resources\ClienteResource\RelationManagers\SeriaisRelationManager;
 use App\Filament\Resources\ClienteResource\RelationManagers\ServicosClienteRelationManager;
+use App\Filament\Resources\ClienteResource\RelationManagers\TicketsDesenvolvimentoRelationManager;
+use App\Models\Banco;
 use App\Models\Cliente\Cliente;
 use App\Models\Cliente\Contato\Enum\Estado;
 use App\Models\Cliente\TipoCliente;
@@ -87,6 +91,8 @@ class ClienteResource extends Resource
                                     TextInput::make('codigo')
                                         ->label('Código')
                                         ->unique(ignoreRecord: true)
+                                        ->readOnly()
+                                        ->hidden(fn (mixed $livewire) => empty($livewire->data['tornar_cliente']) || $livewire->data['tornar_cliente'] != 'S')
                                         ->maxLength(255),
                                     TextInput::make('cpf_cnpj')
                                         ->label('CNPJ')
@@ -324,7 +330,8 @@ class ClienteResource extends Resource
                                         ->schema([
                                             Select::make('banco')
                                                 ->label('Banco')
-                                                ->options([])
+                                                ->options(Banco::all()->pluck('nome', 'id'))
+                                                ->preload()
                                                 ->searchable(),
                                             Select::make('tipo_conta')
                                                 ->label('Tipo de Conta')
@@ -443,26 +450,26 @@ class ClienteResource extends Resource
                                     \Njxqlus\Filament\Components\Forms\RelationManager::make()
                                         ->manager(HistoricoObservacoesRelationManager::class)
                                         ->lazy(true)
-                                        ->hidden(fn (mixed $livewire) => $livewire instanceof CreateRecord)
+                                        ->hidden(fn (mixed $livewire) => empty($livewire->data['tornar_cliente']) || $livewire->data['tornar_cliente'] != 'S')
                                 ]),
                         ]),
                     ]),
-                    Tab::make('Contatos com cliente')->schema([
-                        \Njxqlus\Filament\Components\Forms\RelationManager::make()->manager(ContatosComClienteRelationManager::class)
-                            ->lazy(true)
-                    ])->hidden(fn (mixed $livewire) => $livewire instanceof CreateRecord),
                     Tab::make('Faturas')->schema([
                         \Njxqlus\Filament\Components\Forms\RelationManager::make()->manager(FaturasRelationManager::class)
                             ->lazy(true)
-                    ])->hidden(fn (mixed $livewire) => $livewire instanceof CreateRecord),
+                    ])->hidden(fn (mixed $livewire) => empty($livewire->data['tornar_cliente']) || $livewire->data['tornar_cliente'] != 'S'),
+                    Tab::make('Seriais')->schema([
+                        \Njxqlus\Filament\Components\Forms\RelationManager::make()->manager(SeriaisRelationManager::class)
+                            ->lazy(true)
+                    ])->hidden(fn (mixed $livewire) => empty($livewire->data['tornar_cliente']) || $livewire->data['tornar_cliente'] != 'S'),
                     Tab::make('Serviços')->schema([
                         \Njxqlus\Filament\Components\Forms\RelationManager::make()->manager(ServicosClienteRelationManager::class)
                             ->lazy(true)
-                    ])->hidden(fn (mixed $livewire) => $livewire instanceof CreateRecord),
+                    ])->hidden(fn (mixed $livewire) => empty($livewire->data['tornar_cliente']) || $livewire->data['tornar_cliente'] != 'S'),
                     Tab::make('Nº Profissionais')->schema([
                         \Njxqlus\Filament\Components\Forms\RelationManager::make()->manager(HistoricoNumeroProfissionaisRelationManager::class)
                             ->lazy(true)
-                    ])->hidden(fn (mixed $livewire) => $livewire instanceof CreateRecord),
+                    ])->hidden(fn (mixed $livewire) => empty($livewire->data['tornar_cliente']) || $livewire->data['tornar_cliente'] != 'S'),
                     Tab::make('Saikoo Web')->schema([
                         Fieldset::make('Saikoo Web')
                             ->relationship('conexaoSaikooWeb')
@@ -492,11 +499,23 @@ class ClienteResource extends Resource
                                     ->default(1),
                             ])
                             ->columns(3)
+                    ])->hidden(fn (mixed $livewire) => empty($livewire->data['tornar_cliente']) || $livewire->data['tornar_cliente'] != 'S'),
+                    Tab::make('Contatos com cliente')->schema([
+                        \Njxqlus\Filament\Components\Forms\RelationManager::make()->manager(ContatosComClienteRelationManager::class)
+                            ->lazy(true)
                     ])->hidden(fn (mixed $livewire) => $livewire instanceof CreateRecord),
+                    Tab::make('Implantação')->schema(
+                        FormImplantacaoCliente::getForm()
+                    )->hidden(fn (mixed $livewire) => empty($livewire->data['tornar_cliente']) || $livewire->data['tornar_cliente'] != 'S'),
                     Tab::make('Parceiros')->schema([
                         \Njxqlus\Filament\Components\Forms\RelationManager::make()->manager(ParceirosRelationManager::class)
                             ->lazy(true)
-                    ])->hidden(fn (mixed $livewire) => $livewire instanceof CreateRecord),
+                    ])->hidden(fn (mixed $livewire) => empty($livewire->data['tornar_cliente']) || $livewire->data['tornar_cliente'] != 'S'),
+                    Tab::make('Tickets Desenv.')->schema([
+                        \Njxqlus\Filament\Components\Forms\RelationManager::make()->manager(TicketsDesenvolvimentoRelationManager::class)
+                            ->lazy(true)
+                    ])->hidden(fn (mixed $livewire) => empty($livewire->data['tornar_cliente']) || $livewire->data['tornar_cliente'] != 'S'),
+                    
                 ]),
             ])->columns(1);
     }
@@ -515,9 +534,13 @@ class ClienteResource extends Resource
                     ->searchable(),
                 Tables\Columns\TextColumn::make('nome')
                     ->label('Razão')
-                    ->searchable(),
+                    ->searchable()
+                    ->sortable()
+                    ->limit(30),
                 Tables\Columns\TextColumn::make('nomefantasia')
                     ->label('Fantasia')
+                    ->limit(30)
+                    ->sortable()
                     ->searchable(),
                 Tables\Columns\TextColumn::make('bairro')
                     ->label('Bairro')

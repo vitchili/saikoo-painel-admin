@@ -10,16 +10,16 @@ class HistoricoNumeroProfissionaisCliente extends Model
 {
     use HasFactory;
 
-    protected $table = 'historico_numero_profissionais_clientes';
+    protected $table = 'numero_profissionais_sistema';
 
     const CREATED_AT = 'cadastrado_em';
 
-    const UPDATED_AT = 'atualizado_em';
+    const UPDATED_AT = 'dta_atualizacao';
 
     protected $fillable = [
-        'cliente_id',
-        'quantidade',
-        'atualizado_em',
+        'id_cliente',
+        'qtd_profissionais',
+        'dta_atualizacao',
         'cadastrado_em'
     ];
 

@@ -161,8 +161,8 @@ class ServicosClienteRelationManager extends RelationManager
                     ->date('d/m/Y'),
                 Tables\Columns\TextColumn::make('periodicidade')
                     ->label('Período'),
-                Tables\Columns\TextColumn::make('em_implatacao')
-                    ->label('Implantação'),
+                Tables\Columns\ToggleColumn::make('em_implatacao')
+                    ->label('Em Implantação'),
             ])
             ->filters([
                 //
