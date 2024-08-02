@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Banco extends Model
+class Representante extends Model
 {
     use HasFactory;
 
@@ -19,9 +19,20 @@ class Banco extends Model
      * @var array<int, string>
      */
     protected $fillable = [
-        'ispb',
+        'status',
+        'mostrarNoSite',
         'nome',
-        'codigo',
-        'nome_completo',
+        'cpf',
+        'cep',
+        'logradouro',
+        'complemento',
+        'numero',
+        'bairro',
+        'cidade',
+        'estado',
+        'telefone',
+        'telefoneSecundario',
+        'email',
     ];
+
 }

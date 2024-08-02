@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('serial');
             $table->date('vencimento_serial');
             $table->string('usuario_gerado');
-            $table->foreignIdFor(\App\Models\Cliente\Cliente::class, 'id_cliente');
+            $table->integer('id_cliente');
             $table->string('cnpj_serial')->nullable();
             $table->string('obs')->nullable();
             $table->string('tipo')->nullable()->comment('Cliente/Representante')->default('C');

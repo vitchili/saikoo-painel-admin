@@ -145,13 +145,16 @@ class ChamadoResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('id')
                     ->label('Código')
+                    ->size(TextColumnSize::ExtraSmall)
                     ->sortable(),
                     Tables\Columns\TextColumn::make('cadastrado_em')
                     ->label('Data')
+                    ->size(TextColumnSize::ExtraSmall)
                     ->dateTime('d/m/Y')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('cliente.nome')
                     ->label('Cliente')
+                    ->size(TextColumnSize::ExtraSmall)
                     ->limit(20),
                 Tables\Columns\TextColumn::make('descricao')
                     ->label('Descrição')
@@ -161,13 +164,17 @@ class ChamadoResource extends Resource
                     })
                     ->wrap(),
                 Tables\Columns\TextColumn::make('departamento.nome')
-                    ->label('Departamento'),
+                    ->label('Departamento')
+                    ->size(TextColumnSize::ExtraSmall),
                 Tables\Columns\TextColumn::make('tipoChamado.nome')
-                    ->label('Tipo'),
+                    ->label('Tipo')
+                    ->size(TextColumnSize::ExtraSmall),
                 Tables\Columns\TextColumn::make('meioAbertura.nome')
-                    ->label('Meio Abertura'),
+                    ->label('Abertura')
+                    ->size(TextColumnSize::ExtraSmall),
                 Tables\Columns\TextColumn::make('situacao_id')
                     ->label('Situação')
+                    ->size(TextColumnSize::ExtraSmall)
                     ->formatStateUsing(fn ($state) => SituacaoChamado::from($state)->label())
                     ->badge()
                     ->sortable()

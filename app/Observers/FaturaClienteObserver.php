@@ -28,18 +28,16 @@ class FaturaClienteObserver
         $vencimentoOriginal = new Carbon($faturaCliente->vencimento);
         $vencimentoOriginal->toDateString();
         
-        $ultimaFatura = FaturaCliente::where('id_cliente', '=', $faturaCliente->id_cliente)->orderBy('id', 'desc')->first();
-
         for($i=1; $i<=$faturaCliente->qtd; $i++) {
             $novoVencimento = Carbon::parse($vencimentoOriginal)->addMonthNoOverflow($i)->toDateString();
 
             FaturaCliente::create([
-                'id_cliente' => $ultimaFatura->id_cliente,
-                'codigo_cliente' => $ultimaFatura->codigo_cliente,
+                'id_cliente' => $faturaCliente->id_cliente,
+                'codigo_cliente' => $faturaCliente->codigo_cliente,
                 'vencimento' => $novoVencimento,
                 'valor' => $faturaCliente->valor,
                 // 'serial' => $faturaCliente->serial,
-                'cpf_cnpj' => $ultimaFatura->cpf_cnpj,
+                'cpf_cnpj' => $faturaCliente->cpf_cnpj,
                 'formapagamento' => $faturaCliente->formapagamento,
                 'referencia' => $faturaCliente->referencia,
                 'info_add' => $faturaCliente->info_add,

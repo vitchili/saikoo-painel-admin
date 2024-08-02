@@ -3,7 +3,7 @@
     style="height: 700px" 
     class="vuecal--blue-theme" 
     locale="pt-br"
-    :time-from="7.5 * 60"
+    :time-from="7 * 60"
     :time-to="21 * 60"
     :time-step="60"
     :disable-views="['years', 'year']"
@@ -97,21 +97,38 @@ export default {
     },
     onEventDrop ({ event, originalEvent, external }) {
       var location = (window.location.href).split('/admin/atendimento');
-
-      put(`${location[0]}/lembretes/${event.id}`, event).then(
-        (response) => {
-          console.log(response);
-        }
-      );
+      
+      if (event.content == 'Lembrete'){
+        put(`${location[0]}/lembretes/${event.id}`, event).then(
+          (response) => {
+            console.log(response);
+          }
+        );
+      } else {
+        put(`${location[0]}/chamados/${event.id}`, event).then(
+          (response) => {
+            console.log(response);
+          }
+        );
+      }
+      
     },
     onEventResize (event, oldDate, originalEvent) {
       var location = (window.location.href).split('/admin/atendimento');
 
-      put(`${location[0]}/lembretes/${event.id}`, event).then(
-        (response) => {
-          console.log(response);
-        }
-      );
+      if (event.content == 'Lembrete'){
+        put(`${location[0]}/lembretes/${event.id}`, event).then(
+          (response) => {
+            console.log(response);
+          }
+        );
+      } else {
+        put(`${location[0]}/chamados/${event.id}`, event).then(
+          (response) => {
+            console.log(response);
+          }
+        );
+      }
     }
   }
 }

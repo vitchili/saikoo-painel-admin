@@ -5,6 +5,7 @@ namespace App\Filament\Resources\ClienteResource\RelationManagers;
 use App\Models\Cliente\Servico\Enum\ParametroComissao;
 use App\Models\Cliente\Servico\Enum\PeriodicidadeServico;
 use App\Models\Cliente\Servico\TipoServicoCliente;
+use App\Models\Representante;
 use Filament\Forms;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Fieldset;
@@ -48,7 +49,7 @@ class ServicosClienteRelationManager extends RelationManager
                             ->required()
                             ->columnSpan(2),
                         Select::make('id_representante')
-                            ->options([])
+                            ->options(Representante::all()->pluck('nome', 'id'))
                             ->preload()
                             ->label('Representante')
                             ->searchable()

@@ -5,7 +5,7 @@
     <em class="vuecal__event-time">
       <strong>{{ event.content }}</strong>
       <br>
-      <span>{{ event.descricao }}</span>
+      <span>{{ event.start.toLocaleString() }} <br> {{ event.end.toLocaleString() }} <br> <br> {{event.descricao}}</span>
     </em>
   </div>
 </template>

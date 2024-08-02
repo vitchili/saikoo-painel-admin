@@ -17,7 +17,8 @@ return new class extends Migration
             $table->string('nome', 100);
             $table->string('codigo', 3);
             $table->string('nome_completo', 100);
-            $table->timestamps();
+            $table->timestamp('cadastrado_em')->useCurrent();
+            $table->timestamp('atualizado_em')->nullable()->useCurrent()->useCurrentOnUpdate();
         });
     }
 

@@ -11,7 +11,9 @@ class LembreteObserver
      */
     public function creating(Lembrete $lembrete): void
     {
-        $lembrete->criado_por = auth()->user()->id;
+        if (! empty(auth()->user())) {
+            $lembrete->criado_por = auth()->user()->id;
+        }
     }
 
     /**

@@ -18,6 +18,7 @@ use App\Models\Cliente\Contato\Enum\Estado;
 use App\Models\Cliente\TipoCliente;
 use App\Models\Cliente\TipoContatoPessoaCliente;
 use App\Models\Cliente\TipoRedeSocialCliente;
+use App\Models\Representante;
 use App\Models\User;
 use Filament\Forms\ComponentContainer;
 use Filament\Forms\Components\Actions\Action;
@@ -69,7 +70,7 @@ class ClienteResource extends Resource
                                         ->inlineLabel(false),
                                     Select::make('id_representante')
                                         ->label('Representante')
-                                        ->options([])
+                                        ->options(Representante::all()->pluck('nome', 'id'))
                                         ->searchable(),
                                     Radio::make('cliente_parceiro')
                                         ->label('Parceiro')

@@ -184,7 +184,7 @@ class TicketsDesenvolvimentoRelationManager extends RelationManager
         return $table
             ->recordTitleAttribute('id')
             ->columns([
-                Tables\Columns\ImageColumn::make('id')
+                Tables\Columns\TextColumn::make('id')
                     ->label('Código')
                     ->sortable()
                     ->searchable(),
@@ -224,7 +224,7 @@ class TicketsDesenvolvimentoRelationManager extends RelationManager
                     ->searchable(),
                 Tables\Columns\TextColumn::make('situacao_id')
                     ->label('Situação')
-                    ->formatStateUsing(fn ($state) => SituacaoTicketDesenvolvimentoEnum::from($state)->label())
+                    ->formatStateUsing(fn ($state) => dd($state))
                     ->sortable()
                     ->searchable(),
             ])

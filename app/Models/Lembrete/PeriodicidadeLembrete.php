@@ -10,6 +10,13 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class PeriodicidadeLembrete extends Model
 {
+    public const PERIODICIDADE_ATIPICO = 1;
+    public const PERIODICIDADE_DIARIO = 2;
+    public const PERIODICIDADE_SEMANAL = 3;
+    public const PERIODICIDADE_QUINZENAL = 4;
+    public const PERIODICIDADE_MENSAL = 5;
+    public const PERIODICIDADE_ANUAL = 6;
+
     use HasFactory;
 
     protected $table = 'periodicidades';
