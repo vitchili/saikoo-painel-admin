@@ -93,6 +93,7 @@ class ContatoComClienteResource extends Resource
                             ->manager(HistoricoContatoComClienteRelationManager::class)
                             ->lazy(true)
                             ->hidden(fn (mixed $livewire) => $livewire instanceof CreateRecord)
+                            ->columnSpanFull()
                     ])->columns(2),
 
                 ]),

@@ -5,9 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Representante extends Model
+class VersaoSistema extends Model
 {
     use HasFactory;
+
+    protected $table = 'versoes_sistemas';
 
     const CREATED_AT = 'cadastrado_em';
 
@@ -19,19 +21,10 @@ class Representante extends Model
      * @var array<int, string>
      */
     protected $fillable = [
-        'status',
-        'mostrarNoSite',
-        'nome',
-        'cpf',
-        'cep',
-        'logradouro',
-        'complemento',
-        'numero',
-        'bairro',
-        'cidade',
-        'estado',
-        'telefone',
-        'telefoneSecundario',
-        'email',
+        'versao',
+        'em_desenvolvimento',
+        'disponivel_para_atualizacao',
+        'data_disponivel',
+        'obs',
     ];
 }
