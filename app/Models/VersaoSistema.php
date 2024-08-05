@@ -2,8 +2,10 @@
 
 namespace App\Models;
 
+use App\Models\Cliente\TicketDesenvolvimento\TicketDesenvolvimento;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class VersaoSistema extends Model
 {
@@ -27,4 +29,9 @@ class VersaoSistema extends Model
         'data_disponivel',
         'obs',
     ];
+
+    public function tickets(): HasMany
+    {
+        return $this->hasMany(TicketDesenvolvimento::class);
+    }
 }

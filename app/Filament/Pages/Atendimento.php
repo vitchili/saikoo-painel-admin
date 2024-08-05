@@ -5,7 +5,6 @@ namespace App\Filament\Pages;
 use App\Models\Chamado\Chamado;
 use App\Models\Lembrete\Lembrete;
 use Filament\Pages\Page;
-use Illuminate\Database\Eloquent\Collection;
 
 class Atendimento extends Page
 {

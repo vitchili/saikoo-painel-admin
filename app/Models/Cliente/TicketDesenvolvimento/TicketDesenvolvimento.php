@@ -8,6 +8,7 @@ use App\Models\Diversos\Subtela;
 use App\Models\Diversos\Tela;
 use App\Models\Diversos\Sistema;
 use App\Models\User;
+use App\Models\VersaoSistema;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -94,5 +95,8 @@ class TicketDesenvolvimento extends Model
         return $this->belongsTo(User::class, 'desenvolvedor_id');
     }
 
-
+    public function versao(): BelongsTo
+    {
+        return $this->belongsTo(VersaoSistema::class, 'versao_id');
+    }
 }

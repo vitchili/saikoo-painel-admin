@@ -68,6 +68,9 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
         $originalPath = asset($this->avatar_url);
         $originalPath = str_replace('/fotos_perfis', '/storage/fotos_perfis', $originalPath);
 
+        if (empty($this->avatar_url)) {
+            return null;
+        }
         return $originalPath;
     }
 }
