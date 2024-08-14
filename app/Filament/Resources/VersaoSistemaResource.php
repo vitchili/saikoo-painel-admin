@@ -12,6 +12,7 @@ use Filament\Forms\Components\Section;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Columns\TextColumn\TextColumnSize;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -76,20 +77,24 @@ class VersaoSistemaResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('versao')
+                    ->size(TextColumnSize::ExtraSmall)
                     ->searchable(),
                 Tables\Columns\ToggleColumn::make('em_desenvolvimento')
                     ->label('Em desenvolvimento'),
                 Tables\Columns\ToggleColumn::make('disponivel_para_atualizacao')
                     ->label('Disp. para atualização'),
                 Tables\Columns\TextColumn::make('data_disponivel')
+                    ->size(TextColumnSize::ExtraSmall)
                     ->date('d/m/Y')
                     ->label('Data disponível')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('cadastrado_em')
+                    ->size(TextColumnSize::ExtraSmall)
                     ->dateTime('d/m/Y H:i:s')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('atualizado_em')
+                    ->size(TextColumnSize::ExtraSmall)
                     ->dateTime('d/m/Y H:i:s')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),

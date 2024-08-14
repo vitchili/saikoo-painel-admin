@@ -14,6 +14,7 @@ use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Columns\TextColumn\TextColumnSize;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -30,7 +31,7 @@ class RoleResource extends Resource
     protected static ?string $slug = 'tipo-perfil';
 
     protected static ?string $modelLabel = 'Perfil de acesso';
-    
+
     protected static ?string $navigationParentItem = 'Usuários';
 
     public static function form(Form $form): Form
@@ -52,15 +53,18 @@ class RoleResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('name')
+                    ->size(TextColumnSize::ExtraSmall)
                     ->label('Nome')
                     ->sortable()
                     ->searchable(),
                 Tables\Columns\TextColumn::make('created_at')
+                    ->size(TextColumnSize::ExtraSmall)
                     ->label('Cadastrado em')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('updated_at')
+                    ->size(TextColumnSize::ExtraSmall)
                     ->label('Atualizado em')
                     ->dateTime()
                     ->sortable()

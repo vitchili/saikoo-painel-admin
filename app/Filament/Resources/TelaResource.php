@@ -10,6 +10,7 @@ use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Columns\TextColumn\TextColumnSize;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -53,10 +54,12 @@ class TelaResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('modulo.nome')
+                    ->size(TextColumnSize::ExtraSmall)
                     ->label('Módulo')
                     ->sortable()
                     ->searchable(),
                 Tables\Columns\TextColumn::make('nome')
+                    ->size(TextColumnSize::ExtraSmall)
                     ->label('Nome')
                     ->sortable()
                     ->searchable(),

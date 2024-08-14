@@ -12,6 +12,7 @@ use Filament\Forms\Components\Section;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Columns\TextColumn\TextColumnSize;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -27,7 +28,7 @@ class NotificacaoGeralResource extends Resource
     protected static ?string $slug = 'notificacoes-agendadas';
 
     protected static ?string $modelLabel = 'Notificações Agendadas';
-    
+
     public static function form(Form $form): Form
     {
         return $form
@@ -62,20 +63,26 @@ class NotificacaoGeralResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('tecnico.name')
+                    ->size(TextColumnSize::ExtraSmall)
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('chamado.id')
+                    ->size(TextColumnSize::ExtraSmall)
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('data_hora')
+                    ->size(TextColumnSize::ExtraSmall)
                     ->dateTime()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('descricao')
+                    ->size(TextColumnSize::ExtraSmall)
                     ->searchable(),
                 Tables\Columns\TextColumn::make('cadastrado_em')
+                    ->size(TextColumnSize::ExtraSmall)
                     ->dateTime()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('atualizado_em')
+                    ->size(TextColumnSize::ExtraSmall)
                     ->dateTime()
                     ->sortable(),
             ])

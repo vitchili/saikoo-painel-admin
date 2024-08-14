@@ -9,6 +9,7 @@ use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Columns\TextColumn\TextColumnSize;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -49,18 +50,24 @@ class BancoResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('ispb')
+                    ->size(TextColumnSize::ExtraSmall)
                     ->searchable(),
                 Tables\Columns\TextColumn::make('nome')
+                    ->size(TextColumnSize::ExtraSmall)
                     ->searchable(),
                 Tables\Columns\TextColumn::make('codigo')
+                    ->size(TextColumnSize::ExtraSmall)
                     ->searchable(),
                 Tables\Columns\TextColumn::make('nome_completo')
+                    ->size(TextColumnSize::ExtraSmall)
                     ->searchable(),
                 Tables\Columns\TextColumn::make('created_at')
+                    ->size(TextColumnSize::ExtraSmall)
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('updated_at')
+                    ->size(TextColumnSize::ExtraSmall)
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),

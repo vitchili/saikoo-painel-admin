@@ -115,15 +115,16 @@ export default {
     },
     onEventResize (event, oldDate, originalEvent) {
       var location = (window.location.href).split('/admin/atendimento');
+      var objLembreteOuChamado = Object.entries(event)[0][1];
 
-      if (event.content == 'Lembrete'){
-        put(`${location[0]}/lembretes/${event.id}`, event).then(
+      if (objLembreteOuChamado.content == 'Lembrete'){
+        put(`${location[0]}/lembretes/${objLembreteOuChamado.id}`, event).then(
           (response) => {
             console.log(response);
           }
         );
       } else {
-        put(`${location[0]}/chamados/${event.id}`, event).then(
+        put(`${location[0]}/chamados/${objLembreteOuChamado.id}`, event).then(
           (response) => {
             console.log(response);
           }

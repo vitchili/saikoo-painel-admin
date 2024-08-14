@@ -161,11 +161,6 @@ class Cliente extends Model
         return $this->hasMany(HistoricoNumeroProfissionaisCliente::class, 'id_cliente');
     }
 
-    public function conexaoSaikooWeb()
-    {
-        return $this->hasOne(SaikooWebCliente::class, 'cliente_id');
-    }
-
     public function parceiros()
     {
         return $this->hasMany(ParceiroCliente::class, 'cliente_id');

@@ -16,6 +16,7 @@ use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
+use Filament\Tables\Columns\TextColumn\TextColumnSize;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -55,7 +56,7 @@ class ServicosClienteRelationManager extends RelationManager
                             ->searchable()
                             //->required()
                             ->columnSpan(2),
-                            Toggle::make('status')
+                        Toggle::make('status')
                             ->label('Ativo')
                             ->required()
                             ->inline(false)
@@ -98,7 +99,7 @@ class ServicosClienteRelationManager extends RelationManager
                         Select::make('periodicidade')
                             ->label('Periodicidade')
                             ->preload()
-                            ->options(collect(PeriodicidadeServico::cases())->mapWithKeys(fn ($parametro) => [$parametro->value => $parametro->label()]))
+                            ->options(collect(PeriodicidadeServico::cases())->mapWithKeys(fn($parametro) => [$parametro->value => $parametro->label()]))
                             ->required()
                             ->searchable(),
                     ])->columns(3),
@@ -122,7 +123,7 @@ class ServicosClienteRelationManager extends RelationManager
                         Select::make('parametro_comissao')
                             ->label('Parâmetro Comissão')
                             ->preload()
-                            ->options(collect(ParametroComissao::cases())->mapWithKeys(fn ($parametro) => [$parametro->value => $parametro->label()]))
+                            ->options(collect(ParametroComissao::cases())->mapWithKeys(fn($parametro) => [$parametro->value => $parametro->label()]))
                             ->required()
                             ->searchable(),
                         TextInput::make('versao')
@@ -144,23 +145,31 @@ class ServicosClienteRelationManager extends RelationManager
             ->recordTitleAttribute('servicoCliente.nome')
             ->columns([
                 Tables\Columns\TextColumn::make('dta_contratada')
+                    ->size(TextColumnSize::ExtraSmall)
                     ->date('d/m/Y')
                     ->label('Contratação'),
                 Tables\Columns\TextColumn::make('servicoCliente.nome')
+                    ->size(TextColumnSize::ExtraSmall)
                     ->label('Serviço'),
                 Tables\Columns\TextColumn::make('qtd')
+                    ->size(TextColumnSize::ExtraSmall)
                     ->label('Qtd'),
                 Tables\Columns\TextColumn::make('qtd_profissionais')
+                    ->size(TextColumnSize::ExtraSmall)
                     ->label('Qtd. Prof/Comp.'),
                 Tables\Columns\TextColumn::make('valor')
+                    ->size(TextColumnSize::ExtraSmall)
                     ->label('Valor')
                     ->prefix('R$'),
                 Tables\Columns\TextColumn::make('versao')
+                    ->size(TextColumnSize::ExtraSmall)
                     ->label('Versão'),
                 Tables\Columns\TextColumn::make('versao_data_atualizado')
+                    ->size(TextColumnSize::ExtraSmall)
                     ->label('Versão Att.')
                     ->date('d/m/Y'),
                 Tables\Columns\TextColumn::make('periodicidade')
+                    ->size(TextColumnSize::ExtraSmall)
                     ->label('Período'),
                 Tables\Columns\ToggleColumn::make('em_implatacao')
                     ->label('Em Implantação'),

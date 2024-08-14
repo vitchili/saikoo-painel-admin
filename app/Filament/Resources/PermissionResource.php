@@ -9,6 +9,7 @@ use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Columns\TextColumn\TextColumnSize;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -44,14 +45,17 @@ class PermissionResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('name')
+                    ->size(TextColumnSize::ExtraSmall)
                     ->label('Nome')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('created_at')
+                    ->size(TextColumnSize::ExtraSmall)
                     ->label('Cadastrado em')
                     ->dateTime('d/m/Y H:i:s')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: false),
                 Tables\Columns\TextColumn::make('updated_at')
+                    ->size(TextColumnSize::ExtraSmall)
                     ->label('Atualizado em')
                     ->dateTime('d/m/Y H:i:s')
                     ->sortable()

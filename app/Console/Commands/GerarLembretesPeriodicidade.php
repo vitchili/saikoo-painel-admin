@@ -6,7 +6,6 @@ use App\Models\Lembrete\Lembrete;
 use App\Models\Lembrete\PeriodicidadeLembrete;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
-use Filament\Notifications\Notification;
 
 class GerarLembretesPeriodicidade extends Command
 {

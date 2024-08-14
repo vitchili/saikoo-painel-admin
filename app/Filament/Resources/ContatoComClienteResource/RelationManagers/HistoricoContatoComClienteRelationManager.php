@@ -6,6 +6,7 @@ use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
+use Filament\Tables\Columns\TextColumn\TextColumnSize;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -29,21 +30,22 @@ class HistoricoContatoComClienteRelationManager extends RelationManager
         return $table
             ->recordTitleAttribute('descricao')
             ->columns([
-                Tables\Columns\TextColumn::make('descricao'),
+                Tables\Columns\TextColumn::make('descricao')
+                    ->size(TextColumnSize::ExtraSmall),
                 Tables\Columns\TextColumn::make('responsavel.nome')
+                    ->size(TextColumnSize::ExtraSmall)
                     ->label('Responsável'),
                 Tables\Columns\TextColumn::make('cadastrado_em')
+                    ->size(TextColumnSize::ExtraSmall)
                     ->label('Data hora')
                     ->datetime('d/m/Y H:i:s')
-                
+
             ])
             ->filters([
                 //
             ])
-            ->headerActions([
-            ])
-            ->actions([
-            ])
+            ->headerActions([])
+            ->actions([])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),

@@ -19,6 +19,7 @@ use Filament\Resources\Pages\CreateRecord;
 use Filament\Resources\Resource;
 use Filament\Support\RawJs;
 use Filament\Tables;
+use Filament\Tables\Columns\TextColumn\TextColumnSize;
 use Filament\Tables\Table;
 
 class ContatoComClienteResource extends Resource
@@ -61,7 +62,7 @@ class ContatoComClienteResource extends Resource
                             ->email(),
                         Forms\Components\Select::make('situacao_id')
                             ->label('Situação')
-                            ->options(collect(SituacaoContato::cases())->mapWithKeys(fn ($situacao) => [$situacao->value => $situacao->label()])),
+                            ->options(collect(SituacaoContato::cases())->mapWithKeys(fn($situacao) => [$situacao->value => $situacao->label()])),
                         Forms\Components\Select::make('responsavel_id')
                             ->required()
                             ->label('Responsável')
@@ -92,7 +93,7 @@ class ContatoComClienteResource extends Resource
                         \Njxqlus\Filament\Components\Forms\RelationManager::make()
                             ->manager(HistoricoContatoComClienteRelationManager::class)
                             ->lazy(true)
-                            ->hidden(fn (mixed $livewire) => $livewire instanceof CreateRecord)
+                            ->hidden(fn(mixed $livewire) => $livewire instanceof CreateRecord)
                             ->columnSpanFull()
                     ])->columns(2),
 
@@ -105,23 +106,30 @@ class ContatoComClienteResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('cliente.codigo')
-                    ->label('Código')    
+                    ->size(TextColumnSize::ExtraSmall)
+                    ->label('Código')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('cliente.nome')
+                    ->size(TextColumnSize::ExtraSmall)
                     ->label('Nome')
                     ->searchable()
                     ->limit(20),
                 Tables\Columns\TextColumn::make('tipoContato.nome')
+                    ->size(TextColumnSize::ExtraSmall)
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('nome')
+                    ->size(TextColumnSize::ExtraSmall)
                     ->label('Resp. Contato')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('telefone')
+                    ->size(TextColumnSize::ExtraSmall)
                     ->searchable(),
                 Tables\Columns\TextColumn::make('data_contato')->date('d/m/Y')
+                    ->size(TextColumnSize::ExtraSmall)
                     ->sortable(),
                 Tables\Columns\TextColumn::make('data_retorno')->date('d/m/Y')
+                    ->size(TextColumnSize::ExtraSmall)
                     ->sortable(),
             ])
             ->filters([

@@ -6,6 +6,7 @@ use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
+use Filament\Tables\Columns\TextColumn\TextColumnSize;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -17,8 +18,7 @@ class HistoricoObservacoesRelationManager extends RelationManager
     public function form(Form $form): Form
     {
         return $form
-            ->schema([
-            ]);
+            ->schema([]);
     }
 
     public function table(Table $table): Table
@@ -27,29 +27,29 @@ class HistoricoObservacoesRelationManager extends RelationManager
             ->recordTitleAttribute('observacao')
             ->columns([
                 Tables\Columns\TextColumn::make('observacao')
-                ->formatStateUsing(function ($state) {
-                    return \Illuminate\Support\Str::limit(strip_tags($state), 200);
-                })
-                ->wrap(),
+                    ->size(TextColumnSize::ExtraSmall)
+                    ->formatStateUsing(function ($state) {
+                        return \Illuminate\Support\Str::limit(strip_tags($state), 200);
+                    })
+                    ->wrap(),
                 Tables\Columns\TextColumn::make('observacao_atendimento')
-                ->formatStateUsing(function ($state) {
-                    return \Illuminate\Support\Str::limit(strip_tags($state), 200);
-                })
-                ->wrap(),
+                    ->size(TextColumnSize::ExtraSmall)
+                    ->formatStateUsing(function ($state) {
+                        return \Illuminate\Support\Str::limit(strip_tags($state), 200);
+                    })
+                    ->wrap(),
                 Tables\Columns\TextColumn::make('servicos')
-                ->formatStateUsing(function ($state) {
-                    return \Illuminate\Support\Str::limit(strip_tags($state), 200);
-                })
-                ->wrap(),
+                    ->size(TextColumnSize::ExtraSmall)
+                    ->formatStateUsing(function ($state) {
+                        return \Illuminate\Support\Str::limit(strip_tags($state), 200);
+                    })
+                    ->wrap(),
             ])
             ->filters([
                 //
             ])
-            ->headerActions([
-            ])
-            ->actions([
-            ])
-            ->bulkActions([
-            ]);
+            ->headerActions([])
+            ->actions([])
+            ->bulkActions([]);
     }
 }

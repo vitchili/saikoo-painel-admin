@@ -10,6 +10,10 @@ class SerialCliente extends Model
 {
     use HasFactory;
 
+    const CREATED_AT = 'data_gerado';
+
+    const UPDATED_AT = 'atualizado_em';
+
     protected $table = 'serial_temp';
 
     protected $fillable = [
@@ -26,6 +30,7 @@ class SerialCliente extends Model
 
     public function cliente()
     {
-        return $this->belongsTo(Cliente::class);
+        return $this->belongsTo(Cliente::class, 'id_cliente');
     }
+
 }

@@ -8,6 +8,7 @@ use Filament\Forms\Components\Fieldset;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
+use Filament\Tables\Columns\TextColumn\TextColumnSize;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -53,10 +54,13 @@ class ParceirosRelationManager extends RelationManager
             ->recordTitleAttribute('clienteId')
             ->columns([
                 Tables\Columns\TextColumn::make('url')
+                    ->size(TextColumnSize::ExtraSmall)
                     ->label('URL'),
                 Tables\Columns\TextColumn::make('codigo')
+                    ->size(TextColumnSize::ExtraSmall)
                     ->label('URL'),
                 Tables\Columns\TextColumn::make('login')
+                    ->size(TextColumnSize::ExtraSmall)
                     ->label('Login'),
             ])
             ->filters([

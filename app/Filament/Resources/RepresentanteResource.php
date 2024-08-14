@@ -15,6 +15,7 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Support\RawJs;
 use Filament\Tables;
+use Filament\Tables\Columns\TextColumn\TextColumnSize;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -58,7 +59,7 @@ class RepresentanteResource extends Resource
                                     ->required()
                                     ->mask('99999-999')
                                     ->suffixAction(
-                                        fn ($state, $livewire, $set) => Action::make('search-action')
+                                        fn($state, $livewire, $set) => Action::make('search-action')
                                             ->icon('heroicon-o-rectangle-stack')
                                             ->action(function () use ($state, $livewire, $set) {
                                                 $livewire->validateOnly('data.cep');
@@ -92,7 +93,7 @@ class RepresentanteResource extends Resource
                                     ->maxLength(255),
                                 Select::make('estado')
                                     ->label('UF')
-                                    ->options(collect(Estado::cases())->mapWithKeys(fn ($estado) => [$estado->value => $estado->label()]))
+                                    ->options(collect(Estado::cases())->mapWithKeys(fn($estado) => [$estado->value => $estado->label()]))
                                     ->searchable(),
                             ])->columns(3),
                         Fieldset::make('Contato')
@@ -125,52 +126,67 @@ class RepresentanteResource extends Resource
                     ->label('Mostrar no Site')
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('nome')
+                    ->size(TextColumnSize::ExtraSmall)
                     ->searchable()
                     ->label('Nome'),
                 Tables\Columns\TextColumn::make('cpf')
+                    ->size(TextColumnSize::ExtraSmall)
                     ->searchable()
                     ->label('CPF'),
                 Tables\Columns\TextColumn::make('cep')
+                    ->size(TextColumnSize::ExtraSmall)
                     ->searchable()
                     ->label('CEP'),
                 Tables\Columns\TextColumn::make('logradouro')
+                    ->size(TextColumnSize::ExtraSmall)
                     ->searchable()
                     ->label('Logradouro')
+                    ->size(TextColumnSize::ExtraSmall)
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('complemento')
+                    ->size(TextColumnSize::ExtraSmall)
                     ->searchable()
                     ->label('Complemento')
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('numero')
+                    ->size(TextColumnSize::ExtraSmall)
                     ->searchable()
                     ->label('Número')
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('bairro')
+                    ->size(TextColumnSize::ExtraSmall)
                     ->searchable()
                     ->label('Bairro')
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('cidade')
+                    ->size(TextColumnSize::ExtraSmall)
                     ->searchable()
                     ->label('Belo Horizonte')
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('estado')
+                    ->size(TextColumnSize::ExtraSmall)
                     ->searchable()
                     ->label('UF'),
                 Tables\Columns\TextColumn::make('telefone')
+                    ->size(TextColumnSize::ExtraSmall)
                     ->searchable()
                     ->label('Telefone'),
                 Tables\Columns\TextColumn::make('telefoneSecundario')
+                    ->size(TextColumnSize::ExtraSmall)
                     ->searchable()
                     ->label('Tel. Secundário')
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('email')
+                    ->size(TextColumnSize::ExtraSmall)
                     ->searchable()
                     ->label('E-mail'),
                 Tables\Columns\TextColumn::make('cadastrado_em')
+                    ->size(TextColumnSize::ExtraSmall)
                     ->dateTime('d/m/Y')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('atualizado_em')
+                    ->size(TextColumnSize::ExtraSmall)
                     ->dateTime('d/m/Y')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),

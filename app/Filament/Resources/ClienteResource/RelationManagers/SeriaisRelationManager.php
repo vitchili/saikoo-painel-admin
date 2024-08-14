@@ -9,6 +9,7 @@ use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
+use Filament\Tables\Columns\TextColumn\TextColumnSize;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -44,7 +45,7 @@ class SeriaisRelationManager extends RelationManager
                             ->columnSpanFull()
                             ->label('Observação'),
                     ])->columns(1),
-                
+
             ]);
     }
 
@@ -54,17 +55,27 @@ class SeriaisRelationManager extends RelationManager
             ->recordTitleAttribute('serial')
             ->columns([
                 Tables\Columns\TextColumn::make('serial')
+                    ->size(TextColumnSize::ExtraSmall)
                     ->label('Serial'),
                 Tables\Columns\TextColumn::make('vencimento_serial')
-                    ->label('Vencimento serial')
+                    ->size(TextColumnSize::ExtraSmall)
+                    ->label('Vencimento')
                     ->datetime('d/m/Y'),
                 Tables\Columns\TextColumn::make('obs')
-                    ->label('Motivo'),
+                    ->size(TextColumnSize::ExtraSmall)
+                    ->label('Motivo')
+                    ->formatStateUsing(function ($state) {
+                        return \Illuminate\Support\Str::limit(strip_tags($state), 200);
+                    })
+                    ->wrap(),
                 Tables\Columns\TextColumn::make('data_gerado')
-                    ->label('Gerado em'),
+                    ->size(TextColumnSize::ExtraSmall)
+                    ->label('Gerado em')
+                    ->datetime('d/m/Y'),
                 Tables\Columns\TextColumn::make('usuario_gerado')
-                    ->label('Gerado em'),
-                    
+                    ->size(TextColumnSize::ExtraSmall)
+                    ->label('Gerado por'),
+
             ])
             ->filters([
                 //

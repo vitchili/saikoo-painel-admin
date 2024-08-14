@@ -14,6 +14,7 @@ use Filament\Forms\Form;
 use Filament\Resources\Pages\EditRecord;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
+use Filament\Tables\Columns\TextColumn\TextColumnSize;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
 use Pelmered\FilamentMoneyField\Forms\Components\MoneyInput;
@@ -44,7 +45,7 @@ class FaturasRelationManager extends RelationManager
                 Select::make('formapagamento')
                     ->required()
                     ->label('Forma de Pagamento')
-                    ->options(collect(FormaPagamento::cases())->mapWithKeys(fn ($formaPagamento) => [$formaPagamento->value => $formaPagamento->label()]))
+                    ->options(collect(FormaPagamento::cases())->mapWithKeys(fn($formaPagamento) => [$formaPagamento->value => $formaPagamento->label()]))
                     ->preload()
                     ->searchable(),
                 // TextInput::make('motivo_alteracao')
@@ -68,13 +69,13 @@ class FaturasRelationManager extends RelationManager
                         'underline',
                         'undo',
                     ])
-                        ->columnSpanFull()
-                        ->label('Observação Interna'),
-                    TextInput::make('url_checkout')
-                        ->label('URL'),
-                    Toggle::make('gerar_serial')
-                        ->label('Gerar Serial?')
-                        ->inline(false),
+                    ->columnSpanFull()
+                    ->label('Observação Interna'),
+                TextInput::make('url_checkout')
+                    ->label('URL'),
+                Toggle::make('gerar_serial')
+                    ->label('Gerar Serial?')
+                    ->inline(false),
             ]);
     }
 
@@ -84,19 +85,23 @@ class FaturasRelationManager extends RelationManager
             ->recordTitleAttribute('vencimento')
             ->columns([
                 Tables\Columns\TextColumn::make('id')
+                    ->size(TextColumnSize::ExtraSmall)
                     ->label('ID')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('vencimento')
+                    ->size(TextColumnSize::ExtraSmall)
                     ->label('Vencimento')
                     ->dateTime('d/m/Y')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('vencimento_boleto')
+                    ->size(TextColumnSize::ExtraSmall)
                     ->label('Vencimento Boleto')
                     ->dateTime('d/m/Y')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('referencia')
+                    ->size(TextColumnSize::ExtraSmall)
                     ->label('Referência'),
                 MoneyColumn::make('valor')
                     ->label('Valor'),
@@ -106,6 +111,7 @@ class FaturasRelationManager extends RelationManager
                 MoneyColumn::make('valor_pago')
                     ->label('Valor Pago'),
                 Tables\Columns\TextColumn::make('status')
+                    ->size(TextColumnSize::ExtraSmall)
                     ->label('Status')
                     ->formatStateUsing(function (string $state): string {
                         return StatusFaturaCliente::tryFrom($state)?->label() ?? $state;
@@ -115,17 +121,22 @@ class FaturasRelationManager extends RelationManager
                         return StatusFaturaCliente::tryFrom($state)?->color() ?? 'secondary';
                     }),
                 Tables\Columns\TextColumn::make('serial')
+                    ->size(TextColumnSize::ExtraSmall)
                     ->label('Serial')
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('formapagamento')
+                    ->size(TextColumnSize::ExtraSmall)
                     ->label('Forma pagamento'),
                 Tables\Columns\TextColumn::make('gerar_boleto')
+                    ->size(TextColumnSize::ExtraSmall)
                     ->label('Gerar')
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('url_checkout')
+                    ->size(TextColumnSize::ExtraSmall)
                     ->label('Url Checkout')
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('enviar_boleto')
+                    ->size(TextColumnSize::ExtraSmall)
                     ->label('Enviar Boleto')
                     ->toggleable(isToggledHiddenByDefault: true),
             ])

@@ -9,6 +9,7 @@ use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Columns\TextColumn\TextColumnSize;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -44,9 +45,9 @@ class VeiculoResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('tipo')->label('Tipo'),
-                Tables\Columns\TextColumn::make('nome')->label('Nome'),
-                Tables\Columns\TextColumn::make('placa')->label('Placa'),
+                Tables\Columns\TextColumn::make('tipo')->size(TextColumnSize::ExtraSmall)->label('Tipo'),
+                Tables\Columns\TextColumn::make('nome')->size(TextColumnSize::ExtraSmall)->label('Nome'),
+                Tables\Columns\TextColumn::make('placa')->size(TextColumnSize::ExtraSmall)->label('Placa'),
             ])
             ->filters([
                 //

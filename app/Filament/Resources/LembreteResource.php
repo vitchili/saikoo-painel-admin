@@ -13,6 +13,7 @@ use Filament\Forms\Form;
 use Filament\Forms\Components\RichEditor;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Columns\TextColumn\TextColumnSize;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -54,7 +55,7 @@ class LembreteResource extends Resource
                         'underline',
                         'undo',
                     ])
-                ->columnSpanFull(),
+                    ->columnSpanFull(),
                 Forms\Components\Select::make('periodicidade_id')
                     ->label('Periodicidade')
                     ->options(PeriodicidadeLembrete::all()->pluck('nome', 'id'))
@@ -74,17 +75,22 @@ class LembreteResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('descricao'),
+                Tables\Columns\TextColumn::make('descricao')
+                    ->size(TextColumnSize::ExtraSmall),
                 Tables\Columns\TextColumn::make('data_hora_inicio')
+                    ->size(TextColumnSize::ExtraSmall)
                     ->dateTime('d/m/Y H:i:s')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('data_hora_fim')
+                    ->size(TextColumnSize::ExtraSmall)
                     ->dateTime('d/m/Y H:i:s')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('periodicidade.nome')
+                    ->size(TextColumnSize::ExtraSmall)
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('criador.name')
+                    ->size(TextColumnSize::ExtraSmall)
                     ->numeric()
                     ->sortable()
             ])

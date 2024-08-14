@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Filament\Support\RawJs;
 use Illuminate\Support\Facades\Hash;
 use Filament\Pages\Page;
+use Filament\Tables\Columns\TextColumn\TextColumnSize;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class UserResource extends Resource
@@ -48,9 +49,9 @@ class UserResource extends Resource
                         Forms\Components\TextInput::make('password')
                             ->label('Senha')
                             ->password()
-                            ->dehydrateStateUsing(fn ($state) => Hash::make($state))
-                            ->dehydrated(fn ($state) => filled($state))
-                            ->required(fn (string $context): bool => $context === 'create'),
+                            ->dehydrateStateUsing(fn($state) => Hash::make($state))
+                            ->dehydrated(fn($state) => filled($state))
+                            ->required(fn(string $context): bool => $context === 'create'),
                         Forms\Components\TextInput::make('phone')
                             ->label('Telefone')
                             ->mask(RawJs::make(<<<'JS'
@@ -60,7 +61,7 @@ class UserResource extends Resource
                             ->label('Tipo de Perfil')
                             ->relationship(
                                 titleAttribute: 'name',
-                                modifyQueryUsing: fn (Builder $query) =>
+                                modifyQueryUsing: fn(Builder $query) =>
                                 auth()->user()->hasRole('Diretor(a)') ? null : $query->where('name', '!=', 'Diretor(a)')
                             )
                             ->required()
@@ -85,28 +86,34 @@ class UserResource extends Resource
                     ->circular()
                     ->height(40),
                 Tables\Columns\TextColumn::make('name')
+                    ->size(TextColumnSize::ExtraSmall)
                     ->label('Nome completo')
                     ->sortable()
                     ->searchable(),
                 Tables\Columns\TextColumn::make('email')
+                    ->size(TextColumnSize::ExtraSmall)
                     ->label('E-mail')
                     ->sortable()
                     ->searchable(),
                 Tables\Columns\TextColumn::make('phone')
+                    ->size(TextColumnSize::ExtraSmall)
                     ->label('Telefone')
                     ->sortable()
                     ->searchable(),
                 Tables\Columns\TextColumn::make('roles.name')
+                    ->size(TextColumnSize::ExtraSmall)
                     ->label('Tipo de Perfil')
                     ->sortable(),
                 Tables\Columns\ColorColumn::make('color_hash')
                     ->label('Cor'),
                 Tables\Columns\TextColumn::make('created_at')
+                    ->size(TextColumnSize::ExtraSmall)
                     ->label('Cadastrado em')
                     ->dateTime('d/m/Y H:i:s')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('updated_at')
+                    ->size(TextColumnSize::ExtraSmall)
                     ->label('Atualizado em')
                     ->dateTime('d/m/Y H:i:s')
                     ->sortable()
@@ -147,7 +154,7 @@ class UserResource extends Resource
             ?  parent::getEloquentQuery()
             : parent::getEloquentQuery()->whereHas(
                 'roles',
-                fn (Builder $query) => $query->where('name', '!=', 'Diretor(a)')
+                fn(Builder $query) => $query->where('name', '!=', 'Diretor(a)')
             );
     }
 }

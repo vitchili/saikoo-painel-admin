@@ -41,6 +41,7 @@ use Filament\Resources\Pages\CreateRecord;
 use Filament\Resources\Resource;
 use Filament\Support\RawJs;
 use Filament\Tables;
+use Filament\Tables\Columns\TextColumn\TextColumnSize;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -93,7 +94,7 @@ class ClienteResource extends Resource
                                         ->label('Código')
                                         ->unique(ignoreRecord: true)
                                         ->readOnly()
-                                        ->hidden(fn (mixed $livewire) => empty($livewire->data['tornar_cliente']) || $livewire->data['tornar_cliente'] != 'S')
+                                        ->hidden(fn(mixed $livewire) => empty($livewire->data['tornar_cliente']) || $livewire->data['tornar_cliente'] != 'S')
                                         ->maxLength(255),
                                     TextInput::make('cpf_cnpj')
                                         ->label('CNPJ')
@@ -102,7 +103,7 @@ class ClienteResource extends Resource
                                     JS))
                                         ->rule('cpf_ou_cnpj')
                                         ->suffixAction(
-                                            fn ($state, $livewire, $set) => Action::make('search-action')
+                                            fn($state, $livewire, $set) => Action::make('search-action')
                                                 ->icon('heroicon-o-rectangle-stack')
                                                 ->action(function () use ($state, $livewire, $set) {
                                                     $livewire->validateOnly('data.cpf_ou_cnpj');
@@ -275,7 +276,7 @@ class ClienteResource extends Resource
                                                 ->required()
                                                 ->mask('99999-999')
                                                 ->suffixAction(
-                                                    fn ($state, $livewire, $set) => Action::make('search-action')
+                                                    fn($state, $livewire, $set) => Action::make('search-action')
                                                         ->icon('heroicon-o-rectangle-stack')
                                                         ->action(function () use ($state, $livewire, $set) {
                                                             $livewire->validateOnly('data.cep');
@@ -312,7 +313,7 @@ class ClienteResource extends Resource
                                                 ->required(),
                                             Select::make('uf')
                                                 ->label('UF')
-                                                ->options(collect(Estado::cases())->mapWithKeys(fn ($situacao) => [$situacao->value => $situacao->label()]))
+                                                ->options(collect(Estado::cases())->mapWithKeys(fn($situacao) => [$situacao->value => $situacao->label()]))
                                                 ->searchable(),
                                         ])->columns(3),
                                     Fieldset::make('Acesso')
@@ -331,7 +332,11 @@ class ClienteResource extends Resource
                                         ->schema([
                                             Select::make('banco')
                                                 ->label('Banco')
-                                                ->options(Banco::all()->pluck('nome', 'id'))
+                                                ->options(Banco::all()->mapWithKeys(function ($banco) {
+                                                    return [
+                                                        $banco->id => $banco->codigo . ' - ' . $banco->nome
+                                                    ];
+                                                }))
                                                 ->preload()
                                                 ->searchable(),
                                             Select::make('tipo_conta')
@@ -451,72 +456,42 @@ class ClienteResource extends Resource
                                     \Njxqlus\Filament\Components\Forms\RelationManager::make()
                                         ->manager(HistoricoObservacoesRelationManager::class)
                                         ->lazy(true)
-                                        ->hidden(fn (mixed $livewire) => empty($livewire->data['tornar_cliente']) || $livewire->data['tornar_cliente'] != 'S')
+                                        ->hidden(fn(mixed $livewire) => empty($livewire->data['tornar_cliente']) || $livewire->data['tornar_cliente'] != 'S')
                                 ]),
                         ]),
                     ]),
                     Tab::make('Faturas')->schema([
                         \Njxqlus\Filament\Components\Forms\RelationManager::make()->manager(FaturasRelationManager::class)
                             ->lazy(true)
-                    ])->hidden(fn (mixed $livewire) => empty($livewire->data['tornar_cliente']) || $livewire->data['tornar_cliente'] != 'S'),
+                    ])->hidden(fn(mixed $livewire) => empty($livewire->data['tornar_cliente']) || $livewire->data['tornar_cliente'] != 'S'),
                     Tab::make('Seriais')->schema([
                         \Njxqlus\Filament\Components\Forms\RelationManager::make()->manager(SeriaisRelationManager::class)
                             ->lazy(true)
-                    ])->hidden(fn (mixed $livewire) => empty($livewire->data['tornar_cliente']) || $livewire->data['tornar_cliente'] != 'S'),
+                    ])->hidden(fn(mixed $livewire) => empty($livewire->data['tornar_cliente']) || $livewire->data['tornar_cliente'] != 'S'),
                     Tab::make('Serviços')->schema([
                         \Njxqlus\Filament\Components\Forms\RelationManager::make()->manager(ServicosClienteRelationManager::class)
                             ->lazy(true)
-                    ])->hidden(fn (mixed $livewire) => empty($livewire->data['tornar_cliente']) || $livewire->data['tornar_cliente'] != 'S'),
+                    ])->hidden(fn(mixed $livewire) => empty($livewire->data['tornar_cliente']) || $livewire->data['tornar_cliente'] != 'S'),
                     Tab::make('Nº Profissionais')->schema([
                         \Njxqlus\Filament\Components\Forms\RelationManager::make()->manager(HistoricoNumeroProfissionaisRelationManager::class)
                             ->lazy(true)
-                    ])->hidden(fn (mixed $livewire) => empty($livewire->data['tornar_cliente']) || $livewire->data['tornar_cliente'] != 'S'),
-                    Tab::make('Saikoo Web')->schema([
-                        Fieldset::make('Saikoo Web')
-                            ->relationship('conexaoSaikooWeb')
-                            ->schema([
-                                TextInput::make('url_app')
-                                    ->label('URL do App')
-                                    ->nullable(),
-                                TextInput::make('url')
-                                    ->label('URL')
-                                    ->nullable(),
-                                TextInput::make('host')
-                                    ->label('Host')
-                                    ->nullable(),
-                                TextInput::make('usuario')
-                                    ->label('Usuário')
-                                    ->nullable(),
-                                TextInput::make('senha')
-                                    ->label('Senha')
-                                    ->password()
-                                    ->nullable(),
-                                TextInput::make('bd')
-                                    ->label('Banco de Dados')
-                                    ->nullable(),
-                                Toggle::make('status')
-                                    ->label('Status')
-                                    ->nullable()
-                                    ->default(1),
-                            ])
-                            ->columns(3)
-                    ])->hidden(fn (mixed $livewire) => empty($livewire->data['tornar_cliente']) || $livewire->data['tornar_cliente'] != 'S'),
+                    ])->hidden(fn(mixed $livewire) => empty($livewire->data['tornar_cliente']) || $livewire->data['tornar_cliente'] != 'S'),
                     Tab::make('Contatos com cliente')->schema([
                         \Njxqlus\Filament\Components\Forms\RelationManager::make()->manager(ContatosComClienteRelationManager::class)
                             ->lazy(true)
-                    ])->hidden(fn (mixed $livewire) => $livewire instanceof CreateRecord),
+                    ])->hidden(fn(mixed $livewire) => $livewire instanceof CreateRecord),
                     Tab::make('Implantação')->schema(
                         FormImplantacaoCliente::getForm()
-                    )->hidden(fn (mixed $livewire) => empty($livewire->data['tornar_cliente']) || $livewire->data['tornar_cliente'] != 'S'),
+                    )->hidden(fn(mixed $livewire) => empty($livewire->data['tornar_cliente']) || $livewire->data['tornar_cliente'] != 'S'),
                     Tab::make('Parceiros')->schema([
                         \Njxqlus\Filament\Components\Forms\RelationManager::make()->manager(ParceirosRelationManager::class)
                             ->lazy(true)
-                    ])->hidden(fn (mixed $livewire) => empty($livewire->data['tornar_cliente']) || $livewire->data['tornar_cliente'] != 'S'),
+                    ])->hidden(fn(mixed $livewire) => empty($livewire->data['tornar_cliente']) || $livewire->data['tornar_cliente'] != 'S'),
                     Tab::make('Tickets Desenv.')->schema([
                         \Njxqlus\Filament\Components\Forms\RelationManager::make()->manager(TicketsDesenvolvimentoRelationManager::class)
                             ->lazy(true)
-                    ])->hidden(fn (mixed $livewire) => empty($livewire->data['tornar_cliente']) || $livewire->data['tornar_cliente'] != 'S'),
-                    
+                    ])->hidden(fn(mixed $livewire) => empty($livewire->data['tornar_cliente']) || $livewire->data['tornar_cliente'] != 'S'),
+
                 ]),
             ])->columns(1);
     }
@@ -530,23 +505,28 @@ class ClienteResource extends Resource
                     ->circular()
                     ->height(40),
                 Tables\Columns\TextColumn::make('codigo')
+                    ->size(TextColumnSize::ExtraSmall)
                     ->label('Código')
                     ->sortable()
                     ->searchable(),
                 Tables\Columns\TextColumn::make('nome')
+                    ->size(TextColumnSize::ExtraSmall)
                     ->label('Razão')
                     ->searchable()
                     ->sortable()
                     ->limit(30),
                 Tables\Columns\TextColumn::make('nomefantasia')
+                    ->size(TextColumnSize::ExtraSmall)
                     ->label('Fantasia')
                     ->limit(30)
                     ->sortable()
                     ->searchable(),
                 Tables\Columns\TextColumn::make('bairro')
+                    ->size(TextColumnSize::ExtraSmall)
                     ->label('Bairro')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('cidade')
+                    ->size(TextColumnSize::ExtraSmall)
                     ->label('Cidade')
                     ->searchable(),
                 Tables\Columns\ToggleColumn::make('status')
@@ -554,10 +534,10 @@ class ClienteResource extends Resource
             ])
             ->filters([
                 Filter::make('status')
-                    ->query(fn (Builder $query): Builder => $query->where('status', 'A'))
+                    ->query(fn(Builder $query): Builder => $query->where('status', 'A'))
                     ->label('Apenas ativos'),
                 Filter::make('em_implantacao')
-                    ->query(fn (Builder $query): Builder => $query->where('em_implantacao', true)),
+                    ->query(fn(Builder $query): Builder => $query->where('em_implantacao', true)),
                 Filter::make('dynamic_filters')
                     ->form([
                         Repeater::make('filters')

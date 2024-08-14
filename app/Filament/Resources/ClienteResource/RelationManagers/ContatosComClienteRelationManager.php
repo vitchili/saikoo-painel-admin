@@ -11,6 +11,7 @@ use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Support\RawJs;
+use Filament\Tables\Columns\TextColumn\TextColumnSize;
 use Parallax\FilamentComments\Tables\Actions\CommentsAction;
 
 class ContatosComClienteRelationManager extends RelationManager
@@ -41,7 +42,7 @@ class ContatosComClienteRelationManager extends RelationManager
                     ->email(),
                 Forms\Components\Select::make('situacao_id')
                     ->label('Situação')
-                    ->options(collect(SituacaoContato::cases())->mapWithKeys(fn ($situacao) => [$situacao->value => $situacao->label()])),
+                    ->options(collect(SituacaoContato::cases())->mapWithKeys(fn($situacao) => [$situacao->value => $situacao->label()])),
                 Forms\Components\Select::make('responsavel_id')
                     ->required()
                     ->label('Responsável')
@@ -61,18 +62,25 @@ class ContatosComClienteRelationManager extends RelationManager
             ->recordTitleAttribute('nome')
             ->columns([
                 Tables\Columns\TextColumn::make('tipoContato.nome')
+                    ->size(TextColumnSize::ExtraSmall)
                     ->searchable(),
                 Tables\Columns\TextColumn::make('nome')
+                    ->size(TextColumnSize::ExtraSmall)
                     ->searchable(),
                 Tables\Columns\TextColumn::make('telefone')
+                    ->size(TextColumnSize::ExtraSmall)
                     ->searchable(),
                 Tables\Columns\TextColumn::make('email')
+                    ->size(TextColumnSize::ExtraSmall)
                     ->searchable(),
                 Tables\Columns\TextColumn::make('data_contato')->date('d/m/Y')
+                    ->size(TextColumnSize::ExtraSmall)
                     ->sortable(),
                 Tables\Columns\TextColumn::make('data_retorno')->date('d/m/Y')
+                    ->size(TextColumnSize::ExtraSmall)
                     ->sortable(),
                 Tables\Columns\TextColumn::make('responsavel.name')
+                    ->size(TextColumnSize::ExtraSmall)
                     ->label('Responsável')
                     ->searchable(),
             ])

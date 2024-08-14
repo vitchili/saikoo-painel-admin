@@ -27,6 +27,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Columns\TextColumn\TextColumnSize;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -55,7 +56,7 @@ class TicketDesenvolvimentoResource extends Resource
                         Radio::make('tipo_id')
                             ->label('Tipo')
                             ->required()
-                            ->options(collect(TipoTicketDesenvolvimentoEnum::cases())->mapWithKeys(fn ($tipo) => [$tipo->value => $tipo->label()]))
+                            ->options(collect(TipoTicketDesenvolvimentoEnum::cases())->mapWithKeys(fn($tipo) => [$tipo->value => $tipo->label()]))
                             ->inline()
                             ->inlineLabel(false)
                             ->reactive()
@@ -74,7 +75,7 @@ class TicketDesenvolvimentoResource extends Resource
                             ->searchable(),
                         Select::make('prioridade_id')
                             ->label('Prioridade')
-                            ->options(collect(PrioridadeTicketDesenvolvimentoEnum::cases())->mapWithKeys(fn ($prioridade) => [$prioridade->value => $prioridade->label()]))
+                            ->options(collect(PrioridadeTicketDesenvolvimentoEnum::cases())->mapWithKeys(fn($prioridade) => [$prioridade->value => $prioridade->label()]))
                             ->searchable(),
                         Select::make('versao_id')
                             ->label('Versão do sistema')
@@ -104,7 +105,7 @@ class TicketDesenvolvimentoResource extends Resource
                             ->after('prazo'),
                         Select::make('situacao_id')
                             ->label('Situação')
-                            ->options(collect(SituacaoTicketDesenvolvimentoEnum::cases())->mapWithKeys(fn ($situacao) => [$situacao->value => $situacao->label()]))
+                            ->options(collect(SituacaoTicketDesenvolvimentoEnum::cases())->mapWithKeys(fn($situacao) => [$situacao->value => $situacao->label()]))
                             ->searchable()
                             ->preload(),
                         Select::make('desenvolvedor_id')
@@ -202,47 +203,55 @@ class TicketDesenvolvimentoResource extends Resource
                     ->sortable()
                     ->searchable(),
                 Tables\Columns\TextColumn::make('cadastrado_em')
+                    ->size(TextColumnSize::ExtraSmall)
                     ->label('Data')
                     ->datetime('d/m/Y H:s')
                     ->sortable()
                     ->searchable(),
                 Tables\Columns\TextColumn::make('cliente.nome')
+                    ->size(TextColumnSize::ExtraSmall)
                     ->label('Cliente')
                     ->searchable()
                     ->sortable()
                     ->limit(30),
                 Tables\Columns\TextColumn::make('prioridade_id')
+                    ->size(TextColumnSize::ExtraSmall)
                     ->label('Prioridade')
-                    ->formatStateUsing(fn ($state) => PrioridadeTicketDesenvolvimentoEnum::from($state)->label())
+                    ->formatStateUsing(fn($state) => PrioridadeTicketDesenvolvimentoEnum::from($state)->label())
                     ->sortable()
                     ->searchable()
                     ->badge(),
                 Tables\Columns\TextColumn::make('sistema.nome')
+                    ->size(TextColumnSize::ExtraSmall)
                     ->label('Sistema')
                     ->limit(30)
                     ->sortable()
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('modulo.nome')
+                    ->size(TextColumnSize::ExtraSmall)
                     ->label('Módulo')
                     ->limit(30)
                     ->sortable()
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('responsavel.name')
+                    ->size(TextColumnSize::ExtraSmall)
                     ->label('Responsável')
                     ->limit(30)
                     ->sortable()
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('desenvolvedor.name')
+                    ->size(TextColumnSize::ExtraSmall)
                     ->label('Desenvolvedor')
                     ->limit(30)
                     ->sortable()
                     ->searchable(),
                 Tables\Columns\TextColumn::make('situacao_id')
+                    ->size(TextColumnSize::ExtraSmall)
                     ->label('Situação')
-                    ->formatStateUsing(fn ($state) => SituacaoTicketDesenvolvimentoEnum::from($state)->label())
+                    ->formatStateUsing(fn($state) => SituacaoTicketDesenvolvimentoEnum::from($state)->label())
                     ->sortable()
                     ->searchable(),
             ])
