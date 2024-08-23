@@ -15,6 +15,7 @@ use App\Models\Diversos\Sistema;
 use App\Models\Diversos\Subtela;
 use App\Models\Diversos\Tela;
 use App\Models\User;
+use App\Models\VersaoSistema;
 use Filament\Forms;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
@@ -79,7 +80,7 @@ class TicketDesenvolvimentoResource extends Resource
                             ->searchable(),
                         Select::make('versao_id')
                             ->label('Versão do sistema')
-                            ->options([])
+                            ->options(VersaoSistema::all()->pluck('versao', 'id'))
                             ->searchable(),
                         Select::make('sistema_id')
                             ->label('Sistema')
@@ -189,6 +190,7 @@ class TicketDesenvolvimentoResource extends Resource
                         FileUpload::make('imagens')
                             ->label('Imagens')
                             ->multiple()
+                            ->directory('tickets_desenvolvimento_imagens')
                     ]),
                 ])->columns(1),
             ])->columns(1);
@@ -198,7 +200,7 @@ class TicketDesenvolvimentoResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\ImageColumn::make('id')
+                Tables\Columns\TextColumn::make('id')
                     ->label('Código')
                     ->sortable()
                     ->searchable(),

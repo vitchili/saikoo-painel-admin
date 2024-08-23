@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Cliente\Fatura\FaturaCliente;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -24,4 +25,9 @@ class Igpm extends Model
         'data',
         'valor',
     ];
+
+    public function faturas()
+    {
+        return $this->hasMany(FaturaCliente::class, 'igpm_id');
+    }
 }

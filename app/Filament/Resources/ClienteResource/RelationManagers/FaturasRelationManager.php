@@ -4,7 +4,11 @@ namespace App\Filament\Resources\ClienteResource\RelationManagers;
 
 use App\Models\Cliente\Fatura\Enum\FormaPagamento;
 use App\Models\Cliente\Fatura\Enum\StatusFaturaCliente;
+use App\Models\Cliente\Servico\Enum\PeriodicidadeServico;
+use App\Models\Cliente\Servico\ServicoCliente;
 use App\Models\Cliente\Servico\TipoServicoCliente;
+use App\Models\Igpm;
+use Carbon\Carbon;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
@@ -36,25 +40,49 @@ class FaturasRelationManager extends RelationManager
                 MoneyInput::make('valor')
                     ->required()
                     ->label('Valor'),
-                Select::make('referencia')
-                    ->required()
-                    ->label('Serviço Referência')
-                    ->options(TipoServicoCliente::all()->pluck('nome', 'nome'))
+                Select::make('periodicidade')
+                    ->label('Periodicidade')
+                    ->options(collect(PeriodicidadeServico::cases())->mapWithKeys(fn($periodicidade) => [$periodicidade->value => $periodicidade->label()]))
                     ->preload()
-                    ->searchable(),
+                    ->searchable()
+                    ->reactive()
+                    ->afterStateUpdated(fn($state, callable $set, callable $get) => $this->updateServicosOptions($state, $set, $get)),
+                Select::make('servicos')
+                    ->required()
+                    ->multiple()
+                    ->label('Serviços Referência')
+                    ->options(fn($get) => $this->getServicosOptions($get('periodicidade')))
+                    ->preload()
+                    ->searchable()
+                    ->reactive()
+                    ->afterStateUpdated(fn($state, callable $set, callable $get) => $this->somaEVerificaServico($state, $set, $get)),
                 Select::make('formapagamento')
                     ->required()
                     ->label('Forma de Pagamento')
                     ->options(collect(FormaPagamento::cases())->mapWithKeys(fn($formaPagamento) => [$formaPagamento->value => $formaPagamento->label()]))
                     ->preload()
                     ->searchable(),
-                // TextInput::make('motivo_alteracao')
-                //     ->label('Motivo Alteração'),
                 TextInput::make('qtd')
                     ->label('Quantidade Parcelas')
+                    ->readOnly()
                     ->numeric(),
                 TextInput::make('info_add')
                     ->label('Informações Adicionais'),
+                Select::make('igpm_id')
+                    ->label('Índice IGPM')
+                    ->options(Igpm::orderBy('id', 'desc')->get()->mapWithKeys(function ($item) {
+                        return [
+                            $item->id => 'Data: ' . Carbon::parse($item->data)->format('d/m/Y') . '. Índice: ' . number_format($item->valor, 2)
+                        ];
+                    }))
+                    ->preload()
+                    ->searchable()
+                    ->reactive()
+                    ->afterStateUpdated(fn($state, callable $set, callable $get) => $this->somaEVerificaIgpm($state, $set, $get)),
+                Toggle::make('reajuste_automatico')
+                    ->label('Reajuste automático após última parcela?'),
+                Toggle::make('reajuste_aplica_ultimo_igpm')
+                    ->label('Próximo reajuste aplica IGPM mais recente?'),
                 RichEditor::make('obs')
                     ->toolbarButtons([
                         'blockquote',
@@ -77,6 +105,61 @@ class FaturasRelationManager extends RelationManager
                     ->label('Gerar Serial?')
                     ->inline(false),
             ]);
+    }
+
+    protected function somaEVerificaServico($ids, callable $set, callable $get)
+    {
+        $somaServicos = 0;
+        $servicos = ServicoCliente::whereIn('id', $ids)->get();
+
+        foreach($servicos as $servico) {
+            $somaServicos += $servico->valor;
+        }
+        $set('valor', round($somaServicos, 2));
+    }
+
+    protected function somaEVerificaIgpm($idIgpm, callable $set, callable $get)
+    {
+        $igpm = Igpm::find($idIgpm);
+
+        if (! empty($igpm)) {
+            $somaServicos = (float) $get('valor');
+    
+            $multiplicador = ($igpm->valor / 100) + 1;
+    
+            $somaServicos *= $multiplicador; 
+    
+            $set('valor', round($somaServicos, 2));
+        }else {
+            $idsServicos = $get('servicos');
+            
+            $this->somaEVerificaServico($idsServicos, $set, $get);
+        }
+    }
+
+    protected function updateServicosOptions($periodicidade, callable $set, callable $get)
+    {
+        $this->getServicosOptions($periodicidade);
+
+        $set('qtd', PeriodicidadeServico::from($periodicidade)->qtdParcelas());
+    }
+
+    protected function getServicosOptions($periodicidade)
+    {
+        if (! $periodicidade) {
+            return [];
+        }
+
+        $servicos = ServicoCliente::with('servicoCliente')
+            ->where('periodicidade', $periodicidade)
+            ->where('id_cliente', $this->ownerRecord->id)
+            ->get()
+            ->toArray();
+
+        return array_reduce($servicos, function($carry, $item) {
+            $carry[$item['servico_cliente']['id']] = $item['servico_cliente']['nome'];
+            return $carry;
+        }, []);
     }
 
     public function table(Table $table): Table

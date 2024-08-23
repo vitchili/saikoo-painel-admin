@@ -3,7 +3,9 @@
 namespace App\Models\Cliente\Fatura;
 
 use App\Models\Cliente\Cliente;
+use App\Models\Cliente\Servico\ServicoCliente;
 use App\Models\Cliente\Servico\TipoServicoCliente;
+use App\Models\Igpm;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Parallax\FilamentComments\Models\Traits\HasFilamentComments;
@@ -60,17 +62,26 @@ class FaturaCliente extends Model
         'sms_creditado',
         'sms_creditar_automaticamente',
         'pedido_visualizado',
+        'igpm_id',
+        'reajuste_automatico',
+        'reajuste_aplica_ultimo_igpm',
+        'servicos'
     ];
 
-    protected $with = ['cliente', 'servico'];
+    protected $with = ['cliente', 'servicos'];
 
     public function cliente()
     {
         return $this->belongsTo(Cliente::class, 'id_cliente');
     }
 
-    public function servico()
+    public function servicos()
     {
-        return $this->belongsTo(TipoServicoCliente::class, 'referencia', 'nome');
+        return $this->belongsToMany(ServicoCliente::class, 'servicos_faturas', 'fatura_id', 'servico_id');
+    }
+
+    public function igpm()
+    {
+        return $this->belongsTo(Igpm::class, 'igpm_id');
     }
 }

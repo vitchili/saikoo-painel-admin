@@ -2,12 +2,14 @@
 
 namespace App\Models;
 
+use App\Models\Chamado\Chamado;
 use App\Models\Lembrete\Lembrete;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Models\Contracts\HasAvatar;
 use Filament\Panel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
@@ -61,6 +63,11 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
     public function lembretes(): BelongsToMany
     {
         return $this->belongsToMany(Lembrete::class, 'lembretes_tecnicos', 'tecnico_id', 'lembrete_id');
+    }
+
+    public function chamados()
+    {
+        return $this->belongsToMany(Chamado::class, 'chamados_tecnicos', 'tecnico_id', 'chamado_id');
     }
 
     public function getFilamentAvatarUrl(): ?string

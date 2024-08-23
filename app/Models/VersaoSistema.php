@@ -32,6 +32,6 @@ class VersaoSistema extends Model
 
     public function tickets(): HasMany
     {
-        return $this->hasMany(TicketDesenvolvimento::class);
+        return $this->hasMany(TicketDesenvolvimento::class, 'versao_id');
     }
 }

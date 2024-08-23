@@ -4,16 +4,31 @@ namespace App\Observers;
 
 use App\Models\Cliente\Cliente;
 use App\Models\Cliente\Fatura\FaturaCliente;
+use App\Models\Cliente\Servico\TipoServicoCliente;
 use Carbon\Carbon;
 
 class FaturaClienteObserver
 {
+    public array $servicos;
+    public int $qtdParcelas;
+    public int $parcelaAtual = 1;
+
     /**
      * Handle the FaturaCliente "created" event.
      */
     public function created(FaturaCliente $faturaCliente): void
     {
-     
+        $vencimentoOriginal = new Carbon($faturaCliente->vencimento);
+        $vencimentoOriginal->toDateString();
+
+        if (! empty($this->parcelaAtual) && ! empty($this->qtdParcelas) && $this->parcelaAtual < $this->qtdParcelas) {
+            $novoModel = $faturaCliente->replicate();
+            $novoModel->vencimento = Carbon::parse($vencimentoOriginal)->addMonthNoOverflow($this->parcelaAtual)->toDateString();
+            $novoModel->save();
+
+            $this->parcelaAtual++;
+        }
+
     }
 
     /**
@@ -24,28 +39,23 @@ class FaturaClienteObserver
         $faturaCliente->validade_final = 'Nao';
         $faturaCliente->cpf_cnpj = preg_replace('/[^0-9]/', '', Cliente::findOrFail($faturaCliente->id_cliente)->cpf_cnpj);
         $faturaCliente->codigo_cliente = Cliente::findOrFail($faturaCliente->id_cliente)->codigo;
+        $faturaCliente->valor /= 10000;
 
-        $vencimentoOriginal = new Carbon($faturaCliente->vencimento);
-        $vencimentoOriginal->toDateString();
+        $servicos = TipoServicoCliente::whereIn('id', $faturaCliente->servicos)->get();
+        $referencia = '';
         
-        for($i=1; $i<=$faturaCliente->qtd; $i++) {
-            $novoVencimento = Carbon::parse($vencimentoOriginal)->addMonthNoOverflow($i)->toDateString();
-
-            FaturaCliente::create([
-                'id_cliente' => $faturaCliente->id_cliente,
-                'codigo_cliente' => $faturaCliente->codigo_cliente,
-                'vencimento' => $novoVencimento,
-                'valor' => $faturaCliente->valor,
-                // 'serial' => $faturaCliente->serial,
-                'cpf_cnpj' => $faturaCliente->cpf_cnpj,
-                'formapagamento' => $faturaCliente->formapagamento,
-                'referencia' => $faturaCliente->referencia,
-                'info_add' => $faturaCliente->info_add,
-                'obs' => $faturaCliente->obs,
-                'url_checkout' => $faturaCliente->url_checkout,
-                'data' => now(),
-            ]);
+        foreach ($servicos as $servico) {
+            $referencia .= $servico->nome . ', ';
         }
+        
+        $referencia = rtrim($referencia);
+        $faturaCliente->referencia = $referencia;
+
+        $this->servicos = $faturaCliente->servicos;
+        $this->qtdParcelas = $faturaCliente->qtd;
+        $this->parcelaAtual = 1;
+        
+        unset($faturaCliente->servicos);
     }
 
     /**

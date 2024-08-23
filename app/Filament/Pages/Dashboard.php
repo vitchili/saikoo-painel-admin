@@ -3,6 +3,7 @@
 namespace App\Filament\Pages;
 
 use App\Filament\Pages\Widgets\ChamadosConcluidosWidget;
+use App\Filament\Pages\Widgets\QuantidadeChamadosGeraisSuporteTi;
 use App\Filament\Pages\Widgets\QuantidadeChamadosSuporteTi;
 use App\Models\Chamado\Chamado;
 use App\Models\Cliente\Cliente;
@@ -23,7 +24,7 @@ class Dashboard extends Page
 
     public array $chamadosInternos;
     public array $chamadosExternos;
-    public array $versoes;
+    public array $versao;
     public array $clientesImplantacao;
     public array $chamadosDiasSemana;
 
@@ -41,7 +42,9 @@ class Dashboard extends Page
             $this->dataFim = Carbon::now()->endOfMonth()->format('Y-m-d');
         }
         
-        $this->versoes = VersaoSistema::with('tickets')->get()->toArray();
+        $this->versao = VersaoSistema::with('tickets')->orderBy('cadastrado_em', 'desc')->first()->toArray();
+        $this->versao['data_disponivel'] = Carbon::parse($this->versao['data_disponivel'])->format('d/m/Y');
+        $this->versao['tickets'][0]['cadastrado_em'] = Carbon::parse($this->versao['tickets'][0]['cadastrado_em'])->format('d/m/Y');
 
         $this->clientesImplantacao = Cliente::where('em_implantacao', 'N')
             ->when($this->dataInicio, function ($query) {
@@ -187,7 +190,7 @@ class Dashboard extends Page
     {
         return [
             QuantidadeChamadosSuporteTi::class,
-            QuantidadeChamadosSuporteTi::class,
+            QuantidadeChamadosGeraisSuporteTi::class,
         ];
     }
 }

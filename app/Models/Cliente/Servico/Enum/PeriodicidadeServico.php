@@ -5,7 +5,7 @@ namespace App\Models\Cliente\Servico\Enum;
 
 enum PeriodicidadeServico: string
 {
-    case NENHUM = 'Nenhum';
+    case NENHUM = 'NENHUM';
     
     case MENSAL = 'MES';
 
@@ -23,6 +23,17 @@ enum PeriodicidadeServico: string
             self::TRIMESTRAL => 'Trimestral',
             self::SEMESTRAL => 'Semestral',
             self::ANUAL => 'Anual',
+        };
+    }
+
+    public function qtdParcelas(): string
+    {
+        return match ($this) {
+            self::NENHUM => 1,
+            self::MENSAL => 12,
+            self::TRIMESTRAL => 4,
+            self::SEMESTRAL => 2,
+            self::ANUAL => 1,
         };
     }
 }

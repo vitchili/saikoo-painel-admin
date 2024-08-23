@@ -36,6 +36,7 @@ return new class extends Migration
             $table->string('versao_atual')->nullable();
             $table->text('situacao_atual')->nullable();
             $table->text('situacao_proposta')->nullable();
+            $table->text('imagens')->nullable();
             $table->text('testes_em_caso_de_erro')->nullable();
             $table->timestamp('cadastrado_em')->useCurrent();
             $table->timestamp('atualizado_em')->nullable()->useCurrent()->useCurrentOnUpdate();

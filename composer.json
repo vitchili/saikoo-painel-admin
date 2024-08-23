@@ -14,7 +14,7 @@
         "laravellegends/pt-br-validator": "^11.0",
         "njxqlus/filament-relation-manager-component": "^1.0",
         "parallax/filament-comments": "^1.3",
-        "pelmered/filament-money-field": "^1.3",
+        "pelmered/filament-money-field": "^1.4",
         "spatie/laravel-permission": "^6.7"
     },
     "require-dev": {

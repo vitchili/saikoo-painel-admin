@@ -12,6 +12,7 @@ use App\Models\Diversos\Sistema;
 use App\Models\Diversos\Subtela;
 use App\Models\Diversos\Tela;
 use App\Models\User;
+use App\Models\VersaoSistema;
 use Filament\Forms;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
@@ -65,7 +66,7 @@ class TicketsDesenvolvimentoRelationManager extends RelationManager
                             ->searchable(),
                         Select::make('versao_id')
                             ->label('Versão do sistema')
-                            ->options([])
+                            ->options(VersaoSistema::all()->pluck('versao', 'id'))
                             ->searchable(),
                         Select::make('sistema_id')
                             ->label('Sistema')

@@ -3,6 +3,7 @@
 namespace App\Models\Cliente\Servico;
 
 use App\Models\Cliente\Cliente;
+use App\Models\Cliente\Fatura\FaturaCliente;
 use App\Models\Lembrete\PeriodicidadeLembrete;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -64,6 +65,11 @@ class ServicoCliente extends Model
     public function servicoCliente(): BelongsTo
     {
         return $this->belongsTo(TipoServicoCliente::class, 'id_servico');
+    }
+
+    public function faturas()
+    {
+        return $this->belongsToMany(FaturaCliente::class, 'servicos_faturas', 'servico_id', 'fatura_id');
     }
 
 }
