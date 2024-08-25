@@ -6,7 +6,6 @@ use App\Models\Cliente\Fatura\Enum\FormaPagamento;
 use App\Models\Cliente\Fatura\Enum\StatusFaturaCliente;
 use App\Models\Cliente\Servico\Enum\PeriodicidadeServico;
 use App\Models\Cliente\Servico\ServicoCliente;
-use App\Models\Cliente\Servico\TipoServicoCliente;
 use App\Models\Igpm;
 use Carbon\Carbon;
 use Filament\Forms\Components\DatePicker;
@@ -15,18 +14,19 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
-use Filament\Resources\Pages\EditRecord;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn\TextColumnSize;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Model;
 use Pelmered\FilamentMoneyField\Forms\Components\MoneyInput;
 use Parallax\FilamentComments\Tables\Actions\CommentsAction;
 use Pelmered\FilamentMoneyField\Tables\Columns\MoneyColumn;
 
 class FaturasRelationManager extends RelationManager
 {
+    public const ID_SERVICO_PRINCIPAL = 1;
+    // O select de servicos referencia só pode ser multiple se a primeira posicao for 1 ('Servicos' da lista_servivo). 
+
     protected static string $relationship = 'faturas';
 
     public function form(Form $form): Form
@@ -46,7 +46,7 @@ class FaturasRelationManager extends RelationManager
                     ->preload()
                     ->searchable()
                     ->reactive()
-                    ->afterStateUpdated(fn($state, callable $set, callable $get) => $this->updateServicosOptions($state, $set, $get)),
+                    ->afterStateUpdated(fn($state, callable $set, callable $get) => $this->alterarPeriodicidade($state, $set, $get)),
                 Select::make('servicos')
                     ->required()
                     ->multiple()
@@ -112,10 +112,21 @@ class FaturasRelationManager extends RelationManager
         $somaServicos = 0;
         $servicos = ServicoCliente::whereIn('id', $ids)->get();
 
-        foreach($servicos as $servico) {
+        foreach ($servicos as $servico) {
             $somaServicos += $servico->valor;
         }
+
         $set('valor', round($somaServicos, 2));
+
+        if (! empty($get('igpm_id'))) {
+            $this->somaEVerificaIgpm($get('igpm_id'), $set, $get);
+        }
+
+        if (count($ids) > 1 && $ids[0] != self::ID_SERVICO_PRINCIPAL) {
+            $set('servicos', [$ids[0]]);
+            $this->getServicosOptions($get('periodicidade'));
+            $this->somaEVerificaServico([$ids[0]], $set, $get);
+        }
     }
 
     protected function somaEVerificaIgpm($idIgpm, callable $set, callable $get)
@@ -124,24 +135,26 @@ class FaturasRelationManager extends RelationManager
 
         if (! empty($igpm)) {
             $somaServicos = (float) $get('valor');
-    
+
             $multiplicador = ($igpm->valor / 100) + 1;
-    
-            $somaServicos *= $multiplicador; 
-    
+
+            $somaServicos *= $multiplicador;
+
             $set('valor', round($somaServicos, 2));
-        }else {
+        } else {
             $idsServicos = $get('servicos');
-            
+
             $this->somaEVerificaServico($idsServicos, $set, $get);
         }
     }
 
-    protected function updateServicosOptions($periodicidade, callable $set, callable $get)
+    protected function alterarPeriodicidade($periodicidade, callable $set, callable $get)
     {
-        $this->getServicosOptions($periodicidade);
-
+        $set('servicos', []);
+        $set('valor', '');
         $set('qtd', PeriodicidadeServico::from($periodicidade)->qtdParcelas());
+
+        $this->getServicosOptions($periodicidade);
     }
 
     protected function getServicosOptions($periodicidade)
@@ -156,7 +169,7 @@ class FaturasRelationManager extends RelationManager
             ->get()
             ->toArray();
 
-        return array_reduce($servicos, function($carry, $item) {
+        return array_reduce($servicos, function ($carry, $item) {
             $carry[$item['servico_cliente']['id']] = $item['servico_cliente']['nome'];
             return $carry;
         }, []);

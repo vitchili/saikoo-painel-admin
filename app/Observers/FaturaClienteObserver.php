@@ -9,52 +9,43 @@ use Carbon\Carbon;
 
 class FaturaClienteObserver
 {
-    public array $servicos;
-    public int $qtdParcelas;
-    public int $parcelaAtual = 1;
+    public $referencia = 'Servicos';
 
     /**
      * Handle the FaturaCliente "created" event.
      */
     public function created(FaturaCliente $faturaCliente): void
     {
+        $ultimaParcela = FaturaCliente::orderBy('id', 'desc')->first();
+        $ultimaParcela->valor = $faturaCliente->valor / 1000;
+        $ultimaParcela->save();
+
         $vencimentoOriginal = new Carbon($faturaCliente->vencimento);
         $vencimentoOriginal->toDateString();
 
-        if (! empty($this->parcelaAtual) && ! empty($this->qtdParcelas) && $this->parcelaAtual < $this->qtdParcelas) {
+        if ($ultimaParcela->incremento_parcela < $ultimaParcela->qtd) {
             $novoModel = $faturaCliente->replicate();
-            $novoModel->vencimento = Carbon::parse($vencimentoOriginal)->addMonthNoOverflow($this->parcelaAtual)->toDateString();
+            $novoModel->vencimento = Carbon::parse($vencimentoOriginal)->addMonthNoOverflow(1)->toDateString(); 
+            $novoModel->incremento_parcela = $ultimaParcela->incremento_parcela + 1;
             $novoModel->save();
-
-            $this->parcelaAtual++;
         }
-
     }
 
     /**
-     * Handle the FaturaCliente "created" event.
+     * Handle the FaturaCliente "creating" event.
      */
     public function creating(FaturaCliente $faturaCliente): void
     {
         $faturaCliente->validade_final = 'Nao';
         $faturaCliente->cpf_cnpj = preg_replace('/[^0-9]/', '', Cliente::findOrFail($faturaCliente->id_cliente)->cpf_cnpj);
         $faturaCliente->codigo_cliente = Cliente::findOrFail($faturaCliente->id_cliente)->codigo;
-        $faturaCliente->valor /= 10000;
 
-        $servicos = TipoServicoCliente::whereIn('id', $faturaCliente->servicos)->get();
-        $referencia = '';
-        
-        foreach ($servicos as $servico) {
-            $referencia .= $servico->nome . ', ';
+        if (! empty($faturaCliente->servicos[0])) {
+            $this->referencia = TipoServicoCliente::find($faturaCliente->servicos[0])->nome;
         }
-        
-        $referencia = rtrim($referencia);
-        $faturaCliente->referencia = $referencia;
 
-        $this->servicos = $faturaCliente->servicos;
-        $this->qtdParcelas = $faturaCliente->qtd;
-        $this->parcelaAtual = 1;
-        
+        $faturaCliente->referencia = $this->referencia;
+
         unset($faturaCliente->servicos);
     }
 

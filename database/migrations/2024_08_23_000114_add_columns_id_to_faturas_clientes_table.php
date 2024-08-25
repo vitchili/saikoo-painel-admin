@@ -15,6 +15,7 @@ return new class extends Migration
             $table->integer('igpm_id')->nullable();
             $table->boolean('reajuste_automatico')->default(0);
             $table->boolean('reajuste_aplica_ultimo_igpm')->default(0);
+            $table->integer('incremento_parcela')->default(1);
         });
     }
 
@@ -27,6 +28,7 @@ return new class extends Migration
             $table->dropColumn('igpm_id');
             $table->dropColumn('reajuste_automatico');
             $table->dropColumn('reajuste_aplica_ultimo_igpm');
+            $table->dropColumn('incremento_parcela');
         });
     }
 };
