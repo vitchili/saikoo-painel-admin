@@ -119,6 +119,7 @@ class Cliente extends Model
         'solicita_dados',
         'cliente_parceiro',
         'url_api',
+        'cliente_bitpag_id',
     ];
 
     public function contatosComCliente()

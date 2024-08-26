@@ -66,7 +66,8 @@ class FaturaCliente extends Model
         'reajuste_automatico',
         'reajuste_aplica_ultimo_igpm',
         'servicos',
-        'incremento_parcela'
+        'incremento_parcela',
+        'cobranca_bitpag_id',
     ];
 
     protected $with = ['cliente', 'servicos'];

@@ -123,4 +123,9 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    'bitpag' => [
+        'baseUrl' => env('BASE_URL_API_BITPAG'),
+        'user' => env('USER_API_BITPAG'),
+        'password' => env('PASSWORD_API_BITPAG'),
+    ]
 ];

@@ -16,6 +16,7 @@ return new class extends Migration
             $table->boolean('reajuste_automatico')->default(0);
             $table->boolean('reajuste_aplica_ultimo_igpm')->default(0);
             $table->integer('incremento_parcela')->default(1);
+            $table->string('cobranca_bitpag_id')->nullable();
         });
     }
 
@@ -29,6 +30,7 @@ return new class extends Migration
             $table->dropColumn('reajuste_automatico');
             $table->dropColumn('reajuste_aplica_ultimo_igpm');
             $table->dropColumn('incremento_parcela');
+            $table->dropColumn('cobranca_bitpag_id');
         });
     }
 };

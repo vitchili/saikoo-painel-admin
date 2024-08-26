@@ -16,6 +16,7 @@ use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\TextColumn\TextColumnSize;
 use Filament\Tables\Table;
 use Pelmered\FilamentMoneyField\Forms\Components\MoneyInput;
@@ -199,12 +200,15 @@ class FaturasRelationManager extends RelationManager
                 Tables\Columns\TextColumn::make('referencia')
                     ->size(TextColumnSize::ExtraSmall)
                     ->label('Referência'),
-                MoneyColumn::make('valor')
-                    ->label('Valor'),
+                TextColumn::make('valor')
+                    ->label('Valor')
+                    ->prefix('R$'),
                 MoneyColumn::make('valor_atualizado')
                     ->label('Valor Atualizado')
+                    ->prefix('R$')
                     ->toggleable(isToggledHiddenByDefault: true),
                 MoneyColumn::make('valor_pago')
+                    ->prefix('R$')
                     ->label('Valor Pago'),
                 Tables\Columns\TextColumn::make('status')
                     ->size(TextColumnSize::ExtraSmall)

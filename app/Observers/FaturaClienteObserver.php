@@ -9,7 +9,7 @@ use Carbon\Carbon;
 
 class FaturaClienteObserver
 {
-    public $referencia = 'Servicos';
+    public $referencia = 'Sistemas';
 
     /**
      * Handle the FaturaCliente "created" event.
@@ -42,6 +42,10 @@ class FaturaClienteObserver
 
         if (! empty($faturaCliente->servicos[0])) {
             $this->referencia = TipoServicoCliente::find($faturaCliente->servicos[0])->nome;
+        }
+
+        foreach ($faturaCliente->servicos as $servico) {
+            $faturaCliente->servicos()->attach($servico);
         }
 
         $faturaCliente->referencia = $this->referencia;

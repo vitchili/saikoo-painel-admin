@@ -14,7 +14,7 @@ class CreateServClienteTable extends Migration
     public function up()
     {
         Schema::create('serv_cliente', function (Blueprint $table) {
-            $table->increments('id');
+            $table->id();
             $table->foreignIdFor(\App\Models\Cliente\Servico\TipoServicoCliente::class, 'id_servico');
             $table->foreignIdFor(\App\Models\Cliente\Cliente::class, 'id_cliente');
             $table->integer('id_pedido')->nullable();

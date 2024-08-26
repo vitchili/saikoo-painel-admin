@@ -6,6 +6,9 @@ use Exception;
 
 class ValidacaoCpfCnpj
 {
+    public const CPF = 1;
+    public const CNPJ = 2;
+
     public function validar(mixed $value): void
     {
         $validaCpf = $this->validaCpf($value);
@@ -69,4 +72,23 @@ class ValidacaoCpfCnpj
 
         return true;
     }
+    
+    public static function transformarApenasNumeros(mixed $value): int
+    {
+       return preg_replace('/\D/', '', $value);
+    }
+
+    public static function cpfOuCnpj(mixed $value): string
+    {
+        if (strlen(self::transformarApenasNumeros($value)) == 11) {
+            return self::CPF;
+        }
+
+        if (strlen(self::transformarApenasNumeros($value)) == 14) {
+            return self::CNPJ;
+        }
+
+        return (int) false;
+    }
+
 }
