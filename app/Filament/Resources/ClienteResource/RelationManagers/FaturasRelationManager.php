@@ -38,10 +38,15 @@ class FaturasRelationManager extends RelationManager
                     ->required()
                     ->afterOrEqual('today')
                     ->label('Vencimento'),
-                MoneyInput::make('valor')
+                TextInput::make('valor')
                     ->required()
-                    ->label('Valor'),
+                    ->label('Valor')
+                    ->numeric()
+                    ->prefix('R$'),
                 Select::make('periodicidade')
+                    ->relationship('servicos', 'periodicidade', function ($query) {
+                        return $query->select('serv_cliente.id', 'serv_cliente.periodicidade');
+                    })
                     ->label('Periodicidade')
                     ->options(collect(PeriodicidadeServico::cases())->mapWithKeys(fn($periodicidade) => [$periodicidade->value => $periodicidade->label()]))
                     ->preload()
@@ -49,6 +54,10 @@ class FaturasRelationManager extends RelationManager
                     ->reactive()
                     ->afterStateUpdated(fn($state, callable $set, callable $get) => $this->alterarPeriodicidade($state, $set, $get)),
                 Select::make('servicos')
+                    ->relationship('servicos', 'nome', function ($query) {
+                            return $query->join('lista_servico AS ls', 'serv_cliente.id_servico', '=', 'ls.id')
+                                        ->select('serv_cliente.id', 'ls.nome');
+                    })
                     ->required()
                     ->multiple()
                     ->label('Serviços Referência')
@@ -201,13 +210,16 @@ class FaturasRelationManager extends RelationManager
                     ->size(TextColumnSize::ExtraSmall)
                     ->label('Referência'),
                 TextColumn::make('valor')
+                    ->size(TextColumnSize::ExtraSmall)
                     ->label('Valor')
                     ->prefix('R$'),
                 MoneyColumn::make('valor_atualizado')
                     ->label('Valor Atualizado')
+                    ->size(TextColumnSize::ExtraSmall)
                     ->prefix('R$')
                     ->toggleable(isToggledHiddenByDefault: true),
                 MoneyColumn::make('valor_pago')
+                    ->size(TextColumnSize::ExtraSmall)
                     ->prefix('R$')
                     ->label('Valor Pago'),
                 Tables\Columns\TextColumn::make('status')

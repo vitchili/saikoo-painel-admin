@@ -164,10 +164,6 @@ class ServicosClienteRelationManager extends RelationManager
                 Tables\Columns\TextColumn::make('versao')
                     ->size(TextColumnSize::ExtraSmall)
                     ->label('Versão'),
-                Tables\Columns\TextColumn::make('versao_data_atualizado')
-                    ->size(TextColumnSize::ExtraSmall)
-                    ->label('Versão Att.')
-                    ->date('d/m/Y'),
                 Tables\Columns\TextColumn::make('periodicidade')
                     ->size(TextColumnSize::ExtraSmall)
                     ->label('Período'),

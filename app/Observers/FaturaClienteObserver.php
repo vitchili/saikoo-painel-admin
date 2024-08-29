@@ -4,8 +4,10 @@ namespace App\Observers;
 
 use App\Models\Cliente\Cliente;
 use App\Models\Cliente\Fatura\FaturaCliente;
+use App\Models\Cliente\Servico\Enum\PeriodicidadeServico;
 use App\Models\Cliente\Servico\TipoServicoCliente;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class FaturaClienteObserver
 {
@@ -16,8 +18,20 @@ class FaturaClienteObserver
      */
     public function created(FaturaCliente $faturaCliente): void
     {
+        if ($faturaCliente->incremento_parcela == 1) {
+            //mandar pra bit pag
+        }
+
+        $qtdServicos = DB::table('servicos_faturas')->where('fatura_id', 0)->distinct()->get()->toArray();
+
+        DB::table('servicos_faturas')->where('fatura_id', 0)->distinct()->limit(count($qtdServicos))->update([
+            'fatura_id' => $faturaCliente->id
+        ]);
+
+        //ver outras regras aqui, como reajuste e emissao serial.
+        
         $ultimaParcela = FaturaCliente::orderBy('id', 'desc')->first();
-        $ultimaParcela->valor = $faturaCliente->valor / 1000;
+        //$ultimaParcela->valor = $faturaCliente->valor / 1000;
         $ultimaParcela->save();
 
         $vencimentoOriginal = new Carbon($faturaCliente->vencimento);
@@ -25,7 +39,7 @@ class FaturaClienteObserver
 
         if ($ultimaParcela->incremento_parcela < $ultimaParcela->qtd) {
             $novoModel = $faturaCliente->replicate();
-            $novoModel->vencimento = Carbon::parse($vencimentoOriginal)->addMonthNoOverflow(1)->toDateString(); 
+            $novoModel->vencimento = Carbon::parse($vencimentoOriginal)->addMonthsNoOverflow((int) $faturaCliente->qtd)->toDateString(); 
             $novoModel->incremento_parcela = $ultimaParcela->incremento_parcela + 1;
             $novoModel->save();
         }
@@ -44,11 +58,16 @@ class FaturaClienteObserver
             $this->referencia = TipoServicoCliente::find($faturaCliente->servicos[0])->nome;
         }
 
-        foreach ($faturaCliente->servicos as $servico) {
-            $faturaCliente->servicos()->attach($servico);
-        }
-
         $faturaCliente->referencia = $this->referencia;
+
+        for($i = 0; $i<$faturaCliente->qtd; $i++) {
+            foreach ($faturaCliente->servicos as $servico) {
+                DB::table('servicos_faturas')->insert([
+                    'fatura_id' => 0,
+                    'servico_id' => (int) $servico,
+                ]);
+            }
+        }
 
         unset($faturaCliente->servicos);
     }
