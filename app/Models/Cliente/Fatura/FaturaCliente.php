@@ -68,6 +68,7 @@ class FaturaCliente extends Model
         'servicos',
         'incremento_parcela',
         'cobranca_bitpag_id',
+        'gerar_serial',
     ];
 
     protected $with = ['cliente', 'servicos'];

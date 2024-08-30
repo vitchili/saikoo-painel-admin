@@ -73,9 +73,9 @@ class ValidacaoCpfCnpj
         return true;
     }
     
-    public static function transformarApenasNumeros(mixed $value): int
+    public static function transformarApenasNumeros(mixed $value): string
     {
-       return preg_replace('/\D/', '', $value);
+       return strval(preg_replace('/\D/', '', $value));
     }
 
     public static function cpfOuCnpj(mixed $value): string

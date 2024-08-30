@@ -17,6 +17,7 @@ return new class extends Migration
             $table->boolean('reajuste_aplica_ultimo_igpm')->default(0);
             $table->integer('incremento_parcela')->default(1);
             $table->string('cobranca_bitpag_id')->nullable();
+            $table->boolean('gerar_serial')->default(0);
         });
     }
 
@@ -31,6 +32,7 @@ return new class extends Migration
             $table->dropColumn('reajuste_aplica_ultimo_igpm');
             $table->dropColumn('incremento_parcela');
             $table->dropColumn('cobranca_bitpag_id');
+            $table->dropColumn('gerar_serial');
         });
     }
 };

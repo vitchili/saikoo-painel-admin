@@ -2,8 +2,11 @@
 
 namespace App\Observers;
 
+use App\Gateway\Bitpag\ClienteBitPag;
+use App\Gateway\Bitpag\CobrancaBitpag;
 use App\Models\Cliente\Cliente;
 use App\Models\Cliente\Fatura\FaturaCliente;
+use App\Models\Cliente\Serial\SerialCliente;
 use App\Models\Cliente\Servico\Enum\PeriodicidadeServico;
 use App\Models\Cliente\Servico\TipoServicoCliente;
 use Carbon\Carbon;
@@ -19,7 +22,14 @@ class FaturaClienteObserver
     public function created(FaturaCliente $faturaCliente): void
     {
         if ($faturaCliente->incremento_parcela == 1) {
-            //mandar pra bit pag
+            $bitPagCobranca = new CobrancaBitpag();
+            $bitPagCobranca->cadastrarCobranca($faturaCliente);
+
+            if ($faturaCliente->gerar_serial) {
+                $serial = new SerialCliente();
+                $serial->vencimento_serial = $faturaCliente->vencimento;
+                $serial->save();
+            }
         }
 
         $qtdServicos = DB::table('servicos_faturas')->where('fatura_id', 0)->distinct()->get()->toArray();
@@ -28,10 +38,7 @@ class FaturaClienteObserver
             'fatura_id' => $faturaCliente->id
         ]);
 
-        //ver outras regras aqui, como reajuste e emissao serial.
-        
         $ultimaParcela = FaturaCliente::orderBy('id', 'desc')->first();
-        //$ultimaParcela->valor = $faturaCliente->valor / 1000;
         $ultimaParcela->save();
 
         $vencimentoOriginal = new Carbon($faturaCliente->vencimento);
@@ -75,9 +82,15 @@ class FaturaClienteObserver
     /**
      * Handle the FaturaCliente "updated" event.
      */
-    public function updated(FaturaCliente $faturaCliente): void
+    public function updating(FaturaCliente $faturaCliente): void
     {
-        //
+        $faturaAntigaGerarSerial = $faturaCliente->getOriginal('gerar_serial');
+
+        if (! $faturaAntigaGerarSerial->gerar_serial && $faturaCliente->gerar_serial) {
+            $serial = new SerialCliente();
+            $serial->vencimento_serial = $faturaCliente->vencimento;
+            $serial->save();
+        }
     }
 
     /**

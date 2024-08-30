@@ -2,11 +2,13 @@
 
 namespace App\Providers;
 
+use App\Models\Cliente\Cliente;
 use App\Models\Cliente\Contato\ContatoComCliente;
 use App\Models\Cliente\Fatura\FaturaCliente;
 use App\Models\Cliente\Serial\SerialCliente;
 use App\Models\Cliente\Servico\ServicoCliente;
 use App\Models\Lembrete\Lembrete;
+use App\Observers\ClienteObserver;
 use App\Observers\ContatoComClienteObserver;
 use App\Observers\FaturaClienteObserver;
 use App\Observers\LembreteObserver;
@@ -41,5 +43,6 @@ class AppServiceProvider extends ServiceProvider
         FaturaCliente::observe(FaturaClienteObserver::class);
         ServicoCliente::observe(ServicoClienteObserver::class);
         SerialCliente::observe(SerialClienteObserver::class);
+        Cliente::observe(ClienteObserver::class);
     }
 }

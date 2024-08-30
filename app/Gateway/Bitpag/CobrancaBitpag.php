@@ -39,7 +39,15 @@ class CobrancaBitpag extends BaseClientBitpag
 
     public function cadastrarCobranca(FaturaCliente $cobranca): array
     {
-        $payload = match('P') {
+        $tipoCobrancaBitPag = 'R';
+
+        if ($cobranca->qtd == 1) {
+            $tipoCobrancaBitPag = 'U';
+        }elseif ($cobranca->qtd > 1) {
+            $tipoCobrancaBitPag = 'P'; //Verificar se manteremos P ou R.
+        }
+
+        $payload = match($tipoCobrancaBitPag) {
             'U' => array_merge($this->getBasePayloadCliente($cobranca), $this->getBasePayloadCobrancaUnica($cobranca), $this->getBasePayloadPagamentoCartaoCredito($cobranca)),
             'P' => array_merge($this->getBasePayloadCliente($cobranca), $this->getBasePayloadCobrancaParcela($cobranca), $this->getBasePayloadPagamentoCartaoCredito($cobranca)),
             'R' => array_merge($this->getBasePayloadCliente($cobranca), $this->getBasePayloadCobrancaRecorrente($cobranca), $this->getBasePayloadPagamentoCartaoCredito($cobranca)),

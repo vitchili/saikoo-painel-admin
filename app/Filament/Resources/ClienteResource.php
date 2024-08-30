@@ -89,6 +89,7 @@ class ClienteResource extends Resource
                                             'S' => 'Sim',
                                         ])
                                         ->inline()
+                                        ->hidden(fn(mixed $livewire) => $livewire instanceof CreateRecord)
                                         ->inlineLabel(false),
                                     TextInput::make('codigo')
                                         ->label('Código')
