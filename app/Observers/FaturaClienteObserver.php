@@ -2,13 +2,12 @@
 
 namespace App\Observers;
 
-use App\Gateway\Bitpag\ClienteBitPag;
 use App\Gateway\Bitpag\CobrancaBitpag;
 use App\Models\Cliente\Cliente;
 use App\Models\Cliente\Fatura\FaturaCliente;
 use App\Models\Cliente\Serial\SerialCliente;
-use App\Models\Cliente\Servico\Enum\PeriodicidadeServico;
 use App\Models\Cliente\Servico\TipoServicoCliente;
+use App\Services\NotificacaoExceptionGeralService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -21,17 +20,6 @@ class FaturaClienteObserver
      */
     public function created(FaturaCliente $faturaCliente): void
     {
-        if ($faturaCliente->incremento_parcela == 1) {
-            $bitPagCobranca = new CobrancaBitpag();
-            $bitPagCobranca->cadastrarCobranca($faturaCliente);
-
-            if ($faturaCliente->gerar_serial) {
-                $serial = new SerialCliente();
-                $serial->vencimento_serial = $faturaCliente->vencimento;
-                $serial->save();
-            }
-        }
-
         $qtdServicos = DB::table('servicos_faturas')->where('fatura_id', 0)->distinct()->get()->toArray();
 
         DB::table('servicos_faturas')->where('fatura_id', 0)->distinct()->limit(count($qtdServicos))->update([
@@ -39,14 +27,13 @@ class FaturaClienteObserver
         ]);
 
         $ultimaParcela = FaturaCliente::orderBy('id', 'desc')->first();
-        $ultimaParcela->save();
 
         $vencimentoOriginal = new Carbon($faturaCliente->vencimento);
         $vencimentoOriginal->toDateString();
 
         if ($ultimaParcela->incremento_parcela < $ultimaParcela->qtd) {
             $novoModel = $faturaCliente->replicate();
-            $novoModel->vencimento = Carbon::parse($vencimentoOriginal)->addMonthsNoOverflow((int) $faturaCliente->qtd)->toDateString(); 
+            $novoModel->vencimento = Carbon::parse($vencimentoOriginal)->addMonthsNoOverflow((int) 12 / $faturaCliente->qtd)->toDateString(); 
             $novoModel->incremento_parcela = $ultimaParcela->incremento_parcela + 1;
             $novoModel->save();
         }
@@ -57,26 +44,50 @@ class FaturaClienteObserver
      */
     public function creating(FaturaCliente $faturaCliente): void
     {
-        $faturaCliente->validade_final = 'Nao';
-        $faturaCliente->cpf_cnpj = preg_replace('/[^0-9]/', '', Cliente::findOrFail($faturaCliente->id_cliente)->cpf_cnpj);
-        $faturaCliente->codigo_cliente = Cliente::findOrFail($faturaCliente->id_cliente)->codigo;
+        try {
+            DB::beginTransaction();
 
-        if (! empty($faturaCliente->servicos[0])) {
-            $this->referencia = TipoServicoCliente::find($faturaCliente->servicos[0])->nome;
-        }
-
-        $faturaCliente->referencia = $this->referencia;
-
-        for($i = 0; $i<$faturaCliente->qtd; $i++) {
-            foreach ($faturaCliente->servicos as $servico) {
-                DB::table('servicos_faturas')->insert([
-                    'fatura_id' => 0,
-                    'servico_id' => (int) $servico,
-                ]);
+            $faturaCliente->validade_final = 'Nao';
+            $faturaCliente->cpf_cnpj = preg_replace('/[^0-9]/', '', Cliente::findOrFail($faturaCliente->id_cliente)->cpf_cnpj);
+            $faturaCliente->codigo_cliente = Cliente::findOrFail($faturaCliente->id_cliente)->codigo;
+    
+            if ($faturaCliente->incremento_parcela == 1) {
+                $bitPagCobranca = new CobrancaBitpag();
+                $bitPagCobranca->cadastrarCobranca($faturaCliente);
+    
+                if ($faturaCliente->gerar_serial) {
+                    $serial = new SerialCliente();
+                    $serial->id_cliente = $faturaCliente->id_cliente;
+                    $serial->vencimento_serial = $faturaCliente->vencimento;
+                    $serial->save();
+                    $faturaCliente->serial = $serial->serial;
+                }
             }
-        }
+    
+            if (! empty($faturaCliente->servicos[0])) {
+                $this->referencia = TipoServicoCliente::find($faturaCliente->servicos[0])->nome;
+            }
+    
+            $faturaCliente->referencia = $this->referencia;
+    
+            if (! empty($faturaCliente->servicos)) {
+                for($i = 0; $i<$faturaCliente->qtd; $i++) {
+                    foreach ($faturaCliente->servicos as $servico) {
+                        DB::table('servicos_faturas')->insert([
+                            'fatura_id' => 0,
+                            'servico_id' => (int) $servico,
+                        ]);
+                    }
+                }
+    
+                unset($faturaCliente->servicos);
+            }
 
-        unset($faturaCliente->servicos);
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            new NotificacaoExceptionGeralService($e->getMessage());
+        }
     }
 
     /**

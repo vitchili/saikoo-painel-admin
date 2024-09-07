@@ -53,6 +53,7 @@ class TicketDesenvolvimento extends Model
         'situacao_proposta',
         'imagens',
         'testes_em_caso_de_erro',
+        'situacao_id',
     ];
 
     public function tipoProjto(): BelongsTo

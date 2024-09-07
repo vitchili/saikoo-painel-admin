@@ -14,7 +14,7 @@ class Subtela extends Model
 
     const UPDATED_AT = 'atualizado_em';
 
-    protected $table = 'telas';
+    protected $table = 'subtelas';
 
     protected $fillble = [
         'nome',

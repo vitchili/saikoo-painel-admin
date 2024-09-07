@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Lembrete\Lembrete;
+use App\Services\NotificacaoExceptionGeralService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -26,7 +27,7 @@ class LembreteController extends Controller
             , 200); 
         }
         catch(\Exception $e){
-            Log::error('Erro ao executar atualização do lembrete: ' . $e->getMessage());
+            new NotificacaoExceptionGeralService($e->getMessage(), 'Erro ao atualizar o lembrete');
             return response()->json(
                 ['mensagem' => 'Ocorreu um erro inesperado no servidor.']
             , 500);

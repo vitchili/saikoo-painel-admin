@@ -320,7 +320,8 @@ class ClienteResource extends Resource
                                     Fieldset::make('Acesso')
                                         ->schema([
                                             TextInput::make('email')
-                                                ->label('Usuário de acesso'),
+                                                ->label('Usuário de acesso')
+                                                ->required(),
                                             TextInput::make('senha')
                                                 ->label('Senha de acesso')
                                                 ->password()

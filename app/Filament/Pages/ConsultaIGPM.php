@@ -30,6 +30,6 @@ class ConsultaIGPM extends Page
     #[Computed()]
     public function indices()
     {
-        return Igpm::paginate(40);
+        return Igpm::orderBy('id', 'desc')->paginate(40);
     }
 }

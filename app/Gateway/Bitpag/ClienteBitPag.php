@@ -5,6 +5,7 @@ namespace App\Gateway\Bitpag;
 use App\Models\Cliente\Cliente;
 use App\Rules\ValidacaoCpfCnpj;
 use App\Rules\ValidacaoTelefone;
+use App\Services\NotificacaoExceptionBitPagService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Validation\ValidationException;
@@ -26,6 +27,8 @@ class ClienteBitPag extends BaseClientBitpag
 
             return $response->json();
         } catch (\Exception $e) {
+            new NotificacaoExceptionBitPagService($e->getMessage());
+            
             return [
                 'status' => $e->getCode(),
                 'data' => $e->getMessage(),
@@ -69,6 +72,8 @@ class ClienteBitPag extends BaseClientBitpag
 
             return $response->json();
         } catch (\Exception $e) {
+            new NotificacaoExceptionBitPagService($e->getMessage());
+
             return [
                 'status' => $e->getCode(),
                 'data' => $e->getMessage(),

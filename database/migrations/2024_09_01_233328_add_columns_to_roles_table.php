@@ -1,0 +1,151 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::table('roles', function (Blueprint $table) {
+            $table->boolean('mostrar_valor_tela_atendimento')->after('guard_name')->default(0);
+            $table->boolean('pedidos_realizados')->after('guard_name')->default(0);
+            $table->boolean('dashboard_suporte')->after('guard_name')->default(0);
+            $table->boolean('dashboard_bhair')->after('guard_name')->default(0);
+            $table->boolean('menu_cliente')->after('guard_name')->default(0);
+            $table->boolean('menu_cliente_cadastrar_cliente')->after('guard_name')->default(0);
+            $table->boolean('menu_cliente_dados')->after('guard_name')->default(0);
+            $table->boolean('menu_cliente_dados_status_cliente')->after('guard_name')->default(0);
+            $table->boolean('menu_cliente_dados_alterar_termos')->after('guard_name')->default(0);
+            $table->boolean('menu_cliente_dados_enviar_boas_vindas')->after('guard_name')->default(0);
+            $table->boolean('menu_cliente_dados_senha_cliente')->after('guard_name')->default(0);
+            $table->boolean('menu_cliente_dados_ver_dados_bancarios')->after('guard_name')->default(0);
+            $table->boolean('faturas')->after('guard_name')->default(0);
+            $table->boolean('faturas_alterar_status_da_fatura')->after('guard_name')->default(0);
+            $table->boolean('faturas_reprocessar_serial')->after('guard_name')->default(0);
+            $table->boolean('faturas_cadastrar_faturas')->after('guard_name')->default(0);
+            $table->boolean('faturas_alterar_fatura')->after('guard_name')->default(0);
+            $table->boolean('faturas_excluir_fatura')->after('guard_name')->default(0);
+            $table->boolean('serial')->after('guard_name')->default(0);
+            $table->boolean('serial_gerar_serial_temporario_com_limite_excedido')->after('guard_name')->default(0);
+            $table->boolean('servicos_adicionar_servicos')->after('guard_name')->default(0);
+            $table->boolean('servicos_excluir_servicos')->after('guard_name')->default(0);
+            $table->boolean('servicos_alterar_servicos')->after('guard_name')->default(0);
+            $table->boolean('servicos_alterar_servicos_versao')->after('guard_name')->default(0);
+            $table->boolean('servicos_alterar_servicos_implantacao')->after('guard_name')->default(0);
+            $table->boolean('servicos_servicos_log')->after('guard_name')->default(0);
+            $table->boolean('servicos_visualizar_servicos')->after('guard_name')->default(0);
+            $table->boolean('servicos_gerar_serial_servicos')->after('guard_name')->default(0);
+            $table->boolean('n_profissionais')->after('guard_name')->default(0);
+            $table->boolean('saikoo_web')->after('guard_name')->default(0);
+            $table->boolean('manual_de_implantacao')->after('guard_name')->default(0);
+            $table->boolean('relato_de_implantacao')->after('guard_name')->default(0);
+            $table->boolean('contatos_com_o_cliente')->after('guard_name')->default(0);
+            $table->boolean('propostas')->after('guard_name')->default(0);
+            $table->boolean('menu_ata_de_reuniao')->after('guard_name')->default(0);
+            $table->boolean('cadastrar_ata_de_reuniao')->after('guard_name')->default(0);
+            $table->boolean('menu_chamado')->after('guard_name')->default(0);
+            $table->boolean('menu_agenda')->after('guard_name')->default(0);
+            $table->boolean('menu_ci')->after('guard_name')->default(0);
+            $table->boolean('menu_relatorios')->after('guard_name')->default(0);
+            $table->boolean('menu_relatorios_pagto_aprovados')->after('guard_name')->default(0);
+            $table->boolean('menu_relatorios_pagto_em_aberto')->after('guard_name')->default(0);
+            $table->boolean('menu_relatorios_versao_do_sistema')->after('guard_name')->default(0);
+            $table->boolean('menu_relatorios_log_faturas_e_servicos')->after('guard_name')->default(0);
+            $table->boolean('menu_relatorios_servicos_contratados')->after('guard_name')->default(0);
+            $table->boolean('menu_relatorios_tickets_dev_prazo')->after('guard_name')->default(0);
+            $table->boolean('menu_relatorios_list_cliente_chamados_nos_ultimos_20_dias')->after('guard_name')->default(0);
+            $table->boolean('ver_remuneracoes')->after('guard_name')->default(0);
+            $table->boolean('lancamento_de_remuneracao')->after('guard_name')->default(0);
+            $table->boolean('ticket_desenvolvimento')->after('guard_name')->default(0);
+            $table->boolean('menu_prioridade_de_tickets')->after('guard_name')->default(0);
+            $table->boolean('alterar_prioridade_de_ticket')->after('guard_name')->default(0);
+            $table->boolean('atualizacoes')->after('guard_name')->default(0);
+            $table->boolean('clientes_versoes')->after('guard_name')->default(0);
+            $table->boolean('arquivos')->after('guard_name')->default(0);
+            $table->boolean('marketing')->after('guard_name')->default(0);
+            $table->boolean('configuracoes')->after('guard_name')->default(0);
+            $table->boolean('configuracoes_representantes')->after('guard_name')->default(0);
+            $table->boolean('configuracoes_versao_do_sistema')->after('guard_name')->default(0);
+            $table->boolean('menu_acesso')->after('guard_name')->default(0);
+            $table->boolean('menu_acesso_usuarios')->after('guard_name')->default(0);
+            $table->boolean('menu_acesso_perfil')->after('guard_name')->default(0);
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::table('roles', function (Blueprint $table) {
+            $table->dropColumn('mostrar_valor_tela_atendimento');
+            $table->dropColumn('pedidos_realizados');
+            $table->dropColumn('dashboard_suporte');
+            $table->dropColumn('dashboard_bhair');
+            $table->dropColumn('menu_cliente');
+            $table->dropColumn('menu_cliente_cadastrar_cliente');
+            $table->dropColumn('menu_cliente_dados');
+            $table->dropColumn('menu_cliente_dados_status_cliente');
+            $table->dropColumn('menu_cliente_dados_alterar_termos');
+            $table->dropColumn('menu_cliente_dados_enviar_boas_vindas');
+            $table->dropColumn('menu_cliente_dados_senha_cliente');
+            $table->dropColumn('menu_cliente_dados_ver_dados_bancarios');
+            $table->dropColumn('faturas');
+            $table->dropColumn('faturas_alterar_status_da_fatura');
+            $table->dropColumn('faturas_reprocessar_serial');
+            $table->dropColumn('faturas_cadastrar_faturas');
+            $table->dropColumn('faturas_alterar_fatura');
+            $table->dropColumn('faturas_excluir_fatura');
+            $table->dropColumn('serial');
+            $table->dropColumn('serial_gerar_serial_temporario_com_limite_excedido');
+            $table->dropColumn('servicos_adicionar_servicos');
+            $table->dropColumn('servicos_excluir_servicos');
+            $table->dropColumn('servicos_alterar_servicos');
+            $table->dropColumn('servicos_alterar_servicos_versao');
+            $table->dropColumn('servicos_alterar_servicos_implantacao');
+            $table->dropColumn('servicos_servicos_log');
+            $table->dropColumn('servicos_visualizar_servicos');
+            $table->dropColumn('servicos_gerar_serial_servicos');
+            $table->dropColumn('n_profissionais');
+            $table->dropColumn('saikoo_web');
+            $table->dropColumn('manual_de_implantacao');
+            $table->dropColumn('relato_de_implantacao');
+            $table->dropColumn('contatos_com_o_cliente');
+            $table->dropColumn('propostas');
+            $table->dropColumn('menu_ata_de_reuniao');
+            $table->dropColumn('cadastrar_ata_de_reuniao');
+            $table->dropColumn('menu_chamado');
+            $table->dropColumn('menu_agenda');
+            $table->dropColumn('menu_ci');
+            $table->dropColumn('menu_relatorios');
+            $table->dropColumn('menu_relatorios_pagto_aprovados');
+            $table->dropColumn('menu_relatorios_pagto_em_aberto');
+            $table->dropColumn('menu_relatorios_versao_do_sistema');
+            $table->dropColumn('menu_relatorios_log_faturas_e_servicos');
+            $table->dropColumn('menu_relatorios_servicos_contratados');
+            $table->dropColumn('menu_relatorios_tickets_dev_prazo');
+            $table->dropColumn('menu_relatorios_list_cliente_chamados_nos_ultimos_20_dias');
+            $table->dropColumn('ver_remuneracoes');
+            $table->dropColumn('lancamento_de_remuneracao');
+            $table->dropColumn('ticket_desenvolvimento');
+            $table->dropColumn('menu_prioridade_de_tickets');
+            $table->dropColumn('alterar_prioridade_de_ticket');
+            $table->dropColumn('atualizacoes');
+            $table->dropColumn('clientes_versoes');
+            $table->dropColumn('arquivos');
+            $table->dropColumn('marketing');
+            $table->dropColumn('configuracoes');
+            $table->dropColumn('configuracoes_representantes');
+            $table->dropColumn('configuracoes_versao_do_sistema');
+            $table->dropColumn('menu_acesso');
+            $table->dropColumn('menu_acesso_usuarios');
+            $table->dropColumn('menu_acesso_perfil');
+            
+        });
+    }
+};

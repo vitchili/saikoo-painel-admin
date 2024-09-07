@@ -2,6 +2,7 @@
 
 namespace App\Observers;
 
+use App\Models\Cliente\Cliente;
 use App\Models\Cliente\Serial\SerialCliente;
 use App\Services\SerialClienteService;
 use Carbon\Carbon;
@@ -14,7 +15,7 @@ class SerialClienteObserver
     public function creating(SerialCliente $serialCliente): void
     {
         $servicoSerial = new SerialClienteService(
-            cliente: $serialCliente->cliente, 
+            cliente: $serialCliente->cliente ?? Cliente::find($serialCliente->id_cliente)->first(), 
             dataVencimento: Carbon::parse($serialCliente->vencimento_serial)->format('dmY')
         );
 

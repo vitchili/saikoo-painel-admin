@@ -26,7 +26,6 @@ use Pelmered\FilamentMoneyField\Tables\Columns\MoneyColumn;
 class FaturasRelationManager extends RelationManager
 {
     public const ID_SERVICO_PRINCIPAL = 1;
-    // O select de servicos referencia só pode ser multiple se a primeira posicao for 1 ('Servicos' da lista_servivo). 
 
     protected static string $relationship = 'faturas';
 
@@ -44,9 +43,9 @@ class FaturasRelationManager extends RelationManager
                     ->numeric()
                     ->prefix('R$'),
                 Select::make('periodicidade')
-                    ->relationship('servicos', 'periodicidade', function ($query) {
-                        return $query->select('serv_cliente.id', 'serv_cliente.periodicidade');
-                    })
+                    // ->relationship('servicos', 'periodicidade', function ($query) {
+                    //     return $query->select('serv_cliente.id', 'serv_cliente.periodicidade');
+                    // })
                     ->label('Periodicidade')
                     ->options(collect(PeriodicidadeServico::cases())->mapWithKeys(fn($periodicidade) => [$periodicidade->value => $periodicidade->label()]))
                     ->preload()
@@ -54,10 +53,10 @@ class FaturasRelationManager extends RelationManager
                     ->reactive()
                     ->afterStateUpdated(fn($state, callable $set, callable $get) => $this->alterarPeriodicidade($state, $set, $get)),
                 Select::make('servicos')
-                    ->relationship('servicos', 'nome', function ($query) {
-                            return $query->join('lista_servico AS ls', 'serv_cliente.id_servico', '=', 'ls.id')
-                                        ->select('serv_cliente.id', 'ls.nome');
-                    })
+                    // ->relationship('servicos', 'nome', function ($query) {
+                    //         return $query->join('lista_servico AS ls', 'serv_cliente.id_servico', '=', 'ls.id')
+                    //                     ->select('serv_cliente.id', 'ls.nome');
+                    // })
                     ->required()
                     ->multiple()
                     ->label('Serviços Referência')
@@ -132,7 +131,7 @@ class FaturasRelationManager extends RelationManager
             $this->somaEVerificaIgpm($get('igpm_id'), $set, $get);
         }
 
-        if (count($ids) > 1 && $ids[0] != self::ID_SERVICO_PRINCIPAL) {
+        if (count($ids) > 1 && $servicos[0]->id_servico != self::ID_SERVICO_PRINCIPAL) {
             $set('servicos', [$ids[0]]);
             $this->getServicosOptions($get('periodicidade'));
             $this->somaEVerificaServico([$ids[0]], $set, $get);
@@ -162,9 +161,11 @@ class FaturasRelationManager extends RelationManager
     {
         $set('servicos', []);
         $set('valor', '');
-        $set('qtd', PeriodicidadeServico::from($periodicidade)->qtdParcelas());
 
-        $this->getServicosOptions($periodicidade);
+        if ($periodicidade != 0) {
+            $set('qtd', PeriodicidadeServico::from($periodicidade)->qtdParcelas());
+            $this->getServicosOptions($periodicidade);
+        }
     }
 
     protected function getServicosOptions($periodicidade)
@@ -180,7 +181,7 @@ class FaturasRelationManager extends RelationManager
             ->toArray();
 
         return array_reduce($servicos, function ($carry, $item) {
-            $carry[$item['servico_cliente']['id']] = $item['servico_cliente']['nome'];
+            $carry[$item['id']] = $item['servico_cliente']['nome'];
             return $carry;
         }, []);
     }
@@ -247,10 +248,14 @@ class FaturasRelationManager extends RelationManager
                     ->size(TextColumnSize::ExtraSmall)
                     ->label('Url Checkout')
                     ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('enviar_boleto')
+                Tables\Columns\TextColumn::make('cobranca_bitpag_id')
                     ->size(TextColumnSize::ExtraSmall)
-                    ->label('Enviar Boleto')
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->label('Link BitPag')
+                    ->formatStateUsing(fn ($state) => sprintf(
+                        '<a href="https://empresa.sandbox.splitpag.com.br/charge/list-charges-recurrence/%s" target="_blank">Abrir Link</a>',
+                        $state
+                    ))
+                    ->html(),
             ])
             ->filters([
                 //
@@ -259,14 +264,14 @@ class FaturasRelationManager extends RelationManager
                 Tables\Actions\CreateAction::make()->slideOver()
             ])
             ->actions([
-                Tables\Actions\EditAction::make()->slideOver(),
-                Tables\Actions\DeleteAction::make(),
+                //Tables\Actions\EditAction::make()->slideOver(),
+                //Tables\Actions\DeleteAction::make(),
                 CommentsAction::make(),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+                // Tables\Actions\BulkActionGroup::make([
+                //     Tables\Actions\DeleteBulkAction::make(),
+                // ]),
             ]);
     }
 }

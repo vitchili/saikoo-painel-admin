@@ -14,7 +14,7 @@ class Modulo extends Model
 
     const UPDATED_AT = 'atualizado_em';
 
-    protected $table = 'sistemas';
+    protected $table = 'modulos';
 
     protected $fillble = [
         'nome',

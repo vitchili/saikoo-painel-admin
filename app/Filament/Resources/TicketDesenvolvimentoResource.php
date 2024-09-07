@@ -32,6 +32,7 @@ use Filament\Tables\Columns\TextColumn\TextColumnSize;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Collection;
 
 class TicketDesenvolvimentoResource extends Resource
 {
@@ -85,18 +86,25 @@ class TicketDesenvolvimentoResource extends Resource
                         Select::make('sistema_id')
                             ->label('Sistema')
                             ->options(Sistema::all()->pluck('nome', 'id'))
+                            ->preload()
+                            ->reactive()
                             ->searchable(),
                         Select::make('modulo_id')
                             ->label('Módulo')
-                            ->options(Modulo::all()->pluck('nome', 'id'))
+                            ->options(fn($get) => self::getModulos($get('sistema_id')))
+                            ->preload()
+                            ->reactive()
                             ->searchable(),
                         Select::make('tela_id')
                             ->label('Tela')
-                            ->options(Tela::all()->pluck('nome', 'id'))
+                            ->options(fn($get) => self::getTelas($get('modulo_id')))
+                            ->preload()
+                            ->reactive()
                             ->searchable(),
                         Select::make('subtela_id')
                             ->label('Subtela')
-                            ->options(Subtela::all()->pluck('nome', 'id'))
+                            ->options(fn($get) => self::getSubTelas($get('tela_id')))
+                            ->preload()
                             ->searchable(),
                         DatePicker::make('prazo')
                             ->label('Prazo')
@@ -132,6 +140,7 @@ class TicketDesenvolvimentoResource extends Resource
                             ->label('Comentário'),
                         FileUpload::make('anexo')
                             ->label('Anexo')
+                            ->columnSpanFull()
                             ->directory('anexo_ticket_desenvolvimento'),
                     ])->columns(2),
                     Tab::make('Levantamento de Requisito')->schema([
@@ -194,6 +203,21 @@ class TicketDesenvolvimentoResource extends Resource
                     ]),
                 ])->columns(1),
             ])->columns(1);
+    }
+
+    public static function getModulos($sistemaId): Collection
+    {
+        return Modulo::where('sistema_id', $sistemaId)->pluck('nome', 'id');
+    }
+
+    public static function getTelas($moduloId): Collection
+    {
+        return Tela::where('modulo_id', $moduloId)->pluck('nome', 'id');
+    }
+
+    public static function getSubTelas($telaId): Collection
+    {
+        return Subtela::where('tela_id', $telaId)->pluck('nome', 'id');
     }
 
     public static function table(Table $table): Table

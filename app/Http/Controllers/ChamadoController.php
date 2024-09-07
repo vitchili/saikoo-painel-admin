@@ -3,9 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Chamado\Chamado;
+use App\Services\NotificacaoExceptionGeralService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 
 class ChamadoController extends Controller
 {
@@ -26,7 +26,8 @@ class ChamadoController extends Controller
             , 200); 
         }
         catch(\Exception $e){
-            Log::error('Erro ao executar atualização do chamado: ' . $e->getMessage());
+            new NotificacaoExceptionGeralService($e->getMessage(), 'Erro ao atualizar chamado');
+
             return response()->json(
                 ['mensagem' => 'Ocorreu um erro inesperado no servidor.']
             , 500);

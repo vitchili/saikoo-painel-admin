@@ -28,6 +28,11 @@ class PermissionResource extends Resource
 
     protected static ?string $navigationParentItem = 'Usuários';
 
+    public static function canViewAny(): bool
+    {
+        return false;
+    }
+
     public static function form(Form $form): Form
     {
         return $form

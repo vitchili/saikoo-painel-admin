@@ -234,7 +234,6 @@ class TicketsDesenvolvimentoRelationManager extends RelationManager
                 Tables\Columns\TextColumn::make('situacao_id')
                     ->size(TextColumnSize::ExtraSmall)
                     ->label('Situação')
-                    ->formatStateUsing(fn($state) => dd($state))
                     ->sortable()
                     ->searchable(),
             ])

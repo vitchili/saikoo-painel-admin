@@ -4,6 +4,7 @@ namespace App\Observers;
 
 use App\Gateway\Bitpag\ClienteBitPag;
 use App\Models\Cliente\Cliente;
+use App\Services\NotificacaoExceptionGeralService;
 
 class ClienteObserver
 {
@@ -20,8 +21,16 @@ class ClienteObserver
      */
     public function created(Cliente $cliente): void
     {
-        $bitPagCliente = new ClienteBitPag();
-        $bitPagCliente->cadastrarCliente($cliente);
+        if ($cliente->tornar_cliente == 'S') {
+            $ultimoCliente = Cliente::whereNotNull('codigo')->orderBy('codigo', 'desc')->first();
+
+            $cliente->codigo = ! empty($ultimoCliente->codigo) ? ($ultimoCliente->codigo + 1) : 1;
+            $cliente->codico = ! empty($ultimoCliente->codigo) ? ($ultimoCliente->codigo + 1) : 1;
+            $cliente->save();
+
+            $bitPagCliente = new ClienteBitPag();
+            $bitPagCliente->cadastrarCliente($cliente);
+        }
     }
 
     /**
@@ -30,16 +39,21 @@ class ClienteObserver
     public function updating(Cliente $cliente): void
     {
         $tornarClienteOriginal = $cliente->getOriginal('tornar_cliente');
+        
+        if ($tornarClienteOriginal == 'S'  && $cliente->tornar_cliente == 'N') {
+            $cliente->tornar_cliente = 'S';
+            new NotificacaoExceptionGeralService('Impossível retirar a marcação de "Tornar Cliente" do cliente.');
+        }
 
         if ($tornarClienteOriginal == 'N' && $cliente->tornar_cliente == 'S') {
-            $cliente->codigo++;
-            $cliente->codico++;
-            $cliente->tornar_cliente = 'S';
+            $ultimoCliente = Cliente::whereNotNull('codigo')->orderBy('codigo', 'desc')->first();
+            $cliente->codigo = ! empty($ultimoCliente->codigo) ? ($ultimoCliente->codigo + 1) : 1;
+            $cliente->codico = ! empty($ultimoCliente->codigo) ? ($ultimoCliente->codigo + 1) : 1;
         }
 
         $bitpagIdOriginal = $cliente->getOriginal('cliente_bitpag_id');
 
-        if (empty($bitpagIdOriginal)) {
+        if ($cliente->tornar_cliente == 'S' && empty($bitpagIdOriginal)) {
             $bitPagCliente = new ClienteBitPag();
             $bitPagCliente->cadastrarCliente($cliente);
         }

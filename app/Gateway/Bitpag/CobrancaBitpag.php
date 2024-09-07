@@ -7,6 +7,7 @@ use App\Models\Cliente\Fatura\FaturaCliente;
 use App\Models\Cliente\Servico\Enum\PeriodicidadeServico;
 use App\Rules\ValidacaoCpfCnpj;
 use App\Rules\ValidacaoTelefone;
+use App\Services\NotificacaoExceptionBitPagService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Http;
 
@@ -30,6 +31,7 @@ class CobrancaBitpag extends BaseClientBitpag
 
             return $response->json();
         } catch (\Exception $e) {
+            new NotificacaoExceptionBitPagService($e->getMessage());
             return [
                 'status' => $e->getCode(),
                 'data' => $e->getMessage(),
@@ -62,10 +64,11 @@ class CobrancaBitpag extends BaseClientBitpag
             }
 
             $cobranca->cobranca_bitpag_id = $response['recurrence']['hash_id'];
-            $cobranca->save();
-            
+            $cobranca->update();
+
             return $response->json();
         } catch (\Exception $e) {
+            new NotificacaoExceptionBitPagService($e->getMessage());
             return [
                 'status' => $e->getCode(),
                 'data' => $e->getMessage(),
@@ -140,7 +143,7 @@ class CobrancaBitpag extends BaseClientBitpag
             'description_installment_amount' => $cobranca->info_add,
             'recurrence_interval_installment' => $periodicidade,
             'due_date_installment_billing' => $cobranca->vencimento,
-            'expiration_day_installments' => Carbon::parse($cobranca->vencimento)->format('d'),
+            'expiration_day_installments' => (int) Carbon::parse($cobranca->vencimento)->format('d'),
             'total_installment' => PeriodicidadeServico::from($servicos[0]->periodicidade)->qtdParcelas(),
             'installment_amount' =>  number_format($cobranca->valor, 2, ',', ''),
             'charge_method' => 1,

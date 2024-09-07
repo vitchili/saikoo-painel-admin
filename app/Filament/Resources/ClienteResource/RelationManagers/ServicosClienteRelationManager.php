@@ -91,7 +91,8 @@ class ServicosClienteRelationManager extends RelationManager
                     ->schema([
                         TextInput::make('valor')
                             ->numeric()
-                            ->label('Valor'),
+                            ->label('Valor')
+                            ->required(),
                         Toggle::make('bd_btech')
                             ->label('Banco de dados BTECH')
                             ->required()
