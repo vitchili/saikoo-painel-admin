@@ -105,7 +105,7 @@ class ClienteResource extends Resource
                                         ->rule('cpf_ou_cnpj')
                                         ->suffixAction(
                                             fn($state, $livewire, $set) => Action::make('search-action')
-                                                ->icon('heroicon-o-rectangle-stack')
+                                                ->icon('heroicon-o-magnifying-glass')
                                                 ->action(function () use ($state, $livewire, $set) {
                                                     $livewire->validateOnly('data.cpf_ou_cnpj');
                                                     $state = preg_replace('/[^0-9]/', '', $state);

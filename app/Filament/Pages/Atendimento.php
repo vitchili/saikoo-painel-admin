@@ -3,8 +3,13 @@
 namespace App\Filament\Pages;
 
 use App\Models\Chamado\Chamado;
+use App\Models\Cliente\Cliente;
 use App\Models\Lembrete\Lembrete;
-use Filament\Pages\Page;
+use Filament\Forms\Components\Actions\Action;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Form;
+use Filament\Pages\Page ;
+use Illuminate\Support\Facades\Redirect;
 
 class Atendimento extends Page
 {
@@ -14,10 +19,34 @@ class Atendimento extends Page
 
     public array $lembretes;
     public array $chamados;
+    public array $clientes; 
+    public int $selectedCliente; 
 
     public function mount()
     {
         $this->lembretes = Lembrete::with('criador')->with('tecnicos')->get()->toArray();
         $this->chamados = Chamado::with('criador')->with('tecnicos')->whereNotNull('data_visita')->get()->toArray();
+        $this->clientes = Cliente::all()->pluck('nome', 'id')->toArray();
+    }
+
+    protected function getFormSchema(): array
+    {
+        return [
+            Select::make('selectedCliente')
+                ->label('Selecione um cliente')
+                ->options(Cliente::all()->mapWithKeys(function ($cliente) {
+                    return [
+                        $cliente->id => $cliente->nome  . ' - ' . $cliente->cpf_cnpj
+                    ];
+                }))
+                ->searchable()
+                ->suffixAction(
+                    fn($state, $livewire, $set) => Action::make('search-action')
+                    ->icon('heroicon-o-magnifying-glass')
+                    ->action(function () use ($state, $livewire, $set) {
+                        Redirect::to("http://localhost:8000/admin/clientes/{$this->selectedCliente}");
+                    })
+                ),
+        ];
     }
 }
