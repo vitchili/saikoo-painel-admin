@@ -8,23 +8,23 @@ enum FormaPagamento: string
     
     case CARTAO_DE_CREDITO = 'Cartão de crédito';
     
-    case CHEQUE = 'Cheque';
+    //case CHEQUE = 'Cheque';
     
-    case DEPOSITO_BANCARIO = 'Depósito bancário';
+    case PIX = 'Pix';
     
     case DINHEIRO = 'Dinheiro';
     
-    case PAGAMENTO_ONLINE = 'Pagamento Online';
+    //case PAGAMENTO_ONLINE = 'Pagamento Online';
 
     public function label(): string
     {
         return match ($this) {
             self::BOLETO => 'Boleto',
             self::CARTAO_DE_CREDITO => 'Cartão de crédito',
-            self::CHEQUE => 'Cheque',
-            self::DEPOSITO_BANCARIO => 'Depósito bancário',
+            //self::CHEQUE => 'Cheque',
+            self::PIX => 'Pix',
             self::DINHEIRO => 'Dinheiro',
-            self::PAGAMENTO_ONLINE => 'Pagamento Online'
+            //self::PAGAMENTO_ONLINE => 'Pagamento Online'
         };
     }
 }

@@ -31,15 +31,18 @@ class HistoricoContatoComClienteRelationManager extends RelationManager
             ->recordTitleAttribute('descricao')
             ->columns([
                 Tables\Columns\TextColumn::make('descricao')
+                    ->formatStateUsing(function ($state) {
+                        return \Illuminate\Support\Str::limit(strip_tags($state), 200);
+                    })
+                    ->wrap()
                     ->size(TextColumnSize::ExtraSmall),
-                Tables\Columns\TextColumn::make('responsavel.nome')
+                Tables\Columns\TextColumn::make('responsavel.name')
                     ->size(TextColumnSize::ExtraSmall)
                     ->label('Responsável'),
                 Tables\Columns\TextColumn::make('cadastrado_em')
                     ->size(TextColumnSize::ExtraSmall)
                     ->label('Data hora')
                     ->datetime('d/m/Y H:i:s')
-
             ])
             ->filters([
                 //
@@ -47,9 +50,6 @@ class HistoricoContatoComClienteRelationManager extends RelationManager
             ->headerActions([])
             ->actions([])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
             ]);
     }
 }

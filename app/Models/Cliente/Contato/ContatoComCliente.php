@@ -26,6 +26,7 @@ class ContatoComCliente extends Model
         'nome',
         'telefone',
         'email',
+        'descricao',
         'data_contato',
         'data_retorno',
         'situacao_id',
@@ -50,7 +51,7 @@ class ContatoComCliente extends Model
 
     public function historicoContatoComCliente()
     {
-        return $this->hasMany(HistoricoContatoComCliente::class, 'cliente_id');
+        return $this->hasMany(HistoricoContatoComCliente::class, 'cliente_id', 'cliente_id');
     }
 
 }

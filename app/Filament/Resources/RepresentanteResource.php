@@ -100,6 +100,7 @@ class RepresentanteResource extends Resource
                             ->schema([
                                 Forms\Components\TextInput::make('telefone')
                                     ->label('Telefone')
+                                    ->minLength(10)
                                     ->mask(RawJs::make(<<<'JS'
                                     $input.length >= 14 ? '(99)99999-9999' : '(99)9999-9999'
                                 JS)),
@@ -198,9 +199,7 @@ class RepresentanteResource extends Resource
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+                
             ]);
     }
 

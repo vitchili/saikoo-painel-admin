@@ -39,20 +39,20 @@ class CobrancaBitpag extends BaseClientBitpag
         }
     }
 
-    public function cadastrarCobranca(FaturaCliente $cobranca): array
+    public function cadastrarCobranca(FaturaCliente $cobranca, array $dadosSensiveis = []): array
     {
         $tipoCobrancaBitPag = 'R';
 
         if ($cobranca->qtd == 1) {
             $tipoCobrancaBitPag = 'U';
         }elseif ($cobranca->qtd > 1) {
-            $tipoCobrancaBitPag = 'P'; //Verificar se manteremos P ou R.
+            $tipoCobrancaBitPag = 'R'; //Verificar se manteremos P ou R.
         }
 
         $payload = match($tipoCobrancaBitPag) {
-            'U' => array_merge($this->getBasePayloadCliente($cobranca), $this->getBasePayloadCobrancaUnica($cobranca), $this->getBasePayloadPagamentoCartaoCredito($cobranca)),
-            'P' => array_merge($this->getBasePayloadCliente($cobranca), $this->getBasePayloadCobrancaParcela($cobranca), $this->getBasePayloadPagamentoCartaoCredito($cobranca)),
-            'R' => array_merge($this->getBasePayloadCliente($cobranca), $this->getBasePayloadCobrancaRecorrente($cobranca), $this->getBasePayloadPagamentoCartaoCredito($cobranca)),
+            'U' => array_merge($this->getBasePayloadCliente($cobranca), $this->getBasePayloadCobrancaUnica($cobranca), $this->getBasePayloadPagamentoCartaoCredito($cobranca, $dadosSensiveis)),
+            'P' => array_merge($this->getBasePayloadCliente($cobranca), $this->getBasePayloadCobrancaParcela($cobranca), $this->getBasePayloadPagamentoCartaoCredito($cobranca, $dadosSensiveis)),
+            'R' => array_merge($this->getBasePayloadCliente($cobranca), $this->getBasePayloadCobrancaRecorrente($cobranca), $this->getBasePayloadPagamentoCartaoCredito($cobranca, $dadosSensiveis)),
         };
 
         try {
@@ -130,11 +130,7 @@ class CobrancaBitpag extends BaseClientBitpag
         $tipoPagamento = match($cobranca->formapagamento) {
             'Boleto' => 4,
             'Cartão de crédito' => 2,
-            'Cheque' => 4,
-            'Depósito bancário' => 4,
-            'Dinheiro' => 4,
-            'Pagamento Online' => 4,
-            'PIX' => 4,
+            'PIX' => 7,
             default => throw new \Exception('Nenhuma forma de pagamento cadastrada'),
         };
 
@@ -155,25 +151,42 @@ class CobrancaBitpag extends BaseClientBitpag
 
     public function getBasePayloadCobrancaRecorrente(FaturaCliente $cobranca): array
     {
+        $servicos = $cobranca->servicos;
+
+        $periodicidade = match($servicos[0]->periodicidade) {
+            PeriodicidadeServico::MENSAL->value => 'monthly',
+            PeriodicidadeServico::TRIMESTRAL->value => 'quarterly',
+            PeriodicidadeServico::SEMESTRAL->value => 'semester',
+            PeriodicidadeServico::ANUAL->value => 'yearly',
+            default => throw new \Exception('Nenhuma periodicidade cadastrada para o serviço'),
+        };
+
+        $tipoPagamento = match($cobranca->formapagamento) {
+            'Boleto' => 4,
+            'Cartão de crédito' => 2,
+            'PIX' => 7,
+            default => throw new \Exception('Nenhuma forma de pagamento cadastrada'),
+        };
+
         return [
-            'type' => 'R',
-            'description_recurrence' => "Descrição da cobrança | {Campo Obrigatório se o type escolhido for r (Cobrança recorrente)}",
-            'recurrence_interval' => "Intervalo da cobrança (daily = diária | weekly = semanal | fortnightly = quinzenal | monthly = mensagel | bimonthly = bimestral | quarterly = trimestral | semester = semestral | yearly = anual) | {Campo Obrigatório se o type escolhido for p (Cobrança recorrente)}",
-            'due_date_recurrence' => "2024-01-01 (Formato Y-m-d) | {Campo Obrigatório se o type escolhido for u (Cobrança recorrente)}",
-            'expiration_day_recurrence' => "10  {Campo Obrigatório se o type escolhido for u (Cobrança parcelada)}",
-            'amount_recurrence' => "R$ 100,00 (Pode-se enviar com R$) | {Campo Obrigatório se o type escolhido for u (Cobrança recorrente)}",
-            'charge_method' => "Sim ou Não (1 - sim | 0 - Não)",
-            'method' => "2 - Cartão de Crédito | 4 - Boleto | 7 - PIX {Campo Obrigatório se charge_method = 1}",
+            'type' => 'r',
+            'description_recurrence' => strip_tags($cobranca->info_add),
+            'recurrence_interval' => $periodicidade,
+            'due_date_recurrence' => $cobranca->vencimento,
+            'expiration_day_recurrence' => (int) Carbon::parse($cobranca->vencimento)->format('d'),
+            'amount_recurrence' => number_format($cobranca->valor, 2, ',', ''),
+            'charge_method' => 1,
+            'method' => $tipoPagamento,
         ];
     }
 
-    public function getBasePayloadPagamentoCartaoCredito(FaturaCliente $cobranca): array
+    public function getBasePayloadPagamentoCartaoCredito(FaturaCliente $cobranca, array $dadosSensiveis = []): array
     {
-        return $cobranca->formapagamento == 'Cartão de crédito' ? [
-            'number' => "xxxxxxxxxxxxxxxx {Campo Obrigatório se method = 2}",
-            'cvv' => "xxx {Campo Obrigatório se method = 2}",
-            'expiration_date' => "xx/xxxx (Formato = m/Y) {Campo Obrigatório se method = 2}",
-            'holder_name' => "José da Silva {Campo Obrigatório se method = 2}"
+        return $cobranca->formapagamento == 'Cartão de crédito' && ! empty($dadosSensiveis) ? [
+            'number' => $dadosSensiveis['number'],
+            'cvv' => $dadosSensiveis['cvv'],
+            'expiration_date' => $dadosSensiveis['expiration_date'],
+            'holder_name' => $dadosSensiveis['holder_name']
         ] : [];
     }
 }

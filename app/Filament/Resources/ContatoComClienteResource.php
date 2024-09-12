@@ -54,6 +54,7 @@ class ContatoComClienteResource extends Resource
                             ->maxLength(255),
                         Forms\Components\TextInput::make('telefone')
                             ->label('Telefone')
+                            ->minLength(10)
                             ->mask(RawJs::make(<<<'JS'
                             $input.length >= 14 ? '(99)99999-9999' : '(99)9999-9999'
                         JS)),
@@ -125,6 +126,16 @@ class ContatoComClienteResource extends Resource
                 Tables\Columns\TextColumn::make('telefone')
                     ->size(TextColumnSize::ExtraSmall)
                     ->searchable(),
+                Tables\Columns\TextColumn::make('situacao_id')
+                    ->label('Situação')
+                    ->size(TextColumnSize::ExtraSmall)
+                    ->formatStateUsing(fn($state) => SituacaoContato::from($state)->label())
+                    ->badge()
+                    ->color(function (string $state): string {
+                        return SituacaoContato::tryFrom($state)?->color() ?? 'secondary';
+                    })
+                    ->sortable()
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('data_contato')->date('d/m/Y')
                     ->size(TextColumnSize::ExtraSmall)
                     ->sortable(),
@@ -139,9 +150,6 @@ class ContatoComClienteResource extends Resource
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
             ]);
     }
 

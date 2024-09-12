@@ -3,6 +3,7 @@
 namespace App\Observers;
 
 use App\Models\Cliente\Contato\ContatoComCliente;
+use App\Models\Cliente\Contato\HistoricoContatoComCliente;
 
 class ContatoComClienteObserver
 {
@@ -11,7 +12,11 @@ class ContatoComClienteObserver
      */
     public function created(ContatoComCliente $contatoComCliente): void
     {
-        //
+        HistoricoContatoComCliente::create([
+            'cliente_id' => $contatoComCliente->cliente_id,
+            'descricao' => $contatoComCliente->descricao,
+            'cadastrado_por' => auth()->user()->id,
+        ]);
     }
 
     public function creating(ContatoComCliente $contatoComCliente): void
@@ -25,7 +30,11 @@ class ContatoComClienteObserver
      */
     public function updated(ContatoComCliente $contatoComCliente): void
     {
-        //
+        HistoricoContatoComCliente::create([
+            'cliente_id' => $contatoComCliente->cliente_id,
+            'descricao' => $contatoComCliente->descricao,
+            'cadastrado_por' => auth()->user()->id,
+        ]);
     }
 
     public function updating(ContatoComCliente $contatoComCliente): void

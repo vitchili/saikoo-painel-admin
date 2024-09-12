@@ -50,7 +50,7 @@ export default {
             content: 'Lembrete',
             descricao: item.descricao,
             class: `health criador-${item.criador.id}`,
-            backgroundColor: item.criador.color_hash,
+            backgroundColor: item.tecnicos[0].color_hash,
             color: '#fff'
         };
 
@@ -74,7 +74,7 @@ export default {
             content: 'Chamado #' + item.id,
             descricao: item.descricao.replace(/(<([^>]+)>)/ig, ''),
             class: `health criador-${item.criador.id}`,
-            backgroundColor: item.criador.color_hash,
+            backgroundColor: item.tecnicos[0].color_hash,
             color: '#fff'
         };
 
@@ -101,13 +101,11 @@ export default {
       if (event.content == 'Lembrete'){
         put(`${location[0]}/lembretes/${event.id}`, event).then(
           (response) => {
-            console.log(response);
           }
         );
       } else {
         put(`${location[0]}/chamados/${event.id}`, event).then(
           (response) => {
-            console.log(response);
           }
         );
       }
@@ -120,13 +118,11 @@ export default {
       if (objLembreteOuChamado.content == 'Lembrete'){
         put(`${location[0]}/lembretes/${objLembreteOuChamado.id}`, event).then(
           (response) => {
-            console.log(response);
           }
         );
       } else {
         put(`${location[0]}/chamados/${objLembreteOuChamado.id}`, event).then(
           (response) => {
-            console.log(response);
           }
         );
       }

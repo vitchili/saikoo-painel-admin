@@ -50,10 +50,20 @@ class FaturaClienteObserver
             $faturaCliente->validade_final = 'Nao';
             $faturaCliente->cpf_cnpj = preg_replace('/[^0-9]/', '', Cliente::findOrFail($faturaCliente->id_cliente)->cpf_cnpj);
             $faturaCliente->codigo_cliente = Cliente::findOrFail($faturaCliente->id_cliente)->codigo;
+
+            $dadosSensiveis = [];
+            if ($faturaCliente->formapagamento == 'Cartão de crédito') {
+                $dadosSensiveis = [
+                    'number' => $faturaCliente->tempCreditoNumber,
+                    'cvv' => $faturaCliente->tempCreditoCvv,
+                    'expiration_date' => $faturaCliente->tempCreditoDataExp,
+                    'holder_name' => $faturaCliente->tempCreditoNomeImpresso,
+                ];
+            }
     
             if ($faturaCliente->incremento_parcela == 1) {
                 $bitPagCobranca = new CobrancaBitpag();
-                $bitPagCobranca->cadastrarCobranca($faturaCliente);
+                $bitPagCobranca->cadastrarCobranca($faturaCliente, $dadosSensiveis);
     
                 if ($faturaCliente->gerar_serial) {
                     $serial = new SerialCliente();
@@ -81,6 +91,10 @@ class FaturaClienteObserver
                 }
     
                 unset($faturaCliente->servicos);
+                unset($faturaCliente->tempCreditoNumber);
+                unset($faturaCliente->tempCreditoCvv);
+                unset($faturaCliente->tempCreditoDataExp);
+                unset($faturaCliente->tempCreditoNomeImpresso);
             }
 
             DB::commit();
@@ -97,7 +111,7 @@ class FaturaClienteObserver
     {
         $faturaAntigaGerarSerial = $faturaCliente->getOriginal('gerar_serial');
 
-        if (! $faturaAntigaGerarSerial->gerar_serial && $faturaCliente->gerar_serial) {
+        if (! $faturaAntigaGerarSerial && $faturaCliente->gerar_serial) {
             $serial = new SerialCliente();
             $serial->vencimento_serial = $faturaCliente->vencimento;
             $serial->save();

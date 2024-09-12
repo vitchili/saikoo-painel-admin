@@ -25,7 +25,7 @@ class ConsultaIGPM extends Page
 
     protected static ?string $title = 'Consulta Índices IGPM';
 
-    protected static ?string $navigationGroup = 'Gerais';
+    protected static ?string $navigationGroup = 'Financeiro';
 
     #[Computed()]
     public function indices()

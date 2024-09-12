@@ -24,7 +24,7 @@ class BancoResource extends Resource
 
     protected static ?string $modelLabel = 'Bancos';
 
-    protected static ?string $navigationGroup = 'Gerais';
+    protected static ?string $navigationGroup = 'Financeiro';
 
     public static function form(Form $form): Form
     {
@@ -79,9 +79,6 @@ class BancoResource extends Resource
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
             ]);
     }
 

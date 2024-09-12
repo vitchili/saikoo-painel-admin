@@ -42,7 +42,7 @@ class NotificacaoGeralResource extends Resource
                             ->preload()
                             ->required(),
                         Forms\Components\Select::make('chamado_id')
-                            ->options(Chamado::all()->pluck('id'))
+                            ->options(Chamado::all()->pluck('id', 'id'))
                             ->label('Chamado')
                             ->searchable()
                             ->required(),
@@ -79,11 +79,11 @@ class NotificacaoGeralResource extends Resource
                     ->searchable(),
                 Tables\Columns\TextColumn::make('cadastrado_em')
                     ->size(TextColumnSize::ExtraSmall)
-                    ->dateTime()
+                    ->dateTime('d/m/Y h:i:s')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('atualizado_em')
                     ->size(TextColumnSize::ExtraSmall)
-                    ->dateTime()
+                    ->dateTime('d/m/Y h:i:s')
                     ->sortable(),
             ])
             ->filters([
@@ -93,9 +93,7 @@ class NotificacaoGeralResource extends Resource
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+                
             ]);
     }
 

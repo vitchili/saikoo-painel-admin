@@ -181,9 +181,7 @@ class ServicosClienteRelationManager extends RelationManager
                 Tables\Actions\EditAction::make()->slideOver(),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+                
             ]);
     }
 }

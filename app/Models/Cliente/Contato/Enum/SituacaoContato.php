@@ -15,4 +15,12 @@ enum SituacaoContato: int
             self::ENCERRADO => 'Encerrado'
         };
     }
+
+    public function color(): string
+    {
+        return match ($this) {
+            self::ABERTO => 'warning',
+            self::ENCERRADO => 'success'
+        };
+    }
 }

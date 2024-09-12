@@ -25,6 +25,8 @@ use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\TextColumn\TextColumnSize;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -40,7 +42,7 @@ class PropostaClienteResource extends Resource
     protected static ?string $slug = 'propostas';
 
     protected static ?string $modelLabel = 'Propostas';
-    
+
     public static function form(Form $form): Form
     {
         return $form
@@ -65,7 +67,7 @@ class PropostaClienteResource extends Resource
                                             ->label('Responsável'),
                                         Select::make('cidade_id')
                                             ->label('Cidade')
-                                            ->options(collect(CidadeProposta::cases())->mapWithKeys(fn ($cidade) => [$cidade->value => $cidade->label()]))
+                                            ->options(collect(CidadeProposta::cases())->mapWithKeys(fn($cidade) => [$cidade->value => $cidade->label()]))
                                             ->searchable(),
                                     ])
                                     ->columns(3),
@@ -82,7 +84,7 @@ class PropostaClienteResource extends Resource
                                                 Select::make('tipo_recorrencia_cobranca_id')
                                                     ->label('Tipo Recorrência Cobrança')
                                                     ->required()
-                                                    ->options(collect(TipoRecorrenciaCobrancaProposta::cases())->mapWithKeys(fn ($tipo) => [$tipo->value => $tipo->label()]))
+                                                    ->options(collect(TipoRecorrenciaCobrancaProposta::cases())->mapWithKeys(fn($tipo) => [$tipo->value => $tipo->label()]))
                                                     ->searchable(),
                                                 TextInput::make('qtd_profissionais')
                                                     ->label('Qtd Prof.')
@@ -96,9 +98,10 @@ class PropostaClienteResource extends Resource
                                                 Select::make('tipo_desconto_id')
                                                     ->label('Tipo Desconto')
                                                     ->required()
-                                                    ->options(collect(TipoDescontoProposta::cases())->mapWithKeys(fn ($tipo) => [$tipo->value => $tipo->label()]))
+                                                    ->options(collect(TipoDescontoProposta::cases())->mapWithKeys(fn($tipo) => [$tipo->value => $tipo->label()]))
                                                     ->searchable(),
                                                 TextInput::make('valor_desconto')
+                                                    ->numeric()
                                                     ->label('Valor Desconto')
                                                     ->prefix('R$'),
                                             ])->columns(4),
@@ -199,7 +202,30 @@ class PropostaClienteResource extends Resource
     {
         return $table
             ->columns([
-                //
+                TextColumn::make('cliente.nome')
+                    ->label('Cliente')
+                    ->sortable()
+                    ->searchable()
+                    ->formatStateUsing(function ($state) {
+                        return \Illuminate\Support\Str::limit(strip_tags($state), 200);
+                    })
+                    ->wrap()
+                    ->size(TextColumnSize::ExtraSmall),
+                TextColumn::make('responsavel.name')
+                    ->label('Responsável')
+                    ->sortable()
+                    ->searchable()
+                    ->size(TextColumnSize::ExtraSmall),
+
+                TextColumn::make('info')
+                    ->label('Informações')
+                    ->html()
+                    ->html(fn($state) => $state)
+                    ->formatStateUsing(function ($state) {
+                        return \Illuminate\Support\Str::limit(strip_tags($state), 200);
+                    })
+                    ->wrap()
+                    ->size(TextColumnSize::ExtraSmall),
             ])
             ->filters([
                 //
@@ -207,11 +233,7 @@ class PropostaClienteResource extends Resource
             ->actions([
                 Tables\Actions\EditAction::make(),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
-            ]);
+            ->bulkActions([]);
     }
 
     public static function getRelations(): array

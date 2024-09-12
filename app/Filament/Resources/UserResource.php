@@ -5,6 +5,8 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\UserResource\Pages;
 use App\Filament\Resources\UserResource\RelationManagers;
 use App\Models\User;
+use App\Rules\ContemCaractereEspecial;
+use Closure;
 use Filament\Forms;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Form;
@@ -49,11 +51,25 @@ class UserResource extends Resource
                         Forms\Components\TextInput::make('password')
                             ->label('Senha')
                             ->password()
+                            ->minLength(8)
+                            ->rules([
+                                function () {
+                                    return function (string $attribute, $value, Closure $fail) {
+                                        $valiation = new ContemCaractereEspecial();
+
+                                        if (! $valiation->validar($value)) {
+                                            $fail($valiation->message());
+                                        }
+                                    };
+                                },
+                            ])
+                            ->revealable()
                             ->dehydrateStateUsing(fn($state) => Hash::make($state))
                             ->dehydrated(fn($state) => filled($state))
                             ->required(fn(string $context): bool => $context === 'create'),
                         Forms\Components\TextInput::make('phone')
                             ->label('Telefone')
+                            ->minLength(10)
                             ->mask(RawJs::make(<<<'JS'
                         $input.length >= 14 ? '(99)99999-9999' : '(99)9999-9999'
                     JS)),
@@ -126,9 +142,6 @@ class UserResource extends Resource
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
             ]);
     }
 

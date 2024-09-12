@@ -33,4 +33,9 @@ class HistoricoContatoComCliente extends Model
         return $this->belongsTo(User::class, 'cadastrado_por');
     }
 
+    public function contato()
+    {
+        return $this->belongsTo(ContatoComCliente::class, 'cliente_id', 'cliente_id');
+    }
+
 }

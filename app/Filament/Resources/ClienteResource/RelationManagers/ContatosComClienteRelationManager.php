@@ -11,6 +11,7 @@ use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Support\RawJs;
+use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Columns\TextColumn\TextColumnSize;
 use Parallax\FilamentComments\Tables\Actions\CommentsAction;
 
@@ -91,9 +92,10 @@ class ContatosComClienteRelationManager extends RelationManager
                 Tables\Actions\CreateAction::make()->label('Novo Contato')->slideOver(),
             ])
             ->actions([
-                Tables\Actions\EditAction::make()->slideOver(),
-                CommentsAction::make(),
-                // Tables\Actions\DeleteAction::make(),
+                ActionGroup::make([
+                    Tables\Actions\EditAction::make()->slideOver(),
+                    CommentsAction::make(),
+                ]),
             ])
             ->bulkActions([]);
     }

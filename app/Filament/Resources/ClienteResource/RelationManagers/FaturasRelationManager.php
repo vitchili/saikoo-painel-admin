@@ -4,24 +4,28 @@ namespace App\Filament\Resources\ClienteResource\RelationManagers;
 
 use App\Models\Cliente\Fatura\Enum\FormaPagamento;
 use App\Models\Cliente\Fatura\Enum\StatusFaturaCliente;
+use App\Models\Cliente\Fatura\FaturaCliente;
 use App\Models\Cliente\Servico\Enum\PeriodicidadeServico;
 use App\Models\Cliente\Servico\ServicoCliente;
-use App\Models\Igpm;
 use Carbon\Carbon;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Fieldset;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
+use Filament\Notifications\Notification;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
+use Filament\Tables\Actions\Action;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\TextColumn\TextColumnSize;
 use Filament\Tables\Table;
 use Pelmered\FilamentMoneyField\Forms\Components\MoneyInput;
 use Parallax\FilamentComments\Tables\Actions\CommentsAction;
 use Pelmered\FilamentMoneyField\Tables\Columns\MoneyColumn;
+use Filament\Tables\Actions\ActionGroup;
 
 class FaturasRelationManager extends RelationManager
 {
@@ -33,65 +37,75 @@ class FaturasRelationManager extends RelationManager
     {
         return $form
             ->schema([
-                DatePicker::make('vencimento')
-                    ->required()
-                    ->afterOrEqual('today')
-                    ->label('Vencimento'),
-                TextInput::make('valor')
-                    ->required()
-                    ->label('Valor')
-                    ->numeric()
-                    ->prefix('R$'),
-                Select::make('periodicidade')
-                    // ->relationship('servicos', 'periodicidade', function ($query) {
-                    //     return $query->select('serv_cliente.id', 'serv_cliente.periodicidade');
-                    // })
-                    ->label('Periodicidade')
-                    ->options(collect(PeriodicidadeServico::cases())->mapWithKeys(fn($periodicidade) => [$periodicidade->value => $periodicidade->label()]))
-                    ->preload()
-                    ->searchable()
-                    ->reactive()
-                    ->afterStateUpdated(fn($state, callable $set, callable $get) => $this->alterarPeriodicidade($state, $set, $get)),
-                Select::make('servicos')
-                    // ->relationship('servicos', 'nome', function ($query) {
-                    //         return $query->join('lista_servico AS ls', 'serv_cliente.id_servico', '=', 'ls.id')
-                    //                     ->select('serv_cliente.id', 'ls.nome');
-                    // })
-                    ->required()
-                    ->multiple()
-                    ->label('Serviços Referência')
-                    ->options(fn($get) => $this->getServicosOptions($get('periodicidade')))
-                    ->preload()
-                    ->searchable()
-                    ->reactive()
-                    ->afterStateUpdated(fn($state, callable $set, callable $get) => $this->somaEVerificaServico($state, $set, $get)),
-                Select::make('formapagamento')
-                    ->required()
-                    ->label('Forma de Pagamento')
-                    ->options(collect(FormaPagamento::cases())->mapWithKeys(fn($formaPagamento) => [$formaPagamento->value => $formaPagamento->label()]))
-                    ->preload()
-                    ->searchable(),
-                TextInput::make('qtd')
-                    ->label('Quantidade Parcelas')
-                    ->readOnly()
-                    ->numeric(),
-                TextInput::make('info_add')
-                    ->label('Informações Adicionais'),
-                Select::make('igpm_id')
-                    ->label('Índice IGPM')
-                    ->options(Igpm::orderBy('id', 'desc')->get()->mapWithKeys(function ($item) {
-                        return [
-                            $item->id => 'Data: ' . Carbon::parse($item->data)->format('d/m/Y') . '. Índice: ' . number_format($item->valor, 2)
-                        ];
-                    }))
-                    ->preload()
-                    ->searchable()
-                    ->reactive()
-                    ->afterStateUpdated(fn($state, callable $set, callable $get) => $this->somaEVerificaIgpm($state, $set, $get)),
-                Toggle::make('reajuste_automatico')
-                    ->label('Reajuste automático após última parcela?'),
-                Toggle::make('reajuste_aplica_ultimo_igpm')
-                    ->label('Próximo reajuste aplica IGPM mais recente?'),
+                Fieldset::make('Dados da Fatura')
+                    ->schema([
+                        DatePicker::make('vencimento')
+                            ->required()
+                            ->afterOrEqual('today')
+                            ->label('Vencimento'),
+                        TextInput::make('valor')
+                            ->required()
+                            ->label('Valor')
+                            ->numeric()
+                            ->prefix('R$'),
+                        Select::make('periodicidade')
+                            // ->relationship('servicos', 'periodicidade', function ($query) {
+                            //     return $query->select('serv_cliente.id', 'serv_cliente.periodicidade');
+                            // })
+                            ->label('Periodicidade')
+                            ->options(collect(PeriodicidadeServico::cases())->mapWithKeys(fn($periodicidade) => [$periodicidade->value => $periodicidade->label()]))
+                            ->preload()
+                            ->searchable()
+                            ->reactive()
+                            ->afterStateUpdated(fn($state, callable $set, callable $get) => $this->alterarPeriodicidade($state, $set, $get)),
+                        Select::make('servicos')
+                            // ->relationship('servicos', 'nome', function ($query) {
+                            //         return $query->join('lista_servico AS ls', 'serv_cliente.id_servico', '=', 'ls.id')
+                            //                     ->select('serv_cliente.id', 'ls.nome');
+                            // })
+                            ->required()
+                            ->multiple()
+                            ->label('Serviços Referência')
+                            ->options(fn($get) => $this->getServicosOptions($get('periodicidade')))
+                            ->preload()
+                            ->searchable()
+                            ->reactive()
+                            ->afterStateUpdated(fn($state, callable $set, callable $get) => $this->somaEVerificaServico($state, $set, $get)),
+                        TextInput::make('qtd')
+                            ->label('Quantidade Parcelas')
+                            ->readOnly()
+                            ->numeric(),
+                        TextInput::make('info_add')
+                            ->label('Informações Adicionais'),
+                        Select::make('formapagamento')
+                            ->required()
+                            ->label('Forma de Pagamento')
+                            ->options(collect(FormaPagamento::cases())->mapWithKeys(fn($formaPagamento) => [$formaPagamento->value => $formaPagamento->label()]))
+                            ->preload()
+                            ->reactive()
+                            ->searchable(),
+                    ]),
+                Fieldset::make('Cartão de Crédito - Gateway BitPag (não armazenados localmente).')
+                    ->schema([
+                        TextInput::make('tempCreditoNumber')
+                            ->label('Número do cartão')
+                            ->numeric()
+                            ->mask('9999 9999 9999 9999')
+                            ->placeholder('XXXX-XXXX-XXXX-XXXX'),
+                        TextInput::make('tempCreditoCvv')
+                            ->label('CVV')
+                            ->numeric()
+                            ->mask('999')
+                            ->placeholder('XXX'),
+                        TextInput::make('tempCreditoDataExp')
+                            ->label('Data exp.')
+                            ->numeric()
+                            ->mask('99/9999')
+                            ->placeholder('XX/XXXX'),
+                        TextInput::make('tempCreditoNomeImpresso')
+                            ->label('Nome impresso')
+                            ->placeholder('Nome como está no cartão'),
+                    ])->visible(fn($get) => $get('formapagamento') == 'Cartão de crédito'),
                 RichEditor::make('obs')
                     ->toolbarButtons([
                         'blockquote',
@@ -127,33 +141,10 @@ class FaturasRelationManager extends RelationManager
 
         $set('valor', round($somaServicos, 2));
 
-        if (! empty($get('igpm_id'))) {
-            $this->somaEVerificaIgpm($get('igpm_id'), $set, $get);
-        }
-
         if (count($ids) > 1 && $servicos[0]->id_servico != self::ID_SERVICO_PRINCIPAL) {
             $set('servicos', [$ids[0]]);
             $this->getServicosOptions($get('periodicidade'));
             $this->somaEVerificaServico([$ids[0]], $set, $get);
-        }
-    }
-
-    protected function somaEVerificaIgpm($idIgpm, callable $set, callable $get)
-    {
-        $igpm = Igpm::find($idIgpm);
-
-        if (! empty($igpm)) {
-            $somaServicos = (float) $get('valor');
-
-            $multiplicador = ($igpm->valor / 100) + 1;
-
-            $somaServicos *= $multiplicador;
-
-            $set('valor', round($somaServicos, 2));
-        } else {
-            $idsServicos = $get('servicos');
-
-            $this->somaEVerificaServico($idsServicos, $set, $get);
         }
     }
 
@@ -214,12 +205,12 @@ class FaturasRelationManager extends RelationManager
                     ->size(TextColumnSize::ExtraSmall)
                     ->label('Valor')
                     ->prefix('R$'),
-                MoneyColumn::make('valor_atualizado')
+                TextColumn::make('valor_atualizado')
                     ->label('Valor Atualizado')
                     ->size(TextColumnSize::ExtraSmall)
                     ->prefix('R$')
                     ->toggleable(isToggledHiddenByDefault: true),
-                MoneyColumn::make('valor_pago')
+                TextColumn::make('valor_pago')
                     ->size(TextColumnSize::ExtraSmall)
                     ->prefix('R$')
                     ->label('Valor Pago'),
@@ -251,7 +242,7 @@ class FaturasRelationManager extends RelationManager
                 Tables\Columns\TextColumn::make('cobranca_bitpag_id')
                     ->size(TextColumnSize::ExtraSmall)
                     ->label('Link BitPag')
-                    ->formatStateUsing(fn ($state) => sprintf(
+                    ->formatStateUsing(fn($state) => sprintf(
                         '<a href="https://empresa.sandbox.splitpag.com.br/charge/list-charges-recurrence/%s" target="_blank">Abrir Link</a>',
                         $state
                     ))
@@ -264,9 +255,18 @@ class FaturasRelationManager extends RelationManager
                 Tables\Actions\CreateAction::make()->slideOver()
             ])
             ->actions([
-                //Tables\Actions\EditAction::make()->slideOver(),
-                //Tables\Actions\DeleteAction::make(),
-                CommentsAction::make(),
+                ActionGroup::make([
+                    CommentsAction::make(),
+                    Action::make('quitarFatura')
+                        ->requiresConfirmation()
+                        ->hidden(fn(FaturaCliente $record) => $record->formapagamento !== 'Dinheiro')
+                        ->action(function (FaturaCliente $record) {
+                            $record->valor_pago = $record->valor_atualizado ?? $record->valor;
+                            $record->save();
+                            Notification::make()->success()->title('Fatura quitada com sucesso!')->icon('heroicon-o-currency-dollar')->send();
+                        })
+                        ->icon('heroicon-o-currency-dollar'),
+                ]),
             ])
             ->bulkActions([
                 // Tables\Actions\BulkActionGroup::make([

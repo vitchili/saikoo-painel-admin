@@ -18,4 +18,13 @@ enum PrioridadeTicketDesenvolvimentoEnum: int
             self::MAXIMA => 'Máxima',
         };
     }
+
+    public function color(): string
+    {
+        return match ($this) {
+            self::MINIMA => 'primary',
+            self::MEDIA => 'warning',
+            self::MAXIMA => 'danger',
+        };
+    }
 }

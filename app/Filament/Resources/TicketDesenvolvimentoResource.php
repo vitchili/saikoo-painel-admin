@@ -246,7 +246,10 @@ class TicketDesenvolvimentoResource extends Resource
                     ->formatStateUsing(fn($state) => PrioridadeTicketDesenvolvimentoEnum::from($state)->label())
                     ->sortable()
                     ->searchable()
-                    ->badge(),
+                    ->badge()
+                    ->color(function (string $state): string {
+                        return PrioridadeTicketDesenvolvimentoEnum::tryFrom($state)?->color() ?? 'secondary';
+                    }),
                 Tables\Columns\TextColumn::make('sistema.nome')
                     ->size(TextColumnSize::ExtraSmall)
                     ->label('Sistema')
@@ -288,9 +291,7 @@ class TicketDesenvolvimentoResource extends Resource
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+                
             ]);
     }
 

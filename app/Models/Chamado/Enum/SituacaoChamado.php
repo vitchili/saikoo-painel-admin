@@ -24,4 +24,15 @@ enum SituacaoChamado: int
             self::CANCELADO => 'Cancelado'
         };
     }
+
+    public function color(): string
+    {
+        return match ($this) {
+            self::ABERTO => 'warning',
+            self::CONFIRMADO => 'success',
+            self::EM_ATENDIMENTO => 'info',
+            self::CONCLUIDO => 'primary',
+            self::CANCELADO => 'danger',
+        };
+    }
 }

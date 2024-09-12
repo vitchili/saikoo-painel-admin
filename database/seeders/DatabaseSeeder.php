@@ -12,6 +12,7 @@ use App\Models\Cliente\TicketDesenvolvimento\TipoProjetoTicketDesenvolvimento;
 use App\Models\Cliente\TipoCliente;
 use App\Models\Cliente\TipoContatoPessoaCliente;
 use App\Models\Cliente\TipoRedeSocialCliente;
+use App\Models\ConfiguracaoReajusteMassa;
 use App\Models\Diversos\Modulo;
 use App\Models\Diversos\Sistema;
 use App\Models\Diversos\Tela;
@@ -35,6 +36,8 @@ class DatabaseSeeder extends Seeder
         $this->geraBancos();
 
         $this->geraSistemas();
+
+        $this->geraConfigIndiceReajuste();
         
         TipoProjetoTicketDesenvolvimento::create([
             'nome' => 'Sistema',
@@ -4262,6 +4265,16 @@ class DatabaseSeeder extends Seeder
         Tela::create([
             'modulo_id' => '7',
             'nome' => 'NFS-e',
+        ]);
+    }
+
+    public function geraConfigIndiceReajuste()
+    {
+        ConfiguracaoReajusteMassa::create([
+            'nome' => 'Reajuste padrão anual',
+            'data_inicio' => now(),
+            'cadastrado_em' => now(),
+            'atualizado_em' => now(),
         ]);
     }
 }

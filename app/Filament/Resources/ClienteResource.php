@@ -149,6 +149,7 @@ class ClienteResource extends Resource
                                         ->maxLength(255),
                                     TextInput::make('telefone')
                                         ->label('Telefone')
+                                        ->minLength(10)
                                         ->mask(RawJs::make(<<<'JS'
                                         $input.length >= 14 ? '(99)99999-9999' : '(99)9999-9999'
                                     JS)),
@@ -259,6 +260,7 @@ class ClienteResource extends Resource
                                                 ->label('Nome'),
                                             TextInput::make('telefone')
                                                 ->label('Telefone')
+                                                ->minLength(10)
                                                 ->mask(RawJs::make(<<<'JS'
                                                 $input.length >= 14 ? '(99)99999-9999' : '(99)9999-9999'
                                             JS)),
@@ -610,9 +612,6 @@ class ClienteResource extends Resource
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
             ]);
     }
 

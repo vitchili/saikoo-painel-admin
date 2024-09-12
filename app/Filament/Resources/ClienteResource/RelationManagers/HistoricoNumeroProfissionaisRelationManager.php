@@ -46,9 +46,7 @@ class HistoricoNumeroProfissionaisRelationManager extends RelationManager
             ->headerActions([])
             ->actions([])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+                
             ]);
     }
 }

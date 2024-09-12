@@ -17,7 +17,7 @@ class NotificacaoGeral extends Model
 
     protected $table = 'notificacoes_gerais';
 
-    protected $fillble = [
+    protected $fillable = [
         'tecnico_id',
         'chamado_id',
         'data_hora',

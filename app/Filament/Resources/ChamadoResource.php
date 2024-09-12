@@ -22,6 +22,7 @@ use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Columns\TextColumn\TextColumnSize;
 use Filament\Tables\Table;
 use Parallax\FilamentComments\Tables\Actions\CommentsAction;
@@ -177,6 +178,9 @@ class ChamadoResource extends Resource
                     ->size(TextColumnSize::ExtraSmall)
                     ->formatStateUsing(fn ($state) => SituacaoChamado::from($state)->label())
                     ->badge()
+                    ->color(function (string $state): string {
+                        return SituacaoChamado::tryFrom($state)?->color() ?? 'secondary';
+                    })
                     ->sortable()
                     ->searchable(),
             ])
@@ -184,12 +188,12 @@ class ChamadoResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                ActionGroup::make([
+                    Tables\Actions\EditAction::make(),
+                    CommentsAction::make(),
+                ]),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
             ]);
     }
 
