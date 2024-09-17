@@ -280,7 +280,7 @@ class ClienteResource extends Resource
                                                 ->mask('99999-999')
                                                 ->suffixAction(
                                                     fn($state, $livewire, $set) => Action::make('search-action')
-                                                        ->icon('heroicon-o-rectangle-stack')
+                                                        ->icon('heroicon-o-magnifying-glass')
                                                         ->action(function () use ($state, $livewire, $set) {
                                                             $livewire->validateOnly('data.cep');
 
