@@ -23,11 +23,11 @@
     <div class="flex gap-6 space-x-4 p-4 bg-gray-100 rounded-lg shadow-md">
         <div class="flex flex-col">
             <span class="font-semibold">Próxima Versão</span>
-            <span style="color: #34bfa3; font-size: 18pt;">{{$this->versao['versao']}}</span>
+            <span style="color: #34bfa3; font-size: 18pt;">{{$this->versao['versao'] ?? ''}}</span>
         </div>
         <div class="flex flex-col">
             <span class="font-semibold">Previsão Lançamento</span>
-            <span style="color: #34bfa3; font-size: 18pt;">{{$this->versao['data_disponivel']}}</span>
+            <span style="color: #34bfa3; font-size: 18pt;">{{$this->versao['data_disponivel'] ?? ''}}</span>
         </div>
         <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
             <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
@@ -49,17 +49,19 @@
             <tbody>
                 <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
                     <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                        #{{$this->versao['tickets'][0]['id']}}
+                        #{{$this->versao['tickets'][0]['id'] ?? ''}}
                     </th>
                     <td class="px-6 py-4">
-                        {{$this->versao['tickets'][0]['cadastrado_em']}}
+                        {{$this->versao['tickets'][0]['cadastrado_em'] ?? ''}}
                     </td>
                     <td class="px-6 py-4">
-                        {{strip_tags($this->versao['tickets'][0]['comentario'])}}
+                        {{strip_tags($this->versao['tickets'][0]['comentario'] ?? '')}}
                     </td>
+                    @if( ! empty($this->versao)) 
                     <td class="px-6 py-4 text-right">
                         <a href="http://localhost:8000/admin/ticket-desenvolvimentos/{{$this->versao['tickets'][0]['id']}}/edit" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Detalhes</a>
                     </td>
+                    @endif
                 </tr>
             </tbody>
         </table>
