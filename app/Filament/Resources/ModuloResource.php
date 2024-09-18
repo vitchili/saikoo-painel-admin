@@ -27,7 +27,7 @@ class ModuloResource extends Resource
 
     protected static ?string $modelLabel = 'Módulo';
 
-    protected static ?string $navigationGroup = 'Gerais';
+    protected static ?string $navigationGroup = 'Cadastros';
 
     protected static ?string $navigationParentItem = 'Sistemas';
 

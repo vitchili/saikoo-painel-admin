@@ -27,7 +27,7 @@ class TelaResource extends Resource
 
     protected static ?string $modelLabel = 'Tela';
 
-    protected static ?string $navigationGroup = 'Gerais';
+    protected static ?string $navigationGroup = 'Cadastros';
 
     protected static ?string $navigationParentItem = 'Sistemas';
 

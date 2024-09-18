@@ -24,6 +24,8 @@ class TipoChamadoResource extends Resource
 
     protected static ?string $modelLabel = 'Tipos de Chamados';
 
+    protected static ?string $navigationGroup = 'Principal';
+
     public static function form(Form $form): Form
     {
         return $form

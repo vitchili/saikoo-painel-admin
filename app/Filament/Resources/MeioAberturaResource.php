@@ -24,6 +24,8 @@ class MeioAberturaResource extends Resource
     
     protected static ?string $modelLabel = 'Meios de Aberturas';
 
+    protected static ?string $navigationGroup = 'Principal';
+
     public static function form(Form $form): Form
     {
         return $form

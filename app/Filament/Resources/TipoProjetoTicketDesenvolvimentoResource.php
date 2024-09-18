@@ -24,6 +24,8 @@ class TipoProjetoTicketDesenvolvimentoResource extends Resource
 
     protected static ?string $modelLabel = 'Projetos Tickets';
 
+    protected static ?string $navigationGroup = 'Principal';
+
     public static function form(Form $form): Form
     {
         return $form

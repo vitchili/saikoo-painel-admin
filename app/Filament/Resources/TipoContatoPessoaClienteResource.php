@@ -24,6 +24,8 @@ class TipoContatoPessoaClienteResource extends Resource
 
     protected static ?string $modelLabel = 'Tipos de Contato';
 
+    protected static ?string $navigationGroup = 'Principal';
+
     public static function form(Form $form): Form
     {
         return $form

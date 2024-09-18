@@ -24,6 +24,8 @@ class TipoServicoClienteResource extends Resource
 
     protected static ?string $modelLabel = 'Tipos de Serviços';
 
+    protected static ?string $navigationGroup = 'Principal';
+
     public static function form(Form $form): Form
     {
         return $form
