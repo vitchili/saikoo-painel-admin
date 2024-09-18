@@ -27,7 +27,7 @@ class PlanoResource extends Resource
 
     protected static ?string $modelLabel = 'Planos';
 
-    protected static ?string $navigationGroup = 'Gerais';
+    protected static ?string $navigationGroup = 'Cadastros';
 
     public static function form(Form $form): Form
     {

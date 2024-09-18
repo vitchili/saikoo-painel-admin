@@ -33,6 +33,8 @@ class ChamadoResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-group';
 
+    protected static ?string $navigationGroup = 'Principal';
+
     public static function form(Form $form): Form
     {
         return $form

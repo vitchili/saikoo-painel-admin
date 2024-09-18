@@ -29,7 +29,7 @@ class VersaoSistemaResource extends Resource
 
     protected static ?string $modelLabel = 'Versões';
 
-    protected static ?string $navigationGroup = 'Gerais';
+    protected static ?string $navigationGroup = 'Cadastros';
 
     public static function form(Form $form): Form
     {

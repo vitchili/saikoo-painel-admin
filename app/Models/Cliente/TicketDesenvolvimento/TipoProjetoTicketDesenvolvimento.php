@@ -10,8 +10,6 @@ class TipoProjetoTicketDesenvolvimento extends Model
 {
     use HasFactory;
 
-    use HasFactory;
-
     const CREATED_AT = 'cadastrado_em';
 
     const UPDATED_AT = 'atualizado_em';

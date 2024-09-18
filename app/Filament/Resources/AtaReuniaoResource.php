@@ -25,6 +25,8 @@ class AtaReuniaoResource extends Resource
     
     protected static ?string $slug = 'atas-reunioes';
 
+    protected static ?string $navigationGroup = 'Gerais';
+
     public static function form(Form $form): Form
     {
         return $form

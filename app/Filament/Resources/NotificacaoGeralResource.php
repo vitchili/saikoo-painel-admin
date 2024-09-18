@@ -29,6 +29,8 @@ class NotificacaoGeralResource extends Resource
 
     protected static ?string $modelLabel = 'Notificações Agendadas';
 
+    protected static ?string $navigationGroup = 'Gerais';
+
     public static function form(Form $form): Form
     {
         return $form

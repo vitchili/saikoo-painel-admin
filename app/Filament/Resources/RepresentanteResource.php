@@ -28,7 +28,7 @@ class RepresentanteResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-user-circle';
 
-    protected static ?string $navigationGroup = 'Gerais';
+    protected static ?string $navigationGroup = 'Principal';
 
     public static function form(Form $form): Form
     {

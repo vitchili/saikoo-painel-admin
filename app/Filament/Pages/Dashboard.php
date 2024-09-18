@@ -47,7 +47,9 @@ class Dashboard extends Page
 
         if (! empty($this->versao)) {
             $this->versao['data_disponivel'] = Carbon::parse($this->versao['data_disponivel'])->format('d/m/Y');
-            $this->versao['tickets'][0]['cadastrado_em'] = Carbon::parse($this->versao['tickets'][0]['cadastrado_em'])->format('d/m/Y');
+            if (! empty($this->versao['tickets'])) {
+                $this->versao['tickets'][0]['cadastrado_em'] = Carbon::parse($this->versao['tickets'][0]['cadastrado_em'])->format('d/m/Y');
+            }
         }
 
         $this->clientesImplantacao = Cliente::where('em_implantacao', 'N')

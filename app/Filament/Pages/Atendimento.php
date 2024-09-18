@@ -15,6 +15,8 @@ class Atendimento extends Page
 {
     protected static ?string $navigationIcon = 'heroicon-o-document-text';
 
+    protected static ?string $navigationGroup = 'Principal';
+
     protected static string $view = 'filament.pages.atendimento';
 
     public array $lembretes;

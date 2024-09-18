@@ -26,7 +26,7 @@ class SistemaResource extends Resource
 
     protected static ?string $modelLabel = 'Sistemas';
 
-    protected static ?string $navigationGroup = 'Gerais';
+    protected static ?string $navigationGroup = 'Cadastros';
 
     public static function form(Form $form): Form
     {

@@ -43,6 +43,8 @@ class PropostaClienteResource extends Resource
 
     protected static ?string $modelLabel = 'Propostas';
 
+    protected static ?string $navigationGroup = 'Principal';
+
     public static function form(Form $form): Form
     {
         return $form
