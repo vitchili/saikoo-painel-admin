@@ -257,12 +257,15 @@ class ClienteResource extends Resource
                                             Select::make('tipo_contato_pessoa_cliente_id')
                                                 ->label('Tipo')
                                                 ->options(TipoContatoPessoaCliente::all()->pluck('nome', 'id'))
+                                                ->required()
                                                 ->searchable(),
                                             TextInput::make('nome')
-                                                ->label('Nome'),
+                                                ->label('Nome')
+                                                ->required(),
                                             TextInput::make('telefone')
                                                 ->label('Telefone')
                                                 ->minLength(10)
+                                                ->required()
                                                 ->mask(RawJs::make(<<<'JS'
                                                 $input.length >= 14 ? '(99)99999-9999' : '(99)9999-9999'
                                             JS)),

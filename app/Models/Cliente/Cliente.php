@@ -122,17 +122,17 @@ class Cliente extends Model
         'cliente_bitpag_id',
     ];
 
-    public function contatosComCliente()
+    public function contatosComCliente(): ?HasMany
     {
         return $this->hasMany(ContatoComCliente::class);
     }
 
-    public function contatosPessoasCliente()
+    public function contatosPessoasCliente(): ?HasMany
     {
         return $this->hasMany(ContatoPessoaCliente::class);
     }
 
-    public function redesSociais()
+    public function redesSociais(): ?HasMany
     {
         return $this->hasMany(RedeSocialCliente::class);
     }
