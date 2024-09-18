@@ -45,12 +45,10 @@ class Dashboard extends Page
         $this->versao = ! is_null(VersaoSistema::with('tickets')->orderBy('cadastrado_em', 'desc')->first()) ? 
         VersaoSistema::with('tickets')->orderBy('cadastrado_em', 'desc')->first()->toArray() : []; 
 
-        if (empty($this->versao)) {
-            $this->versao = [];
+        if (! empty($this->versao)) {
+            $this->versao['data_disponivel'] = Carbon::parse($this->versao['data_disponivel'])->format('d/m/Y');
+            $this->versao['tickets'][0]['cadastrado_em'] = Carbon::parse($this->versao['tickets'][0]['cadastrado_em'])->format('d/m/Y');
         }
-        
-        $this->versao['data_disponivel'] = Carbon::parse($this->versao['data_disponivel'])->format('d/m/Y');
-        $this->versao['tickets'][0]['cadastrado_em'] = Carbon::parse($this->versao['tickets'][0]['cadastrado_em'])->format('d/m/Y');
 
         $this->clientesImplantacao = Cliente::where('em_implantacao', 'N')
             ->when($this->dataInicio, function ($query) {
