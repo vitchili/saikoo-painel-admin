@@ -67,11 +67,12 @@ class QuantidadeChamadosGeraisSuporteTi extends ChartWidget
 
         $somaChamados = $totais[0] + $totais[1] + $totais[2] + $totais[3] + $totais[4];
 
-        $totais[0] = (float) $totais[0] * 100 / $somaChamados;
-        $totais[1] = (float) $totais[1] * 100 / $somaChamados;
-        $totais[2] = (float) $totais[2] * 100 / $somaChamados;
-        $totais[3] = (float) $totais[3] * 100 / $somaChamados;
-        $totais[4] = (float) $totais[4] * 100 / $somaChamados;
+
+        $totais[0] = $totais[0] > 0 ? (float) ($totais[0] * 100 / $somaChamados) : 0;
+        $totais[1] = $totais[1] > 0 ? (float) ($totais[1] * 100 / $somaChamados) : 0;
+        $totais[2] = $totais[2] > 0 ? (float) ($totais[2] * 100 / $somaChamados) : 0;
+        $totais[3] = $totais[3] > 0 ? (float) ($totais[3] * 100 / $somaChamados) : 0;
+        $totais[4] = $totais[4] > 0 ? (float) ($totais[4] * 100 / $somaChamados) : 0;
 
         return $totais;
     }
