@@ -33,7 +33,7 @@ class ConsultarIndicesIGPM extends Command
         $indices = $bancoCentral->consultarHistoricoIndicesIGPM();
         $indiceMaisRecente = $indices[count($indices) - 1];
 
-        if ($indicesCadastrados->data != $indiceMaisRecente['data'] && $indicesCadastrados->valor != $indiceMaisRecente['valor']) {
+        if (empty($indicesCadastrados) || ($indicesCadastrados->data != $indiceMaisRecente['data'] && $indicesCadastrados->valor != $indiceMaisRecente['valor'])) {
             Igpm::create([
                 'data' => $indiceMaisRecente['data'],
                 'valor' => $indiceMaisRecente['valor'],
