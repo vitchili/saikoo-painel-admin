@@ -46,7 +46,7 @@ class Atendimento extends Page
                     fn($state, $livewire, $set) => Action::make('search-action')
                     ->icon('heroicon-o-magnifying-glass')
                     ->action(function () use ($state, $livewire, $set) {
-                        Redirect::to("http://localhost:8000/admin/clientes/{$this->selectedCliente}");
+                        Redirect::to("https://hml-paineladmin.taskimob.com.br/admin/clientes/{$this->selectedCliente}");
                     })
                 ),
         ];

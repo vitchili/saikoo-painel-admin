@@ -59,7 +59,7 @@
                     </td>
                     @if( ! empty($this->versao) && ! empty($this->versao['tickets']) ) 
                     <td class="px-6 py-4 text-right">
-                        <a href="http://localhost:8000/admin/ticket-desenvolvimentos/{{$this->versao['tickets'][0]['id']}}/edit" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Detalhes</a>
+                        <a href="https://hml-paineladmin.taskimob.com.br/admin/ticket-desenvolvimentos/{{$this->versao['tickets'][0]['id']}}/edit" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Detalhes</a>
                     </td>
                     @endif
                 </tr>
