@@ -24,7 +24,7 @@ class Dashboard extends Page
 
     public array $chamadosInternos;
     public array $chamadosExternos;
-    public array $versao;
+    public ?array $versao;
     public array $clientesImplantacao;
     public array $chamadosDiasSemana;
 
