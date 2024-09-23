@@ -16,11 +16,13 @@ class ClienteBitPag extends BaseClientBitpag
     {
         try {
             $response = Http::withHeaders($this->getHeaders())->get(
-                $this->getBaseAuth()['baseUrl'] . '/client', [
-                'page' => $page,
-                'search' => $search,
-            ]);
-            
+                $this->getBaseAuth()['baseUrl'] . '/client',
+                [
+                    'page' => $page,
+                    'search' => $search,
+                ]
+            );
+
             if (! empty($response->json()['errors'])) {
                 throw new \Exception($response->json()['message'], $response->status());
             }
@@ -28,7 +30,7 @@ class ClienteBitPag extends BaseClientBitpag
             return $response->json();
         } catch (\Exception $e) {
             new NotificacaoExceptionBitPagService($e->getMessage());
-            
+
             return [
                 'status' => $e->getCode(),
                 'data' => $e->getMessage(),
@@ -37,30 +39,33 @@ class ClienteBitPag extends BaseClientBitpag
     }
 
     public function cadastrarCliente(Cliente $cliente): array
-    {   
-        $payload = [
-            'document' => strval(ValidacaoCpfCnpj::transformarApenasNumeros($cliente->cpf_cnpj)),
-            'name' => $cliente->nome,
-            'email' => $cliente->email_resp ?? $cliente->email,
-            'gender' => 'O',
-            'birth_date' => ValidacaoCpfCnpj::cpfOuCnpj($cliente->cpf_cnpj) == ValidacaoCpfCnpj::CPF ? 
-                Carbon::parse($cliente->data_nasc_resp)->format('Y-m-d') : 
-                Carbon::parse($cliente->data_cadastro)->format('Y-m-d'),
-            'zipcode' => $cliente->cep ?? '',
-            'address' => $cliente->end ?? '',
-            'number_address' => $cliente->numero ?? '',
-            'complement_address' => $cliente->complemento ?? '',
-            'district' => $cliente->bairro ?? '',
-            'city' => $cliente->cidade ?? '',
-            'state' => $cliente->uf ?? '',
-            'country' => 'Brasil',
-            'phone' => ! empty($cliente->telefone) ? strval(ValidacaoTelefone::transformarApenasNumeros($cliente->telefone)) : '',
-        ];
-
+    {
         try {
+
+            $payload = [
+                'document' => strval(ValidacaoCpfCnpj::transformarApenasNumeros($cliente->cpf_cnpj)),
+                'name' => $cliente->nome,
+                'email' => $cliente->email_resp ?? $cliente->email,
+                'gender' => 'O',
+                'birth_date' => ValidacaoCpfCnpj::cpfOuCnpj($cliente->cpf_cnpj) == ValidacaoCpfCnpj::CPF ?
+                    Carbon::parse($cliente->data_nasc_resp)->format('Y-m-d') :
+                    Carbon::parse($cliente->data_cadastro)->format('Y-m-d'),
+                'zipcode' => $cliente->cep ?? '',
+                'address' => $cliente->end ?? '',
+                'number_address' => $cliente->numero ?? '',
+                'complement_address' => $cliente->complemento ?? '',
+                'district' => $cliente->bairro ?? '',
+                'city' => $cliente->cidade ?? '',
+                'state' => $cliente->uf ?? '',
+                'country' => 'Brasil',
+                'phone' => ! empty($cliente->telefone) ? strval(ValidacaoTelefone::transformarApenasNumeros($cliente->telefone)) : '',
+            ];
+
             $response = Http::withHeaders($this->getHeaders())->post(
-                $this->getBaseAuth()['baseUrl'] . '/client', $payload);
-                
+                $this->getBaseAuth()['baseUrl'] . '/client',
+                $payload
+            );
+            
             if (! empty($response->json()['errors'])) {
                 throw ValidationException::withMessages([
                     'erro' => $response->json()['message']
@@ -72,7 +77,7 @@ class ClienteBitPag extends BaseClientBitpag
 
             return $response->json();
         } catch (\Exception $e) {
-            new NotificacaoExceptionBitPagService($e->getMessage());
+            //new NotificacaoExceptionBitPagService($e->getMessage());
 
             return [
                 'status' => $e->getCode(),

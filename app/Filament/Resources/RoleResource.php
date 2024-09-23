@@ -36,6 +36,8 @@ class RoleResource extends Resource
 
     protected static ?string $navigationParentItem = 'Usuários';
 
+    protected static ?string $navigationGroup = 'Cadastros';
+
     public static function form(Form $form): Form
     {
         $options = Permission::all()->pluck('name', 'id')->toArray();

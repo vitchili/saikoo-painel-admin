@@ -2,11 +2,13 @@
 
 namespace App\Filament\Resources\ClienteResource\RelationManagers;
 
+use App\Filament\Resources\ContatoComClienteResource\RelationManagers\HistoricoContatoComClienteRelationManager;
 use App\Models\Cliente\Contato\Enum\SituacaoContato;
 use App\Models\Cliente\TipoContatoPessoaCliente;
 use App\Models\User;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Resources\Pages\CreateRecord;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -57,6 +59,13 @@ class ContatosComClienteRelationManager extends RelationManager
             ]);
     }
 
+    public static function getRelations(): array
+    {
+        return [
+            HistoricoContatoComClienteRelationManager::class
+        ];
+    }
+
     public function table(Table $table): Table
     {
         return $table
@@ -92,9 +101,9 @@ class ContatosComClienteRelationManager extends RelationManager
                 Tables\Actions\CreateAction::make()->label('Novo Contato')->slideOver(),
             ])
             ->actions([
+                CommentsAction::make(),
                 ActionGroup::make([
                     Tables\Actions\EditAction::make()->slideOver(),
-                    CommentsAction::make(),
                 ]),
             ])
             ->bulkActions([]);

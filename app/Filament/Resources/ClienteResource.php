@@ -67,38 +67,10 @@ class ClienteResource extends Resource
                                 ->schema([
                                     Radio::make('tipo')
                                         ->label('Tipo')
-                                        ->required()
+                                        ->requiredIf('tornar_cliente', 'S')
                                         ->options(TipoCliente::all()->pluck('nome', 'id'))
                                         ->inline()
                                         ->inlineLabel(false),
-                                    Select::make('id_representante')
-                                        ->label('Representante')
-                                        ->options(Representante::all()->pluck('nome', 'id'))
-                                        ->searchable(),
-                                    Radio::make('cliente_parceiro')
-                                        ->label('Parceiro')
-                                        ->options([
-                                            'N' => 'Não',
-                                            'S' => 'Sim',
-                                        ])
-                                        ->inline()
-                                        ->inlineLabel(false),
-                                    Radio::make('tornar_cliente')
-                                        ->label('Tornar Cliente')
-                                        ->required()
-                                        ->options([
-                                            'N' => 'Não',
-                                            'S' => 'Sim',
-                                        ])
-                                        ->inline()
-                                        ->hidden(fn(mixed $livewire) => $livewire instanceof CreateRecord)
-                                        ->inlineLabel(false),
-                                    TextInput::make('codigo')
-                                        ->label('Código')
-                                        ->unique(ignoreRecord: true)
-                                        ->readOnly()
-                                        ->hidden(fn(mixed $livewire) => empty($livewire->data['tornar_cliente']) || $livewire->data['tornar_cliente'] != 'S')
-                                        ->maxLength(255),
                                     TextInput::make('cpf_cnpj')
                                         ->label('CNPJ')
                                         ->mask(RawJs::make(<<<'JS'
@@ -132,22 +104,43 @@ class ClienteResource extends Resource
                                                     $set('fone_resp2', $cnpjData['ddd_telefone_2'] ?? null);
                                                 })
                                         ),
-
-
-
-
+                                    Radio::make('cliente_parceiro')
+                                        ->label('Parceiro')
+                                        ->options([
+                                            'N' => 'Não',
+                                            'S' => 'Sim',
+                                        ])
+                                        ->inline()
+                                        ->inlineLabel(false)
+                                        ->default('N'),
+                                    Radio::make('tornar_cliente')
+                                        ->label('Tornar cliente')
+                                        ->requiredIf('tornar_cliente', 'S')
+                                        ->options([
+                                            'N' => 'Não',
+                                            'S' => 'Sim',
+                                        ])
+                                        ->inline()
+                                        ->hidden(fn(mixed $livewire) => $livewire instanceof CreateRecord)
+                                        ->inlineLabel(false),
+                                    TextInput::make('codigo')
+                                        ->label('Código')
+                                        ->unique(ignoreRecord: true)
+                                        ->readOnly()
+                                        ->hidden(fn(mixed $livewire) => empty($livewire->data['tornar_cliente']) || $livewire->data['tornar_cliente'] != 'S')
+                                        ->maxLength(255),
                                     TextInput::make('nome')
-                                        ->label('Razão Social')
+                                        ->label('Razão social')
                                         ->required()
                                         ->maxLength(255),
                                     TextInput::make('nomefantasia')
                                         ->label('Fantasia')
                                         ->maxLength(255),
                                     TextInput::make('ie')
-                                        ->label('Inscrição Estadual')
+                                        ->label('Inscrição estadual')
                                         ->maxLength(255),
                                     TextInput::make('inscricao_municipal')
-                                        ->label('Inscrição Municipal')
+                                        ->label('Inscrição municipal')
                                         ->maxLength(255),
                                     TextInput::make('telefone')
                                         ->label('Telefone')
@@ -160,10 +153,14 @@ class ClienteResource extends Resource
                                         ->mask(RawJs::make(<<<'JS'
                                         $input.length >= 14 ? '(99)99999-9999' : '(99)9999-9999'
                                     JS)),
+                                    Select::make('id_representante')
+                                        ->label('Representante')
+                                        ->options(Representante::all()->pluck('nome', 'id'))
+                                        ->searchable(),
                                     Toggle::make('em_implantacao')
                                         ->label('Em implantação')
                                         ->inline(false),
-                                ])->columns(2),
+                                ])->columns(3),
                             Tab::make('Responsáveis')
                                 ->schema([
                                     Fieldset::make('1º Responsável')
@@ -182,13 +179,13 @@ class ClienteResource extends Resource
                                                 ->placeholder('RG do responsável')
                                                 ->maxLength(255),
                                             TextInput::make('orgao_expedidor')
-                                                ->label('Órgão Expedidor')
+                                                ->label('Órgão expedidor')
                                                 ->placeholder('Órgão expedidor do RG')
                                                 ->maxLength(255),
                                             DatePicker::make('data_nasc_resp')
-                                                ->label('Data Nascimento'),
+                                                ->label('Data nascimento'),
                                             TextInput::make('email_resp')
-                                                ->label('E-mail Responsavel')
+                                                ->label('E-mail responsavel')
                                                 ->placeholder('E-mail do responsável')
                                                 ->email()
                                                 ->maxLength(255),
@@ -223,11 +220,11 @@ class ClienteResource extends Resource
                                                 ->placeholder('RG do 2º responsável')
                                                 ->maxLength(255),
                                             TextInput::make('orgao_expedidor2')
-                                                ->label('Órgão Expedidor')
+                                                ->label('Órgão expedidor')
                                                 ->placeholder('Órgão expedidor do RG')
                                                 ->maxLength(255),
                                             DatePicker::make('data_nasc_resp2')
-                                                ->label('Data Nascimento'),
+                                                ->label('Data nascimento'),
                                             TextInput::make('email_resp2')
                                                 ->label('E-mail')
                                                 ->email()
@@ -244,7 +241,7 @@ class ClienteResource extends Resource
                                                 ->inline(false),
                                             Toggle::make('nao_faz_parte_contrato2')
                                                 ->label('Não faz parte do contrato')
-                                                ->required()
+                                                ->requiredIf('tornar_cliente', 'S')
                                                 ->inline(false),
                                         ])->columns(3),
                                 ]),
@@ -257,15 +254,15 @@ class ClienteResource extends Resource
                                             Select::make('tipo_contato_pessoa_cliente_id')
                                                 ->label('Tipo')
                                                 ->options(TipoContatoPessoaCliente::all()->pluck('nome', 'id'))
-                                                ->required()
+                                                ->requiredIf('tornar_cliente', 'S')
                                                 ->searchable(),
                                             TextInput::make('nome')
                                                 ->label('Nome')
-                                                ->required(),
+                                                ->requiredIf('tornar_cliente', 'S'),
                                             TextInput::make('telefone')
                                                 ->label('Telefone')
                                                 ->minLength(10)
-                                                ->required()
+                                                ->requiredIf('tornar_cliente', 'S')
                                                 ->mask(RawJs::make(<<<'JS'
                                                 $input.length >= 14 ? '(99)99999-9999' : '(99)9999-9999'
                                             JS)),
@@ -279,9 +276,9 @@ class ClienteResource extends Resource
                                     Fieldset::make('Endereço')
                                         ->schema([
                                             TextInput::make('cep')
-                                                ->label('CEP')
+                                                ->label('Cep')
                                                 ->maxLength(9)
-                                                ->required()
+                                                ->requiredIf('tornar_cliente', 'S')
                                                 ->mask('99999-999')
                                                 ->suffixAction(
                                                     fn($state, $livewire, $set) => Action::make('search-action')
@@ -307,18 +304,18 @@ class ClienteResource extends Resource
                                                 ),
                                             TextInput::make('end')
                                                 ->label('Logradouro')
-                                                ->required(),
+                                                ->requiredIf('tornar_cliente', 'S'),
                                             TextInput::make('numero')
                                                 ->label('Número')
-                                                ->required(),
+                                                ->requiredIf('tornar_cliente', 'S'),
                                             TextInput::make('complemento')
                                                 ->label('Complemento'),
                                             TextInput::make('bairro')
                                                 ->label('Bairro')
-                                                ->required(),
+                                                ->requiredIf('tornar_cliente', 'S'),
                                             TextInput::make('cidade')
                                                 ->label('Cidade')
-                                                ->required(),
+                                                ->requiredIf('tornar_cliente', 'S'),
                                             Select::make('uf')
                                                 ->label('UF')
                                                 ->options(collect(Estado::cases())->mapWithKeys(fn($situacao) => [$situacao->value => $situacao->label()]))
@@ -327,12 +324,14 @@ class ClienteResource extends Resource
                                     Fieldset::make('Acesso')
                                         ->schema([
                                             TextInput::make('email')
-                                                ->label('Usuário de acesso')
-                                                ->required(),
+                                                ->label('E-mail Central do Cliente')
+                                                ->email()
+                                                ->requiredIf('tornar_cliente', 'S'),
                                             TextInput::make('senha')
                                                 ->label('Senha de acesso')
                                                 ->password()
-                                                ->revealable(),
+                                                ->revealable()
+                                                ->requiredIf('tornar_cliente', 'S'),
                                         ]),
                                 ])->columns(3),
                             Tab::make('Dados Bancários')
@@ -349,7 +348,7 @@ class ClienteResource extends Resource
                                                 ->preload()
                                                 ->searchable(),
                                             Select::make('tipo_conta')
-                                                ->label('Tipo de Conta')
+                                                ->label('Tipo de conta')
                                                 ->options([
                                                     0 => 'Corrente',
                                                     1 => 'Poupança'
@@ -372,13 +371,13 @@ class ClienteResource extends Resource
                                     Fieldset::make('Financeira')
                                         ->schema([
                                             Select::make('id_tipo_financeira')
-                                                ->label('Tipo Financeira')
+                                                ->label('Tipo financeira')
                                                 ->options([])
                                                 ->searchable(),
                                             TextInput::make('cod_pago')
-                                                ->label('Cód. Financeira'),
+                                                ->label('Cód. financeira'),
                                             TextInput::make('senha_pago')
-                                                ->label('Senha Financeira')
+                                                ->label('Senha financeira')
                                                 ->password()
                                                 ->revealable(),
                                         ])->columns(2)
@@ -390,7 +389,7 @@ class ClienteResource extends Resource
                                         ->relationship('redesSociais')
                                         ->schema([
                                             Select::make('tipo_rede_social_id')
-                                                ->label('Rede Social')
+                                                ->label('Rede social')
                                                 ->options(TipoRedeSocialCliente::all()->pluck('nome', 'id'))
                                                 ->searchable(),
                                             TextInput::make('url')
@@ -431,7 +430,7 @@ class ClienteResource extends Resource
                                             'undo',
                                         ])
                                         ->columnSpanFull()
-                                        ->label('Observação Atendimento'),
+                                        ->label('Observação atendimento'),
                                     RichEditor::make('servicos_c')
                                         ->toolbarButtons([
                                             'blockquote',
@@ -449,7 +448,7 @@ class ClienteResource extends Resource
                                         ->columnSpanFull()
                                         ->label('Serviços'),
                                     TextInput::make('versao')
-                                        ->label('Atualização Versão')
+                                        ->label('Atualização versão')
                                         ->placeholder('Versão'),
                                     TextInput::make('url_api')
                                         ->label('URL API')
@@ -457,7 +456,7 @@ class ClienteResource extends Resource
                                     FileUpload::make('contrato')
                                         ->label('Contrato'),
                                     FileUpload::make('certificado')
-                                        ->label('Certificado Digital'),
+                                        ->label('Certificado digital'),
                                     FileUpload::make('logo')
                                         ->label('Logotipo')
                                         ->image()
@@ -561,7 +560,7 @@ class ClienteResource extends Resource
                                         'uf' => 'UF',
                                     ])
                                     ->label('Campo')
-                                    ->required(),
+                                    ->requiredIf('tornar_cliente', 'S'),
                                 Select::make('condition')
                                     ->options([
                                         'equals' => 'Igual',
@@ -573,10 +572,10 @@ class ClienteResource extends Resource
                                         'less_than' => 'Menor que',
                                     ])
                                     ->label('Condição')
-                                    ->required(),
+                                    ->requiredIf('tornar_cliente', 'S'),
                                 TextInput::make('value')
                                     ->label('Valor')
-                                    ->required(),
+                                    ->requiredIf('tornar_cliente', 'S'),
                             ])
                             ->label('Filtros')
                     ])
@@ -616,8 +615,7 @@ class ClienteResource extends Resource
                 // Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
             ])
-            ->bulkActions([
-            ]);
+            ->bulkActions([]);
     }
 
     public static function getPages(): array

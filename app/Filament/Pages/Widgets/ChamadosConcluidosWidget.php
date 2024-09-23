@@ -32,22 +32,22 @@ class ChamadosConcluidosWidget extends BaseWidget
 
         return [
             Stat::make('Concluídos', $totalChamadosConcluidos)
-                ->description("Concluídos: {$porcentagemChamadosConcluidos}%")
+                ->description('Concluídos: '. number_format($porcentagemChamadosConcluidos, 2, ',', '.') . '%')
                 ->descriptionIcon('heroicon-o-check', IconPosition::Before)
                 ->chart([1, 30, 5, 40, 20, 30])
                 ->color('success'),
             Stat::make('Em andamento', $totalChamadosEmAndamento)
-                ->description("Em andamento: {$porcentagemChamadosEmAndamento}%")
+                ->description('Em andamento: '. number_format($porcentagemChamadosEmAndamento, 2, ',', '.') . '%')
                 ->descriptionIcon('heroicon-o-clock', IconPosition::Before)
                 ->chart([30, 1, 5, 40, 30, 40])
                 ->color('warning'),
             Stat::make('Confirmados', $totalChamadosConfirmados)
-                ->description("Confirmados: {$porcentagemChamadosConfirmados}%")
+                ->description('Confirmados: '. number_format($porcentagemChamadosConfirmados, 2, ',', '.') . '%')
                 ->descriptionIcon('heroicon-o-clipboard-document-list', IconPosition::Before)
                 ->chart([40, 30, 5, 30, 2, 30])
                 ->color('info'),
             Stat::make('Em aberto', $totalChamadosEmAberto)
-                ->description("Em aberto: {$porcentagemChamadosEmAberto}%")
+                ->description('Em aberto: '. number_format($porcentagemChamadosEmAberto, 2, ',', '.') . '%')
                 ->descriptionIcon('heroicon-o-envelope-open', IconPosition::Before)
                 ->chart([1, 6, 5, 8, 2, 3])
                 ->color('gray'),

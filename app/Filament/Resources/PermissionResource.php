@@ -28,6 +28,8 @@ class PermissionResource extends Resource
 
     protected static ?string $navigationParentItem = 'Usuários';
 
+    protected static ?string $navigationGroup = 'Cadastros';
+
     public static function canViewAny(): bool
     {
         return false;

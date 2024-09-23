@@ -11,9 +11,12 @@ use App\Models\Cliente\Contato\Enum\SituacaoContato;
 use App\Models\Cliente\TipoContatoPessoaCliente;
 use App\Models\User;
 use Filament\Forms;
+use Filament\Forms\Components\Actions\Action;
 use Filament\Forms\Components\RichEditor;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Tabs;
 use Filament\Forms\Components\Tabs\Tab;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Pages\CreateRecord;
 use Filament\Resources\Resource;
@@ -21,6 +24,8 @@ use Filament\Support\RawJs;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn\TextColumnSize;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Validation\ValidationException;
 
 class ContatoComClienteResource extends Resource
 {
@@ -40,11 +45,45 @@ class ContatoComClienteResource extends Resource
             ->schema([
                 Tabs::make()->tabs([
                     Tab::make('Contato com cliente')->schema([
-                        Forms\Components\Select::make('cliente_id')
-                            ->required()
-                            ->label('Cliente')
-                            ->options(Cliente::all()->pluck('nome', 'id'))
-                            ->searchable(),
+                        Select::make('cliente_id')
+                            ->relationship(name: 'cliente', titleAttribute: 'nome')
+                            ->createOptionForm([
+                                TextInput::make('cpf_cnpj')
+                                    ->label('CNPJ')
+                                    ->mask(RawJs::make(<<<'JS'
+                                $input.length > 14 ? '99.999.999/9999-99' : '999.999.999-99'
+                            JS))
+                                    ->rule('cpf_ou_cnpj')
+                                    ->suffixAction(
+                                        fn($state, $livewire, $set) => Action::make('search-action')
+                                            ->icon('heroicon-o-magnifying-glass')
+                                            ->action(function () use ($state, $livewire, $set) {
+                                                $livewire->validateOnly('data.cpf_ou_cnpj');
+                                                $state = preg_replace('/[^0-9]/', '', $state);
+
+                                                $cnpjData = Http::get(
+                                                    "https://brasilapi.com.br/api/cnpj/v1/{$state}"
+                                                )->json();
+
+                                                if (!empty($cnpjData['message'])) {
+                                                    throw ValidationException::withMessages([
+                                                        'data.cpf_ou_cnpj' => $cnpjData['message']
+                                                    ]);
+                                                }
+
+                                                $set('nome', $cnpjData['razao_social'] ?? null);
+                                                $set('telefone', $cnpjData['ddd_telefone_1'] ?? null);
+                                            })
+                                    ),
+                                Forms\Components\TextInput::make('nome')
+                                    ->label('Nome')
+                                    ->required(),
+                                Forms\Components\TextInput::make('telefone')
+                                    ->minLength(10)
+                                    ->mask(RawJs::make(<<<'JS'
+                                    $input.length >= 14 ? '(99)99999-9999' : '(99)9999-9999'
+                                JS)),
+                            ]),
                         Forms\Components\Select::make('tipo_contato_com_cliente_id')
                             ->required()
                             ->label('Tipo Contato')
@@ -151,8 +190,7 @@ class ContatoComClienteResource extends Resource
             ->actions([
                 Tables\Actions\EditAction::make(),
             ])
-            ->bulkActions([
-            ]);
+            ->bulkActions([]);
     }
 
     public static function getRelations(): array

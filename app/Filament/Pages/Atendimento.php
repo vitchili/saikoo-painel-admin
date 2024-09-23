@@ -36,7 +36,7 @@ class Atendimento extends Page
         return [
             Select::make('selectedCliente')
                 ->label('Selecione um cliente')
-                ->options(Cliente::all()->mapWithKeys(function ($cliente) {
+                ->options(Cliente::whereNotNull('codigo')->get()->mapWithKeys(function ($cliente) {
                     return [
                         $cliente->id => $cliente->nome  . ' - ' . $cliente->cpf_cnpj
                     ];

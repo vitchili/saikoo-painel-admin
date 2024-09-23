@@ -13,7 +13,6 @@ class ClienteObserver
      */
     public function creating(Cliente $cliente): void
     {
-    
     }
 
     /**
@@ -21,16 +20,7 @@ class ClienteObserver
      */
     public function created(Cliente $cliente): void
     {
-        if ($cliente->tornar_cliente == 'S') {
-            $ultimoCliente = Cliente::whereNotNull('codigo')->orderBy('codigo', 'desc')->first();
-
-            $cliente->codigo = ! empty($ultimoCliente->codigo) ? ($ultimoCliente->codigo + 1) : 1;
-            $cliente->codico = ! empty($ultimoCliente->codigo) ? ($ultimoCliente->codigo + 1) : 1;
-            $cliente->save();
-
-            $bitPagCliente = new ClienteBitPag();
-            $bitPagCliente->cadastrarCliente($cliente);
-        }
+        
     }
 
     /**
@@ -50,21 +40,19 @@ class ClienteObserver
             $cliente->codigo = ! empty($ultimoCliente->codigo) ? ($ultimoCliente->codigo + 1) : 1;
             $cliente->codico = ! empty($ultimoCliente->codigo) ? ($ultimoCliente->codigo + 1) : 1;
         }
+    }
 
+    /**
+     * Handle the Cliente "deleted" event.
+     */
+    public function updated(Cliente $cliente): void
+    {
         $bitpagIdOriginal = $cliente->getOriginal('cliente_bitpag_id');
 
         if ($cliente->tornar_cliente == 'S' && empty($bitpagIdOriginal)) {
             $bitPagCliente = new ClienteBitPag();
             $bitPagCliente->cadastrarCliente($cliente);
         }
-    }
-
-    /**
-     * Handle the Cliente "deleted" event.
-     */
-    public function deleted(Cliente $cliente): void
-    {
-        //
     }
 
     /**

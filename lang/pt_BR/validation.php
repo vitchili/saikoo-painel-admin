@@ -126,7 +126,7 @@ return [
     'regex'                => 'O formato do valor informado no campo :attribute é inválido.',
     'required'             => 'O campo :attribute é obrigatório.',
     'required_array_keys'  => 'O campo :attribute deve conter entradas para: :values',
-    'required_if'          => 'O campo :attribute é obrigatório quando o valor do campo :other é igual a :value.',
+    'required_if'          => 'O campo :attribute é obrigatório quando o valor do campo :other é igual a Sim',
     'required_if_accepted' => 'O campo :attribute é obrigatório quando :other é aceito.',
     'required_if_declined' => 'The :attribute field is required when :other is declined.',
     'required_unless'      => 'O campo :attribute é obrigatório a menos que :other esteja presente em :values.',
@@ -271,5 +271,6 @@ return [
         'username'                 => 'usuário',
         'value'                    => 'valor',
         'year'                     => 'ano',
+        'today'                    => 'hoje',
     ],
 ];
