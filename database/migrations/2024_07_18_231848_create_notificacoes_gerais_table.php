@@ -17,7 +17,7 @@ return new class extends Migration
             $table->foreignIdFor(\App\Models\Chamado\Chamado::class, 'chamado_id')->nullable();
             $table->datetime('data_hora');
             $table->string('descricao');
-            $table->boolean('visto')->default(0);
+            $table->tinyInteger('enviado')->default(0);
             $table->timestamp('cadastrado_em')->useCurrent();
             $table->timestamp('atualizado_em')->nullable()->useCurrent()->useCurrentOnUpdate();
         });

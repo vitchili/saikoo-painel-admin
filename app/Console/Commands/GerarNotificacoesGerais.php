@@ -29,20 +29,19 @@ class GerarNotificacoesGerais extends Command
     public function handle()
     {
         $notificacoes = NotificacaoGeral::all();
-
         foreach ($notificacoes as $notificacao) {
             $textoNotificacao = $notificacao->chamado_id ? "Chamado #{$notificacao->chamado_id} \n {$notificacao->descricao}" : $notificacao->descricao;
 
             if ((
                     Carbon::parse($notificacao->data_hora)->format('Y-m-d H:i') == Carbon::now()->subHours(3)->format('Y-m-d H:i') ||
                     Carbon::parse($notificacao->data_hora)->format('Y-m-d H:i') == Carbon::now()->format('Y-m-d H:i')
-                ) && $notificacao->visto == 0) {
+                ) && $notificacao->enviado == 0) {
                 Notification::make()
                     ->title($textoNotificacao)
                     ->sendToDatabase($notificacao->tecnico);
 
                 $notificacaoModel = NotificacaoGeral::find($notificacao->id);
-                $notificacaoModel->visto = 1;
+                $notificacaoModel->enviado = 1;
                 $notificacaoModel->save();
             }
         }
