@@ -12,3 +12,5 @@ Artisan::command('app:gerar-notificacoes-gerais', function () {
     $not = new GerarNotificacoesGerais();
     $not->handle();
 })->purpose('Gera notificacao geral')->everyMinute();
+
+Artisan::command('queue:work')->everyMinute();
