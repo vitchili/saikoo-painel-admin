@@ -36,13 +36,13 @@ class GerarNotificacoesGerais extends Command
             if ((
                     Carbon::parse($notificacao->data_hora)->format('Y-m-d H:i') == Carbon::now()->subHours(3)->format('Y-m-d H:i') ||
                     Carbon::parse($notificacao->data_hora)->format('Y-m-d H:i') == Carbon::now()->format('Y-m-d H:i')
-                ) && ! $notificacao->visto) {
+                ) && $notificacao->visto == 0) {
                 Notification::make()
                     ->title($textoNotificacao)
                     ->sendToDatabase($notificacao->tecnico);
 
                 $notificacaoModel = NotificacaoGeral::find($notificacao->id);
-                $notificacaoModel->visto = true;
+                $notificacaoModel->visto = 1;
                 $notificacaoModel->save();
             }
         }
