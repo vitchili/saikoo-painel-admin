@@ -30,7 +30,6 @@ class GerarNotificacoesGerais extends Command
      */
     public function handle()
     {
-        dd('oi');
         $notificacoes = NotificacaoGeral::all();
 
         foreach ($notificacoes as $notificacao) {
