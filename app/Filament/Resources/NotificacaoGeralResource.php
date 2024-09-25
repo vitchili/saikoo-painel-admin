@@ -49,6 +49,7 @@ class NotificacaoGeralResource extends Resource
                             ->searchable(),
                         Forms\Components\DateTimePicker::make('data_hora')
                             ->required()
+                            ->seconds(false)
                             ->label('Data Hora'),
                         Forms\Components\TextInput::make('descricao')
                             ->required()

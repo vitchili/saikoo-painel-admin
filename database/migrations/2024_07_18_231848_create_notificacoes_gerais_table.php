@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('notificacoes_gerais', function (Blueprint $table) {
             $table->id();
             $table->foreignIdFor(\App\Models\User::class, 'tecnico_id');
-            $table->foreignIdFor(\App\Models\Chamado\Chamado::class, 'chamado_id');
+            $table->foreignIdFor(\App\Models\Chamado\Chamado::class, 'chamado_id')->nullable();
             $table->datetime('data_hora');
             $table->string('descricao');
             $table->timestamp('cadastrado_em')->useCurrent();
