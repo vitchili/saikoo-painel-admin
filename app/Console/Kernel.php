@@ -18,7 +18,7 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule): void
     {
         // $schedule->command('queue:work')->everyHour(); Aqui vem as cron. Na hostinger, incluir o comando api-phdimoveis/artisan schedule:run
-        $schedule->command('app:gerar-notificacoes-gerais')->everyThirtySeconds();
+        $schedule->command('app:gerar-notificacoes-gerais')->everyMinute();
     }
 
 

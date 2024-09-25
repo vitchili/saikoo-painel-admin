@@ -46,8 +46,7 @@ class NotificacaoGeralResource extends Resource
                         Forms\Components\Select::make('chamado_id')
                             ->options(Chamado::all()->pluck('id', 'id'))
                             ->label('Chamado')
-                            ->searchable()
-                            ->required(),
+                            ->searchable(),
                         Forms\Components\DateTimePicker::make('data_hora')
                             ->required()
                             ->label('Data Hora'),
