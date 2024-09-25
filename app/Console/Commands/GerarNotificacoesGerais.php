@@ -37,9 +37,6 @@ class GerarNotificacoesGerais extends Command
                 Notification::make()
                     ->title($textoNotificacao)
                     ->sendToDatabase($notificacao->tecnico);
-
-                $notificacaoModel = NotificacaoGeral::find($notificacao->id);
-                $notificacaoModel->delete();
             }
         }
     }
