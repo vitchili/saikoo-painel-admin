@@ -17,9 +17,8 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        dd('Teste');
-        $schedule->command('app:gerar-notificacoes-gerais')->everyMinute();
-        $schedule->command('queue:work')->everyMinute();
+        $schedule->command('app:gerar-notificacoes-gerais')->everyMinute()->withoutOverlapping();
+        $schedule->command('queue:work')->everyMinute()->withoutOverlapping();
     }
 
 
