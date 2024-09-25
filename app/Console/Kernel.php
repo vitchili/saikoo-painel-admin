@@ -9,7 +9,7 @@ class Kernel extends ConsoleKernel
 {
 
     protected $commands = [
-        //
+        'App\Console\Commands\GerarNotificacoesGerais'
     ];
 
     /**
@@ -17,8 +17,8 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        $schedule->command('queue:work')->everyMinute();
         $schedule->command('app:gerar-notificacoes-gerais')->everyMinute();
+        $schedule->command('queue:work')->everyMinute();
     }
 
 
