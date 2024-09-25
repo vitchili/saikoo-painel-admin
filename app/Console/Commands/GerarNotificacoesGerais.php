@@ -33,13 +33,14 @@ class GerarNotificacoesGerais extends Command
         foreach ($notificacoes as $notificacao) {
             $textoNotificacao = $notificacao->chamado_id ? "Chamado #{$notificacao->chamado_id} \n {$notificacao->descricao}" : $notificacao->descricao;
 
-            if (Carbon::parse($notificacao->data_hora)->format('Y-m-d H:i') == Carbon::now()->format('Y-m-d H:i')) { //if (Carbon::parse($notificacao->data_hora)->isPast()) {
+            if (Carbon::parse($notificacao->data_hora)->isPast() && ! $notificacao->visto) {
                 Notification::make()
                     ->title($textoNotificacao)
                     ->sendToDatabase($notificacao->tecnico);
 
                 $notificacaoModel = NotificacaoGeral::find($notificacao->id);
-                $notificacaoModel->delete();
+                $notificacaoModel->visto = true;
+                $notificacaoModel->save();
             }
         }
     }

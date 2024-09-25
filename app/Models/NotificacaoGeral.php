@@ -22,6 +22,7 @@ class NotificacaoGeral extends Model
         'chamado_id',
         'data_hora',
         'descricao',
+        'visto',
     ];
 
     public function tecnico(): BelongsTo
