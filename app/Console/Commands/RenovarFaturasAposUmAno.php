@@ -43,9 +43,9 @@ class RenovarFaturasAposUmAno extends Command
                 continue;
             }
 
-            //if (Carbon::parse(now())->format('Y-m-d') == Carbon::parse($cliente->faturas->toArray()[0]['vencimento'])->format('Y-m-d')) {
+            if (Carbon::parse(now())->format('Y-m-d') == Carbon::parse($cliente->faturas->toArray()[0]['vencimento'])->format('Y-m-d')) {
                 $this->renovar($cliente->faturas->toArray());
-            //}
+            }
         }
     }
 
