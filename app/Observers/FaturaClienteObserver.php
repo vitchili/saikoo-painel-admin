@@ -61,7 +61,7 @@ class FaturaClienteObserver
                 ];
             }
     
-            if ($faturaCliente->incremento_parcela == 1) {
+            if (empty($faturaCliente->incremento_parcela) || $faturaCliente->incremento_parcela == 1) {
                 $bitPagCobranca = new CobrancaBitpag();
                 $bitPagCobranca->cadastrarCobranca($faturaCliente, $dadosSensiveis);
     
