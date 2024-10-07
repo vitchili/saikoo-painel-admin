@@ -69,6 +69,11 @@ class FaturaCliente extends Model
         'incremento_parcela',
         'cobranca_bitpag_id',
         'gerar_serial',
+        'tempCreditoNumber',
+        'tempCreditoCvv',
+        'tempCreditoDataExp',
+        'tempCreditoNomeImpresso',
+
     ];
 
     protected $with = ['cliente', 'servicos'];

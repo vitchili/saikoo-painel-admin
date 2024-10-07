@@ -6,6 +6,7 @@ use App\Gateway\Bitpag\CobrancaBitpag;
 use App\Models\Cliente\Cliente;
 use App\Models\Cliente\Fatura\FaturaCliente;
 use App\Models\Cliente\Serial\SerialCliente;
+use App\Models\Cliente\Servico\ServicoCliente;
 use App\Models\Cliente\Servico\TipoServicoCliente;
 use App\Services\NotificacaoExceptionGeralService;
 use Carbon\Carbon;
@@ -35,6 +36,15 @@ class FaturaClienteObserver
             $novoModel = $faturaCliente->replicate();
             $novoModel->vencimento = Carbon::parse($vencimentoOriginal)->addMonthsNoOverflow((int) 12 / $faturaCliente->qtd)->toDateString(); 
             $novoModel->incremento_parcela = $ultimaParcela->incremento_parcela + 1;
+            
+            if ($novoModel->gerar_serial) {
+                $serial = new SerialCliente();
+                $serial->id_cliente = $novoModel->id_cliente;
+                $serial->vencimento_serial = $novoModel->vencimento;
+                $serial->save();
+                $novoModel->serial = $serial->serial;
+            }
+
             $novoModel->save();
         }
     }
@@ -60,9 +70,10 @@ class FaturaClienteObserver
                     'holder_name' => $faturaCliente->tempCreditoNomeImpresso,
                 ];
             }
-    
+            
             if (empty($faturaCliente->incremento_parcela) || $faturaCliente->incremento_parcela == 1) {
                 $bitPagCobranca = new CobrancaBitpag();
+
                 $bitPagCobranca->cadastrarCobranca($faturaCliente, $dadosSensiveis);
     
                 if ($faturaCliente->gerar_serial) {
@@ -73,13 +84,21 @@ class FaturaClienteObserver
                     $faturaCliente->serial = $serial->serial;
                 }
             }
-    
-            if (! empty($faturaCliente->servicos[0])) {
-                $this->referencia = TipoServicoCliente::find($faturaCliente->servicos[0])->nome;
+            
+            $tiposServicosCliente = ServicoCliente::with('servicoCliente')->whereIn('id', $faturaCliente->servicos)->get();
+
+            $this->referencia = 'Sistemas';
+
+            foreach ($tiposServicosCliente as $tipoServico) {
+                if ($tipoServico->servicoCliente->nome === 'Sistemas') {
+                    break;
+                }
+
+                $this->referencia = $tipoServico->servicoCliente->nome;
             }
-    
+
             $faturaCliente->referencia = $this->referencia;
-    
+            
             if (! empty($faturaCliente->servicos)) {
                 for($i = 0; $i<$faturaCliente->qtd; $i++) {
                     foreach ($faturaCliente->servicos as $servico) {

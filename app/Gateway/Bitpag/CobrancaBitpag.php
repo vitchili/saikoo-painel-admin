@@ -5,6 +5,8 @@ namespace App\Gateway\Bitpag;
 use App\Models\Cliente\Cliente;
 use App\Models\Cliente\Fatura\FaturaCliente;
 use App\Models\Cliente\Servico\Enum\PeriodicidadeServico;
+use App\Models\Cliente\Servico\ServicoCliente;
+use App\Models\Cliente\Servico\TipoServicoCliente;
 use App\Rules\ValidacaoCpfCnpj;
 use App\Rules\ValidacaoTelefone;
 use App\Services\NotificacaoExceptionBitPagService;
@@ -17,14 +19,16 @@ class CobrancaBitpag extends BaseClientBitpag
     {
         try {
             $response = Http::withHeaders($this->getHeaders())->get(
-                $this->getBaseAuth()['baseUrl'] . '/charge', [
-                'page' => $page,
-                'search' => $filters['search'] ?? null,
-                'from' => $filters['from'] ?? null,
-                'to' => $filters['to'] ?? null,
-                'status' => $filters['status'] ?? null,
-            ]);
-            
+                $this->getBaseAuth()['baseUrl'] . '/charge',
+                [
+                    'page' => $page,
+                    'search' => $filters['search'] ?? null,
+                    'from' => $filters['from'] ?? null,
+                    'to' => $filters['to'] ?? null,
+                    'status' => $filters['status'] ?? null,
+                ]
+            );
+
             if (! empty($response->json()['errors'])) {
                 throw new \Exception($response->json()['message'], $response->status());
             }
@@ -41,23 +45,29 @@ class CobrancaBitpag extends BaseClientBitpag
 
     public function cadastrarCobranca(FaturaCliente $cobranca, array $dadosSensiveis = []): array
     {
+        if ($cobranca->formapagamento === 'Boleto') {
+            return [];
+        }
+
         $tipoCobrancaBitPag = 'R';
 
         if ($cobranca->qtd == 1) {
             $tipoCobrancaBitPag = 'U';
-        }elseif ($cobranca->qtd > 1) {
-            $tipoCobrancaBitPag = 'R'; //Verificar se manteremos P ou R.
+        } elseif ($cobranca->qtd > 1) {
+            $tipoCobrancaBitPag = 'P'; //Verificar se manteremos P ou R.
         }
 
-        $payload = match($tipoCobrancaBitPag) {
+        $payload = match ($tipoCobrancaBitPag) {
             'U' => array_merge($this->getBasePayloadCliente($cobranca), $this->getBasePayloadCobrancaUnica($cobranca), $this->getBasePayloadPagamentoCartaoCredito($cobranca, $dadosSensiveis)),
             'P' => array_merge($this->getBasePayloadCliente($cobranca), $this->getBasePayloadCobrancaParcela($cobranca), $this->getBasePayloadPagamentoCartaoCredito($cobranca, $dadosSensiveis)),
             'R' => array_merge($this->getBasePayloadCliente($cobranca), $this->getBasePayloadCobrancaRecorrente($cobranca), $this->getBasePayloadPagamentoCartaoCredito($cobranca, $dadosSensiveis)),
         };
-
+        dd(json_encode($payload));
         try {
             $response = Http::withHeaders($this->getHeaders())->post(
-                $this->getBaseAuth()['baseUrl'] . '/charge', $payload);
+                $this->getBaseAuth()['baseUrl'] . '/charge',
+                $payload
+            );
 
             if (! empty($response->json()['errors'])) {
                 throw new \Exception($response->json()['message'], $response->status());
@@ -85,8 +95,8 @@ class CobrancaBitpag extends BaseClientBitpag
             'name' => $cliente->nome,
             'email' => $cliente->email,
             'gender' => 'O',
-            'birth_date' => ValidacaoCpfCnpj::cpfOuCnpj($cliente->cpf_cnpj) == ValidacaoCpfCnpj::CPF ? 
-                Carbon::parse($cliente->data_nasc_resp)->format('Y-m-d') : 
+            'birth_date' => ValidacaoCpfCnpj::cpfOuCnpj($cliente->cpf_cnpj) == ValidacaoCpfCnpj::CPF ?
+                Carbon::parse($cliente->data_nasc_resp)->format('Y-m-d') :
                 Carbon::parse($cliente->data_cadastro)->format('Y-m-d'),
             'zipcode' => $cliente->cep,
             'address' => $cliente->end,
@@ -119,7 +129,9 @@ class CobrancaBitpag extends BaseClientBitpag
     {
         $servicos = $cobranca->servicos;
 
-        $periodicidade = match($servicos[0]->periodicidade) {
+        $periodoServico = ServicoCliente::with('servicoCliente')->find($servicos[0]);
+
+        $periodicidade = match ($periodoServico->periodicidade) {
             PeriodicidadeServico::MENSAL->value => 'monthly',
             PeriodicidadeServico::TRIMESTRAL->value => 'quarterly',
             PeriodicidadeServico::SEMESTRAL->value => 'semester',
@@ -127,7 +139,7 @@ class CobrancaBitpag extends BaseClientBitpag
             default => throw new \Exception('Nenhuma periodicidade cadastrada para o serviço'),
         };
 
-        $tipoPagamento = match($cobranca->formapagamento) {
+        $tipoPagamento = match ($cobranca->formapagamento) {
             'Boleto' => 4,
             'Cartão de crédito' => 2,
             'PIX' => 7,
@@ -140,11 +152,11 @@ class CobrancaBitpag extends BaseClientBitpag
             'recurrence_interval_installment' => $periodicidade,
             'due_date_installment_billing' => $cobranca->vencimento,
             'expiration_day_installments' => (int) Carbon::parse($cobranca->vencimento)->format('d'),
-            'total_installment' => PeriodicidadeServico::from($servicos[0]->periodicidade)->qtdParcelas(),
+            'total_installment' => PeriodicidadeServico::from($periodoServico->periodicidade)->qtdParcelas(),
             'installment_amount' =>  number_format($cobranca->valor, 2, ',', ''),
             'charge_method' => 1,
             'method' => $tipoPagamento,
-            'leverage_days_installment' => 0,
+            'leverage_days_installment' => 1,
             'leverage_min_percent_installment' => 0,
         ];
     }
@@ -153,7 +165,9 @@ class CobrancaBitpag extends BaseClientBitpag
     {
         $servicos = $cobranca->servicos;
 
-        $periodicidade = match($servicos[0]->periodicidade) {
+        $periodoServico = ServicoCliente::with('servicoCliente')->find($servicos[0]);
+
+        $periodicidade = match ($periodoServico->periodicidade) {
             PeriodicidadeServico::MENSAL->value => 'monthly',
             PeriodicidadeServico::TRIMESTRAL->value => 'quarterly',
             PeriodicidadeServico::SEMESTRAL->value => 'semester',
@@ -161,7 +175,7 @@ class CobrancaBitpag extends BaseClientBitpag
             default => throw new \Exception('Nenhuma periodicidade cadastrada para o serviço'),
         };
 
-        $tipoPagamento = match($cobranca->formapagamento) {
+        $tipoPagamento = match ($cobranca->formapagamento) {
             'Boleto' => 4,
             'Cartão de crédito' => 2,
             'PIX' => 7,
@@ -177,13 +191,15 @@ class CobrancaBitpag extends BaseClientBitpag
             'amount_recurrence' => number_format($cobranca->valor, 2, ',', ''),
             'charge_method' => 1,
             'method' => $tipoPagamento,
+            'leverage_days_installment' => 1,
+            'leverage_min_percent_installment' => 0,
         ];
     }
 
     public function getBasePayloadPagamentoCartaoCredito(FaturaCliente $cobranca, array $dadosSensiveis = []): array
     {
         return $cobranca->formapagamento == 'Cartão de crédito' && ! empty($dadosSensiveis) ? [
-            'number' => $dadosSensiveis['number'],
+            'number' => str_replace(' ', '', $dadosSensiveis['number']),
             'cvv' => $dadosSensiveis['cvv'],
             'expiration_date' => $dadosSensiveis['expiration_date'],
             'holder_name' => $dadosSensiveis['holder_name']

@@ -89,7 +89,6 @@ class FaturasRelationManager extends RelationManager
                     ->schema([
                         TextInput::make('tempCreditoNumber')
                             ->label('Número do cartão')
-                            ->numeric()
                             ->mask('9999 9999 9999 9999')
                             ->placeholder('XXXX-XXXX-XXXX-XXXX'),
                         TextInput::make('tempCreditoCvv')
@@ -99,9 +98,8 @@ class FaturasRelationManager extends RelationManager
                             ->placeholder('XXX'),
                         TextInput::make('tempCreditoDataExp')
                             ->label('Data exp.')
-                            ->numeric()
-                            ->mask('99/9999')
-                            ->placeholder('XX/XXXX'),
+                            ->mask('99/99')
+                            ->placeholder('XX/XX'),
                         TextInput::make('tempCreditoNomeImpresso')
                             ->label('Nome impresso')
                             ->placeholder('Nome como está no cartão'),
