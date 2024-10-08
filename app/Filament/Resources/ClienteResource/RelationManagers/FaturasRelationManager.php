@@ -179,6 +179,7 @@ class FaturasRelationManager extends RelationManager
     {
         return $table
             ->recordTitleAttribute('vencimento')
+            ->defaultSort('vencimento', 'desc')
             ->columns([
                 Tables\Columns\TextColumn::make('id')
                     ->size(TextColumnSize::ExtraSmall)

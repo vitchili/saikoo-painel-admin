@@ -62,7 +62,7 @@ class CobrancaBitpag extends BaseClientBitpag
             'P' => array_merge($this->getBasePayloadCliente($cobranca), $this->getBasePayloadCobrancaParcela($cobranca), $this->getBasePayloadPagamentoCartaoCredito($cobranca, $dadosSensiveis)),
             'R' => array_merge($this->getBasePayloadCliente($cobranca), $this->getBasePayloadCobrancaRecorrente($cobranca), $this->getBasePayloadPagamentoCartaoCredito($cobranca, $dadosSensiveis)),
         };
-        dd(json_encode($payload));
+
         try {
             $response = Http::withHeaders($this->getHeaders())->post(
                 $this->getBaseAuth()['baseUrl'] . '/charge',

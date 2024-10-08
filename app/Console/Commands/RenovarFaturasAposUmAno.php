@@ -63,7 +63,7 @@ class RenovarFaturasAposUmAno extends Command
             "valor" => (float) $faturaOriginal['valor'] * (
                 100 + (float) $this->configuracaoReajuste->indiceCorrecaoGenerica?->valor + (float) $this->configuracaoReajuste->igpm?->valor
             ) / 100,
-            "servicos" => $servicosId,
+            // "servicos" => $servicosId,
             "qtd" => $faturaOriginal['qtd'],
             "info_add" => $faturaOriginal['info_add'],
             "formapagamento" => $faturaOriginal['formapagamento'],

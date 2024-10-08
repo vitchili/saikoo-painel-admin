@@ -125,7 +125,6 @@ class ServicosClienteRelationManager extends RelationManager
                             ->label('Parâmetro Comissão')
                             ->preload()
                             ->options(collect(ParametroComissao::cases())->mapWithKeys(fn($parametro) => [$parametro->value => $parametro->label()]))
-                            ->required()
                             ->searchable(),
                         TextInput::make('versao')
                             ->label('Versão')
