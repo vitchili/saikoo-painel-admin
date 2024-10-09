@@ -33,37 +33,35 @@ class RenovarFaturasAposUmAno extends Command
     {
         $this->configuracaoReajuste = ConfiguracaoReajusteMassa::with(['igpm', 'indiceCorrecaoGenerica'])->first();
 
-        $clientes = Cliente::with(['faturas' => function($query) {
-            $query->latest()->take(1);
-        }])->get();  
+        $clientes = Cliente::with(['faturas'])->get();
 
-        
         foreach ($clientes as $cliente) {
             if (empty($cliente->faturas->toArray())) {
                 continue;
             }
 
-            if (Carbon::parse(now())->format('Y-m-d') == Carbon::parse($cliente->faturas->toArray()[0]['vencimento'])->format('Y-m-d')) {
-                $this->renovar($cliente->faturas->toArray());
+            foreach ($cliente->faturas as $fatura) {
+                if (Carbon::parse(now())->format('Y-m-d') == Carbon::parse($fatura->vencimento)->format('Y-m-d')) {
+                    $this->renovar($fatura);
+                }
             }
         }
     }
 
-    public function renovar(array $faturaOriginal)
-    {
-        $faturaOriginal = $faturaOriginal[0];
-
+    public function renovar(FaturaCliente $faturaOriginal)
+    {   
         $servicosId = [];
-        foreach ($faturaOriginal['servicos'] as $servico) {
+
+        foreach ($faturaOriginal->servicos as $servico) {
             $servicosId[] = $servico['id'];
         }
-        
-        FaturaCliente::create([
+
+        $fatura = new FaturaCliente([
             "vencimento" => Carbon::parse($faturaOriginal['vencimento'])->addMonthsNoOverflow((int) 12 / $faturaOriginal['qtd'])->toDateString(),
             "valor" => (float) $faturaOriginal['valor'] * (
                 100 + (float) $this->configuracaoReajuste->indiceCorrecaoGenerica?->valor + (float) $this->configuracaoReajuste->igpm?->valor
             ) / 100,
-            // "servicos" => $servicosId,
+            "servicos" => $servicosId,
             "qtd" => $faturaOriginal['qtd'],
             "info_add" => $faturaOriginal['info_add'],
             "formapagamento" => $faturaOriginal['formapagamento'],
@@ -72,5 +70,7 @@ class RenovarFaturasAposUmAno extends Command
             "gerar_serial" => $faturaOriginal['gerar_serial'],
             "id_cliente" => $faturaOriginal['id_cliente'],
         ]);
+
+        $fatura->save();
     }
 }

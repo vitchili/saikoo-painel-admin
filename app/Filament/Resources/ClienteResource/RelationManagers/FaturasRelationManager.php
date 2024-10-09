@@ -7,7 +7,6 @@ use App\Models\Cliente\Fatura\Enum\StatusFaturaCliente;
 use App\Models\Cliente\Fatura\FaturaCliente;
 use App\Models\Cliente\Servico\Enum\PeriodicidadeServico;
 use App\Models\Cliente\Servico\ServicoCliente;
-use Carbon\Carbon;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Fieldset;
 use Filament\Forms\Components\RichEditor;
@@ -22,9 +21,7 @@ use Filament\Tables\Actions\Action;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\TextColumn\TextColumnSize;
 use Filament\Tables\Table;
-use Pelmered\FilamentMoneyField\Forms\Components\MoneyInput;
 use Parallax\FilamentComments\Tables\Actions\CommentsAction;
-use Pelmered\FilamentMoneyField\Tables\Columns\MoneyColumn;
 use Filament\Tables\Actions\ActionGroup;
 
 class FaturasRelationManager extends RelationManager
@@ -32,6 +29,9 @@ class FaturasRelationManager extends RelationManager
     public const ID_SERVICO_PRINCIPAL = 1;
 
     protected static string $relationship = 'faturas';
+    
+    protected int $quantidadeTotalServicosPeriodicidade = 0;
+    protected int $quantidadeTotalServicosSelecionados = 0;
 
     public function form(Form $form): Form
     {
@@ -52,6 +52,8 @@ class FaturasRelationManager extends RelationManager
                             // ->relationship('servicos', 'periodicidade', function ($query) {
                             //     return $query->select('serv_cliente.id', 'serv_cliente.periodicidade');
                             // })
+                            ->disabled(! empty($this->mountedTableActionRecord) && $this->mountedTableActionRecord > 0)
+                            ->required()
                             ->label('Periodicidade')
                             ->options(collect(PeriodicidadeServico::cases())->mapWithKeys(fn($periodicidade) => [$periodicidade->value => $periodicidade->label()]))
                             ->preload()
@@ -64,9 +66,10 @@ class FaturasRelationManager extends RelationManager
                             //                     ->select('serv_cliente.id', 'ls.nome');
                             // })
                             ->required()
+                            ->disabled(! empty($this->mountedTableActionRecord) && $this->mountedTableActionRecord > 0)
                             ->multiple()
                             ->label('Serviços Referência')
-                            ->options(fn($get) => $this->getServicosOptions($get('periodicidade')))
+                            ->options(fn($get) => $this->getServicosOptions($get('periodicidade'), $get))
                             ->preload()
                             ->searchable()
                             ->reactive()
@@ -141,7 +144,7 @@ class FaturasRelationManager extends RelationManager
 
         if (count($ids) > 1 && $servicos[0]->id_servico != self::ID_SERVICO_PRINCIPAL) {
             $set('servicos', [$ids[0]]);
-            $this->getServicosOptions($get('periodicidade'));
+            $this->getServicosOptions($get('periodicidade'), $get);
             $this->somaEVerificaServico([$ids[0]], $set, $get);
         }
     }
@@ -153,11 +156,11 @@ class FaturasRelationManager extends RelationManager
 
         if ($periodicidade != 0) {
             $set('qtd', PeriodicidadeServico::from($periodicidade)->qtdParcelas());
-            $this->getServicosOptions($periodicidade);
+            $this->getServicosOptions($periodicidade, $get);
         }
     }
 
-    protected function getServicosOptions($periodicidade)
+    protected function getServicosOptions($periodicidade, $get)
     {
         if (! $periodicidade) {
             return [];
@@ -168,6 +171,14 @@ class FaturasRelationManager extends RelationManager
             ->where('id_cliente', $this->ownerRecord->id)
             ->get()
             ->toArray();
+
+        $this->quantidadeTotalServicosPeriodicidade = count($servicos);
+        $this->quantidadeTotalServicosSelecionados = count($get('servicos'));
+
+        if ($this->quantidadeTotalServicosSelecionados > 0 && 
+            $this->quantidadeTotalServicosSelecionados < $this->quantidadeTotalServicosPeriodicidade) {
+            $this->geraNotificacaoServicosIncompletos();
+        }
 
         return array_reduce($servicos, function ($carry, $item) {
             $carry[$item['id']] = $item['servico_cliente']['nome'];
@@ -255,12 +266,14 @@ class FaturasRelationManager extends RelationManager
             ])
             ->actions([
                 ActionGroup::make([
+                    Tables\Actions\EditAction::make()->slideOver(),
                     CommentsAction::make(),
                     Action::make('quitarFatura')
                         ->requiresConfirmation()
                         ->hidden(fn(FaturaCliente $record) => $record->formapagamento !== 'Dinheiro')
                         ->action(function (FaturaCliente $record) {
                             $record->valor_pago = $record->valor_atualizado ?? $record->valor;
+                            $record->status = StatusFaturaCliente::APROVADO;
                             $record->save();
                             Notification::make()->success()->title('Fatura quitada com sucesso!')->icon('heroicon-o-currency-dollar')->send();
                         })
@@ -272,5 +285,19 @@ class FaturasRelationManager extends RelationManager
                 //     Tables\Actions\DeleteBulkAction::make(),
                 // ]),
             ]);
+    }
+
+    public function geraNotificacaoServicosIncompletos()
+    {
+        $qtd = ($this->quantidadeTotalServicosPeriodicidade - $this->quantidadeTotalServicosSelecionados);
+        $disp = 'disponíveis';
+        $serv = 'serviços';
+
+        if ($qtd == 1) {
+            $disp = 'disponível';
+            $serv = 'serviço';
+        }
+
+        Notification::make()->info()->title("Ainda há {$qtd} {$serv} referência {$disp} para essa periodicidade.")->icon('heroicon-o-exclamation-circle')->send();
     }
 }

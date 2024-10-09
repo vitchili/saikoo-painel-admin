@@ -145,6 +145,7 @@ class ClienteResource extends Resource
                                     TextInput::make('telefone')
                                         ->label('Telefone')
                                         ->minLength(10)
+                                        ->requiredIf('tornar_cliente', 'S')
                                         ->mask(RawJs::make(<<<'JS'
                                         $input.length >= 14 ? '(99)99999-9999' : '(99)9999-9999'
                                     JS)),
