@@ -840,6 +840,10 @@ class DatabaseSeeder extends Seeder
             'name' => 'Bhair',
             'guard_name' => 'web',
         ]);
+        Role::create([
+            'name' => 'Cliente',
+            'guard_name' => 'web',
+        ]);
 
         //Modelo Implantacao
         ModeloImplantacao::create([

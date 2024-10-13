@@ -13,6 +13,11 @@ class ConsultaIGPM extends Page
 {
     use WithPagination;
 
+    public static function canAccess(): bool
+    {
+        return ! auth()->user()->hasRole('Cliente');
+    }
+
     protected static ?string $navigationIcon = 'heroicon-o-currency-dollar';
 
     protected static string $view = 'filament.pages.consulta-igpm';

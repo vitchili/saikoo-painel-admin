@@ -61,20 +61,12 @@ class FaturaClienteObserver
             $faturaCliente->cpf_cnpj = preg_replace('/[^0-9]/', '', Cliente::findOrFail($faturaCliente->id_cliente)->cpf_cnpj);
             $faturaCliente->codigo_cliente = Cliente::findOrFail($faturaCliente->id_cliente)->codigo;
 
-            $dadosSensiveis = [];
-            if ($faturaCliente->formapagamento == 'Cartão de crédito') {
-                $dadosSensiveis = [
-                    'number' => $faturaCliente->tempCreditoNumber,
-                    'cvv' => $faturaCliente->tempCreditoCvv,
-                    'expiration_date' => $faturaCliente->tempCreditoDataExp,
-                    'holder_name' => $faturaCliente->tempCreditoNomeImpresso,
-                ];
-            }
-            
             if (empty($faturaCliente->incremento_parcela) || $faturaCliente->incremento_parcela == 1) {
-                $bitPagCobranca = new CobrancaBitpag();
+                if ($faturaCliente->formapagamento !== 'Boleto') {
+                    $bitPagCobranca = new CobrancaBitpag();
 
-                $bitPagCobranca->cadastrarCobranca($faturaCliente, $dadosSensiveis);
+                    $bitPagCobranca->cadastrarCobranca($faturaCliente);
+                }
     
                 if ($faturaCliente->gerar_serial) {
                     $serial = new SerialCliente();

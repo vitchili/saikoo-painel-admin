@@ -330,9 +330,8 @@ class ClienteResource extends Resource
                                                 ->requiredIf('tornar_cliente', 'S'),
                                             TextInput::make('senha')
                                                 ->label('Senha de acesso')
-                                                ->password()
-                                                ->revealable()
-                                                ->requiredIf('tornar_cliente', 'S'),
+                                                ->readOnly()
+                                                ->placeholder('Senha será gerada automaticamente após salvar'),
                                         ]),
                                 ])->columns(3),
                             Tab::make('Dados Bancários')

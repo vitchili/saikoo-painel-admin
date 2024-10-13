@@ -4,7 +4,10 @@ namespace App\Observers;
 
 use App\Gateway\Bitpag\ClienteBitPag;
 use App\Models\Cliente\Cliente;
+use App\Models\User;
 use App\Services\NotificacaoExceptionGeralService;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class ClienteObserver
 {
@@ -39,6 +42,19 @@ class ClienteObserver
             $ultimoCliente = Cliente::whereNotNull('codigo')->orderBy('codigo', 'desc')->first();
             $cliente->codigo = ! empty($ultimoCliente->codigo) ? ($ultimoCliente->codigo + 1) : 1;
             $cliente->codico = ! empty($ultimoCliente->codigo) ? ($ultimoCliente->codigo + 1) : 1;
+            $cliente->senha = Str::password(15);
+
+            $user = User::create([
+                'name' => $cliente->nome,
+                'email' => $cliente->email ?? $cliente->email_resp,
+                'password' => Hash::make($cliente->senha),
+                'phone' => $cliente->telefone ?? $cliente->fone_resp1 ?? null,
+                'color_hash' => '#CCCCCC',
+                'avatar_url' => null,
+                'cliente_id' => $cliente->id,
+            ]);
+
+            $user->assignRole('Cliente');
         }
     }
 

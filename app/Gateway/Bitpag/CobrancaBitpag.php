@@ -45,15 +45,11 @@ class CobrancaBitpag extends BaseClientBitpag
 
     public function cadastrarCobranca(FaturaCliente $cobranca, array $dadosSensiveis = []): array
     {
-        if ($cobranca->formapagamento === 'Boleto') {
-            return [];
-        }
-
         $tipoCobrancaBitPag = 'R';
-
-        if ($cobranca->qtd == 1) {
+        
+        if ($cobranca->formapagamento === 'Boleto' || $cobranca->qtd == 1) {
             $tipoCobrancaBitPag = 'U';
-        } elseif ($cobranca->qtd > 1) {
+        } elseif ($cobranca->formapagamento !== 'Boleto' && $cobranca->qtd > 1) {
             $tipoCobrancaBitPag = 'P'; //Verificar se manteremos P ou R.
         }
 
@@ -73,7 +69,7 @@ class CobrancaBitpag extends BaseClientBitpag
                 throw new \Exception($response->json()['message'], $response->status());
             }
 
-            $cobranca->cobranca_bitpag_id = $response['recurrence']['hash_id'];
+            $cobranca->cobranca_bitpag_id = $response['recurrence']['hash_id'] ?? $response['charge']['hash_id'];
             $cobranca->update();
 
             return $response->json();
@@ -113,15 +109,43 @@ class CobrancaBitpag extends BaseClientBitpag
 
     public function getBasePayloadCobrancaUnica(FaturaCliente $cobranca): array
     {
+        $servicos = $cobranca->servicos;
+
+        $periodoServico = ServicoCliente::with('servicoCliente')->find($servicos[0])->first();
+
+        $periodicidade = match ($periodoServico->periodicidade) {
+            PeriodicidadeServico::MENSAL->value => 'monthly',
+            PeriodicidadeServico::TRIMESTRAL->value => 'quarterly',
+            PeriodicidadeServico::SEMESTRAL->value => 'semester',
+            PeriodicidadeServico::ANUAL->value => 'yearly',
+            default => throw new \Exception('Nenhuma periodicidade cadastrada para o serviço'),
+        };
+
+        $tipoPagamento = match ($cobranca->formapagamento) {
+            'Boleto' => 4,
+            'Cartão de crédito' => 2,
+            'PIX' => 7,
+            default => throw new \Exception('Nenhuma forma de pagamento cadastrada'),
+        };
+        
         return [
-            'type' => 'U',
-            'leverage_days_single' => "de 1 a 99 | {Campo Obrigatório se o type escolhido for u (Cobrança única)}",
-            'leverage_min_percent_single' => "de 0.0 a 100.0 | {Campo Obrigatório se o type escolhido for u (Cobrança única)}",
-            'description_single_charge' => "Cobrança referente à... | {Campo Obrigatório se o type escolhido for u (Cobrança única)}",
-            'amount' => "R$ 100,00 (Pode-se enviar com R$) | {Campo Obrigatório se o type escolhido for u (Cobrança única)}",
-            'due_date_single_charge' => "2024-01-01 (Formato Y-m-d) | {Campo Obrigatório se o type escolhido for u (Cobrança única)}",
-            'charge_method' => "Sim ou Não (1 - sim | 0 - Não)",
-            'method' => "2 - Cartão de Crédito | 4 - Boleto | 7 - PIX {Campo Obrigatório se charge_method = 1}",
+            'type' => 'u',
+            'leverage_days_single' => 1,
+            'leverage_min_percent_single' => 0,
+            'description_single_charge' => $cobranca->info_add ?? "Cobrança referente a contratação de: '{$periodoServico->servicoCliente->nome}'",
+            'amount' => number_format($cobranca->valor, 2, ',', ''),
+            'due_date_single_charge' => Carbon::parse($cobranca->vencimento)->format('Y-m-d'),
+            
+            'description_installment_amount' => $cobranca->info_add,
+            'recurrence_interval_installment' => $periodicidade,
+            'due_date_installment_billing' => $cobranca->vencimento,
+            'expiration_day_installments' => (int) Carbon::parse($cobranca->vencimento)->format('d'),
+            'total_installment' => PeriodicidadeServico::from($periodoServico->periodicidade)->qtdParcelas(),
+            'installment_amount' =>  number_format($cobranca->valor, 2, ',', ''),
+            'charge_method' => 1,
+            'method' => $tipoPagamento,
+            'leverage_days_installment' => 1,
+            'leverage_min_percent_installment' => 0,
         ];
     }
 

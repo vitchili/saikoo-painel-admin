@@ -32,8 +32,17 @@ class Dashboard extends Page
     public $dataInicio = '';
     public $dataFim = '';
 
+    public static function canAccess(): bool
+    {
+        return ! auth()->user()->hasRole('Cliente');
+    }
+    
     public function mount()
     {
+        if (auth()->user()->hasRole('Cliente')) {
+            redirect()->to('/admin/central-faturas');
+        }
+
         if (empty($this->dataInicio)) {
             $this->dataInicio = Carbon::now()->startOfMonth()->format('Y-m-d');
         }
