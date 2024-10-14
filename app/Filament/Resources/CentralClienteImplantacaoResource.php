@@ -21,7 +21,7 @@ class CentralClienteImplantacaoResource extends Resource
 
     public static function canAccess(): bool
     {
-        return auth()->user()->hasRole('Cliente');
+        return false;
     }
 
     public static function form(Form $form): Form

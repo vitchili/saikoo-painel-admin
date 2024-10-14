@@ -62,11 +62,11 @@ class FaturaClienteObserver
             $faturaCliente->codigo_cliente = Cliente::findOrFail($faturaCliente->id_cliente)->codigo;
 
             if (empty($faturaCliente->incremento_parcela) || $faturaCliente->incremento_parcela == 1) {
-                if ($faturaCliente->formapagamento !== 'Boleto') {
-                    $bitPagCobranca = new CobrancaBitpag();
+                // if ($faturaCliente->formapagamento !== 'Boleto') {
+                //     $bitPagCobranca = new CobrancaBitpag();
 
-                    $bitPagCobranca->cadastrarCobranca($faturaCliente);
-                }
+                //     $bitPagCobranca->cadastrarCobranca($faturaCliente);
+                // }
     
                 if ($faturaCliente->gerar_serial) {
                     $serial = new SerialCliente();
@@ -102,10 +102,6 @@ class FaturaClienteObserver
                 }
     
                 unset($faturaCliente->servicos);
-                unset($faturaCliente->tempCreditoNumber);
-                unset($faturaCliente->tempCreditoCvv);
-                unset($faturaCliente->tempCreditoDataExp);
-                unset($faturaCliente->tempCreditoNomeImpresso);
             }
 
             DB::commit();

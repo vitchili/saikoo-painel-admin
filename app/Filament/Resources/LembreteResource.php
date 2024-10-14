@@ -65,7 +65,7 @@ class LembreteResource extends Resource
                     ->searchable(),
                 Forms\Components\Select::make('tecnicos')
                     ->label('Técnicos')
-                    ->options(User::all()->pluck('name', 'id'))
+                    ->options(User::whereNull('cliente_id')->get()->pluck('name', 'id'))
                     ->multiple()
                     ->relationship('tecnicos', 'name')
                     ->required()

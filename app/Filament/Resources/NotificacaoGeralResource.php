@@ -38,7 +38,7 @@ class NotificacaoGeralResource extends Resource
                 Section::make('Notificação')
                     ->schema([
                         Forms\Components\Select::make('tecnico_id')
-                            ->options(User::all()->pluck('name', 'id'))
+                            ->options(User::whereNull('cliente_id')->get()->pluck('name', 'id'))
                             ->label('Técnico')
                             ->searchable()
                             ->preload()

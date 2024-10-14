@@ -3,11 +3,13 @@
 namespace App\Models;
 
 use App\Models\Chamado\Chamado;
+use App\Models\Cliente\Cliente;
 use App\Models\Lembrete\Lembrete;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Models\Contracts\HasAvatar;
 use Filament\Panel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -80,5 +82,10 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
             return null;
         }
         return $originalPath;
+    }
+
+    public function cliente(): BelongsTo
+    {
+        return $this->belongsTo(Cliente::class, "cliente_id");
     }
 }

@@ -58,7 +58,7 @@ class TicketsDesenvolvimentoRelationManager extends RelationManager
                         Select::make('responsavel_id')
                             ->required()
                             ->label('Responsável')
-                            ->options(User::all()->pluck('name', 'id'))
+                            ->options(User::whereNull('cliente_id')->get()->pluck('name', 'id'))
                             ->searchable(),
                         Select::make('prioridade_id')
                             ->label('Prioridade')
@@ -98,7 +98,7 @@ class TicketsDesenvolvimentoRelationManager extends RelationManager
                         Select::make('desenvolvedor_id')
                             ->required()
                             ->label('Desenvolvedor')
-                            ->options(User::all()->pluck('name', 'id'))
+                            ->options(User::whereNull('cliente_id')->get()->pluck('name', 'id'))
                             ->searchable(),
                         RichEditor::make('comentario')
                             ->toolbarButtons([

@@ -31,7 +31,7 @@ class GerarNotificacoesFaturasVencidas extends Command
     {
         $faturas = FaturaCliente::all();
 
-        $users = User::all();
+        $users = User::whereNull('cliente_id')->get();
 
         foreach ($faturas as $fatura) {
             foreach ($users as $user) {

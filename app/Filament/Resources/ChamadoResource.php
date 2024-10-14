@@ -56,7 +56,7 @@ class ChamadoResource extends Resource
                             ->default(1),
                         Select::make('gerente_id')
                             ->label('Gerente')
-                            ->options(User::all()->pluck('name', 'id'))
+                            ->options(User::whereNull('cliente_id')->get()->pluck('name', 'id'))
                             ->searchable(),
                         Select::make('cliente_id')
                             ->label('Cliente')
@@ -68,7 +68,7 @@ class ChamadoResource extends Resource
                             ->searchable(),
                         Select::make('tecnicos')
                             ->label('Técnicos')
-                            ->options(User::all()->pluck('name', 'id'))
+                            ->options(User::whereNull('cliente_id')->get()->pluck('name', 'id'))
                             ->multiple()
                             ->relationship('tecnicos', 'name')
                             ->preload()
@@ -80,12 +80,12 @@ class ChamadoResource extends Resource
                             ->visible(fn ($get) => $get('tipo_chamado_id') == TipoChamado::where('nome', '=', 'Externo')->first()->id),
                         Select::make('tecnico_condutor_ida_id')
                             ->label('Técnico Condutor Ida')
-                            ->options(User::all()->pluck('name', 'id'))
+                            ->options(User::whereNull('cliente_id')->get()->pluck('name', 'id'))
                             ->searchable()
                             ->visible(fn ($get) => $get('tipo_chamado_id') == TipoChamado::where('nome', '=', 'Externo')->first()->id),
                         Select::make('tecnico_condutor_volta_id')
                             ->label('Técnico Condutor Volta')
-                            ->options(User::all()->pluck('name', 'id'))
+                            ->options(User::whereNull('cliente_id')->get()->pluck('name', 'id'))
                             ->searchable()
                             ->visible(fn ($get) => $get('tipo_chamado_id') == TipoChamado::where('nome', '=', 'Externo')->first()->id),
                         DatePicker::make('data_visita')

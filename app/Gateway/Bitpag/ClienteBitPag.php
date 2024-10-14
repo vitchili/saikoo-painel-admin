@@ -7,6 +7,7 @@ use App\Rules\ValidacaoCpfCnpj;
 use App\Rules\ValidacaoTelefone;
 use App\Services\NotificacaoExceptionBitPagService;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Validation\ValidationException;
 
@@ -41,7 +42,8 @@ class ClienteBitPag extends BaseClientBitpag
     public function cadastrarCliente(Cliente $cliente): array
     {
         try {
-
+            DB::beginTransaction();
+            
             $payload = [
                 'document' => strval(ValidacaoCpfCnpj::transformarApenasNumeros($cliente->cpf_cnpj)),
                 'name' => $cliente->nome,
@@ -72,13 +74,15 @@ class ClienteBitPag extends BaseClientBitpag
                 ]);
             }
 
-            $cliente->cliente_bitpag_id = $response['client']['hash_id'];
-            $cliente->save();
+            $clienteUpdated = Cliente::findOrFail($cliente->id);
+            $clienteUpdated->cliente_bitpag_id = $response->json()['client']['hash_id'];
+            $clienteUpdated->save();
+
+            DB::commit();
 
             return $response->json();
         } catch (\Exception $e) {
-            //new NotificacaoExceptionBitPagService($e->getMessage());
-
+            DB::rollBack();
             return [
                 'status' => $e->getCode(),
                 'data' => $e->getMessage(),

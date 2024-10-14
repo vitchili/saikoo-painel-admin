@@ -12,6 +12,7 @@ use App\Rules\ValidacaoTelefone;
 use App\Services\NotificacaoExceptionBitPagService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class CobrancaBitpag extends BaseClientBitpag
 {
@@ -66,12 +67,14 @@ class CobrancaBitpag extends BaseClientBitpag
             );
 
             if (! empty($response->json()['errors'])) {
+                Log::error($response->json()['errors']);
                 throw new \Exception($response->json()['message'], $response->status());
             }
 
             $cobranca->cobranca_bitpag_id = $response['recurrence']['hash_id'] ?? $response['charge']['hash_id'];
             $cobranca->update();
 
+            Log::info($response->json());
             return $response->json();
         } catch (\Exception $e) {
             new NotificacaoExceptionBitPagService($e->getMessage());
@@ -152,8 +155,7 @@ class CobrancaBitpag extends BaseClientBitpag
     public function getBasePayloadCobrancaParcela(FaturaCliente $cobranca): array
     {
         $servicos = $cobranca->servicos;
-
-        $periodoServico = ServicoCliente::with('servicoCliente')->find($servicos[0]);
+        $periodoServico = $servicos[0];
 
         $periodicidade = match ($periodoServico->periodicidade) {
             PeriodicidadeServico::MENSAL->value => 'monthly',
@@ -172,7 +174,7 @@ class CobrancaBitpag extends BaseClientBitpag
 
         return [
             'type' => 'p',
-            'description_installment_amount' => $cobranca->info_add,
+            'description_installment_amount' => $cobranca->info_add ?? "Cobrança referente a contratação de: '{$periodoServico->referencia}'",
             'recurrence_interval_installment' => $periodicidade,
             'due_date_installment_billing' => $cobranca->vencimento,
             'expiration_day_installments' => (int) Carbon::parse($cobranca->vencimento)->format('d'),
@@ -223,7 +225,7 @@ class CobrancaBitpag extends BaseClientBitpag
     public function getBasePayloadPagamentoCartaoCredito(FaturaCliente $cobranca, array $dadosSensiveis = []): array
     {
         return $cobranca->formapagamento == 'Cartão de crédito' && ! empty($dadosSensiveis) ? [
-            'number' => str_replace(' ', '', $dadosSensiveis['number']),
+            'number' => str_replace([' ', '-'], '', $dadosSensiveis['number']),
             'cvv' => $dadosSensiveis['cvv'],
             'expiration_date' => $dadosSensiveis['expiration_date'],
             'holder_name' => $dadosSensiveis['holder_name']

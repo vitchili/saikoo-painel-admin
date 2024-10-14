@@ -88,25 +88,6 @@ class FaturasRelationManager extends RelationManager
                             ->reactive()
                             ->searchable(),
                     ]),
-                Fieldset::make('Cartão de Crédito - Gateway BitPag (não armazenados localmente).')
-                    ->schema([
-                        TextInput::make('tempCreditoNumber')
-                            ->label('Número do cartão')
-                            ->mask('9999 9999 9999 9999')
-                            ->placeholder('XXXX-XXXX-XXXX-XXXX'),
-                        TextInput::make('tempCreditoCvv')
-                            ->label('CVV')
-                            ->numeric()
-                            ->mask('999')
-                            ->placeholder('XXX'),
-                        TextInput::make('tempCreditoDataExp')
-                            ->label('Data exp.')
-                            ->mask('99/99')
-                            ->placeholder('XX/XX'),
-                        TextInput::make('tempCreditoNomeImpresso')
-                            ->label('Nome impresso')
-                            ->placeholder('Nome como está no cartão'),
-                    ])->visible(fn($get) => $get('formapagamento') == 'Cartão de crédito'),
                 RichEditor::make('obs')
                     ->toolbarButtons([
                         'blockquote',
@@ -210,6 +191,7 @@ class FaturasRelationManager extends RelationManager
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('referencia')
                     ->size(TextColumnSize::ExtraSmall)
+                    ->limit(25)
                     ->label('Referência'),
                 TextColumn::make('valor')
                     ->size(TextColumnSize::ExtraSmall)
@@ -226,6 +208,7 @@ class FaturasRelationManager extends RelationManager
                     ->label('Valor Pago'),
                 Tables\Columns\TextColumn::make('status')
                     ->size(TextColumnSize::ExtraSmall)
+                    ->sortable()
                     ->label('Status')
                     ->formatStateUsing(function (string $state): string {
                         return StatusFaturaCliente::tryFrom($state)?->label() ?? $state;
@@ -240,6 +223,7 @@ class FaturasRelationManager extends RelationManager
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('formapagamento')
                     ->size(TextColumnSize::ExtraSmall)
+                    ->sortable()
                     ->label('Forma pagamento'),
                 Tables\Columns\TextColumn::make('gerar_boleto')
                     ->size(TextColumnSize::ExtraSmall)
@@ -253,7 +237,7 @@ class FaturasRelationManager extends RelationManager
                     ->size(TextColumnSize::ExtraSmall)
                     ->label('Link BitPag')
                     ->formatStateUsing(fn($state) => sprintf(
-                        '<a href="https://empresa.sandbox.splitpag.com.br/charge/list-charges-recurrence/%s" target="_blank">Abrir Link</a>',
+                        '<a href="https://empresa.sandbox.splitpag.com.br/charge/show/%s" target="_blank">Abrir Link</a>',
                         $state
                     ))
                     ->html(),

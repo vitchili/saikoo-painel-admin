@@ -57,31 +57,21 @@ class CentralClienteFaturasResource extends Resource
             ->modifyQueryUsing(fn(Builder $query) => $query->where('id_cliente', auth()->user()->cliente_id))
             ->defaultSort('vencimento', 'desc')
             ->columns([
-                Tables\Columns\TextColumn::make('id')
-                    ->size(TextColumnSize::ExtraSmall)
-                    ->label('ID')
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('vencimento')
                     ->size(TextColumnSize::ExtraSmall)
                     ->label('Vencimento')
                     ->dateTime('d/m/Y')
                     ->sortable(),
-                Tables\Columns\TextColumn::make('vencimento_boleto')
-                    ->size(TextColumnSize::ExtraSmall)
-                    ->label('Vencimento Boleto')
-                    ->dateTime('d/m/Y')
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('referencia')
                     ->size(TextColumnSize::ExtraSmall)
+                    ->limit(25)
                     ->label('Referência'),
                 Tables\Columns\TextColumn::make('valor')
                     ->size(TextColumnSize::ExtraSmall)
                     ->label('Valor')
                     ->prefix('R$'),
                 Tables\Columns\TextColumn::make('valor_atualizado')
-                    ->label('Valor Atualizado')
+                    ->label('Valor Att.')
                     ->size(TextColumnSize::ExtraSmall)
                     ->prefix('R$'),
                 Tables\Columns\TextColumn::make('valor_pago')
@@ -95,23 +85,20 @@ class CentralClienteFaturasResource extends Resource
                         return StatusFaturaCliente::tryFrom($state)?->label() ?? $state;
                     })
                     ->badge()
+                    ->sortable()
                     ->color(function (string $state): string {
                         return StatusFaturaCliente::tryFrom($state)?->color() ?? 'secondary';
                     }),
-                Tables\Columns\TextColumn::make('serial')
-                    ->size(TextColumnSize::ExtraSmall)
-                    ->label('Serial')
-                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('formapagamento')
                     ->size(TextColumnSize::ExtraSmall)
+                    ->sortable()
                     ->label('Forma pagamento'),
-                Tables\Columns\TextColumn::make('gerar_boleto')
+                Tables\Columns\TextColumn::make('final_cartao')
                     ->size(TextColumnSize::ExtraSmall)
-                    ->label('Gerar')
-                    ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('url_checkout')
-                    ->size(TextColumnSize::ExtraSmall)
-                    ->label('Url Checkout')
+                    ->label('Cartão')
+                    ->formatStateUsing(function (string $state): string {
+                        return ! empty($state) ? '.... - .... - .... - ' . $state : '';
+                    })
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
@@ -119,9 +106,9 @@ class CentralClienteFaturasResource extends Resource
             ])
             ->headerActions([])
             ->actions([
-                CommentsAction::make()
-                    ->label('Conversa'),
                 ActionGroup::make([
+                    CommentsAction::make()
+                        ->label('Conversa'),
                     Action::make('gerarBoleto')
                         ->label('Gerar Boleto')
                         ->hidden(fn(FaturaCliente $record) => $record->formapagamento !== 'Boleto' || ($record->formapagamento === 'Boleto' && ! empty($record->cobranca_bitpag_id)))
@@ -136,10 +123,9 @@ class CentralClienteFaturasResource extends Resource
                     Action::make('boletoGerado')
                         ->icon('heroicon-o-currency-dollar')
                         ->label('Boleto Gerado')
-                        ->disabled()
                         ->hidden(fn(FaturaCliente $record) => $record->formapagamento !== 'Boleto' || ($record->formapagamento == 'Boleto' && empty($record->cobranca_bitpag_id)))
                         ->action(function (FaturaCliente $faturaCliente) {
-                            Notification::make()->success()->title("Boleto já enviado via e-mai. Entre em contato via 'Conversa' para solicitar o boleto atualizado.")->send();
+                            Notification::make()->success()->title("Boleto já enviado via e-mail. Entre em contato via 'Conversa' para solicitar o boleto atualizado.")->send();
                         }),
                 ])
             ])
@@ -159,8 +145,6 @@ class CentralClienteFaturasResource extends Resource
             'index' => Pages\ListCentralClienteFaturas::route('/'),
         ];
     }
-
-    
 
     public static function canCreate(): bool
     {

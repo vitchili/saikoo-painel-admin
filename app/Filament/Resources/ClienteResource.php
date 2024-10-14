@@ -539,6 +539,15 @@ class ClienteResource extends Resource
                     ->searchable(),
                 Tables\Columns\ToggleColumn::make('status')
                     ->label('Ativo'),
+                Tables\Columns\TextColumn::make('cliente_bitpag_id')
+                    ->size(TextColumnSize::ExtraSmall)
+                    ->label('Link BitPag')
+                    ->formatStateUsing(fn($state) => sprintf(
+                        '<a style="font-size: 9pt" href="https://empresa.sandbox.splitpag.com.br/client/show/%s" target="_blank">Abrir Link</a>',
+                        $state
+                    ))
+                    ->html()
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 Filter::make('status')

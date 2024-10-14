@@ -49,7 +49,7 @@ class ContatosComClienteRelationManager extends RelationManager
                 Forms\Components\Select::make('responsavel_id')
                     ->required()
                     ->label('Responsável')
-                    ->options(User::all()->pluck('name', 'id')),
+                    ->options(User::whereNull('cliente_id')->get()->pluck('name', 'id')),
                 Forms\Components\DatePicker::make('data_contato')
                     ->required()
                     ->label('Data Contato'),

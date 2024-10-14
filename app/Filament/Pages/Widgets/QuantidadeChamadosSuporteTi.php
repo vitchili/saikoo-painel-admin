@@ -19,7 +19,7 @@ class QuantidadeChamadosSuporteTi extends ChartWidget
 
     protected function getData(): array
     {
-        $users = User::all();
+        $users = User::whereNull('cliente_id')->get();
         $suportes = [];
 
         foreach ($users as $user) {

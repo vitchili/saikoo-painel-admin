@@ -62,7 +62,7 @@ class PropostaClienteResource extends Resource
                                             ->searchable()
                                             ->label('Cliente'),
                                         Select::make('responsavel_id')
-                                            ->options(User::all()->pluck('name', 'id'))
+                                            ->options(User::whereNull('cliente_id')->get()->pluck('name', 'id'))
                                             ->preload()
                                             ->searchable()
                                             ->required()

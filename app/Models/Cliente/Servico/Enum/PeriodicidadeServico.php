@@ -26,6 +26,17 @@ enum PeriodicidadeServico: string
         };
     }
 
+    public function labelMinuscula(): string
+    {
+        return match ($this) {
+            self::NENHUM => 'única',
+            self::MENSAL => 'mensal',
+            self::TRIMESTRAL => 'trimestral',
+            self::SEMESTRAL => 'semestral',
+            self::ANUAL => 'anual',
+        };
+    }
+
     public function qtdParcelas(): string
     {
         return match ($this) {
@@ -34,6 +45,17 @@ enum PeriodicidadeServico: string
             self::TRIMESTRAL => 4,
             self::SEMESTRAL => 2,
             self::ANUAL => 1,
+        };
+    }
+
+    public static function aPartirDaQtdParcelas(int $qtd): self
+    {
+        return match ($qtd) {
+            1 => self::NENHUM,
+            12 => self::MENSAL,
+            4 => self::TRIMESTRAL,
+            2 => self::SEMESTRAL,
+            1 => self::ANUAL,
         };
     }
 }
