@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\Cliente\Cliente;
 use App\Models\Cliente\Fatura\FaturaCliente;
+use App\Models\Cliente\Serial\SerialCliente;
 use App\Models\ConfiguracaoReajusteMassa;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
@@ -67,9 +68,17 @@ class RenovarFaturasAposUmAno extends Command
             "formapagamento" => $faturaOriginal['formapagamento'],
             "obs" => $faturaOriginal['obs'],
             "url_checkout" => $faturaOriginal['url_checkout'],
-            "gerar_serial" => $faturaOriginal['gerar_serial'],
+            "gerar_serial" => false,
             "id_cliente" => $faturaOriginal['id_cliente'],
         ]);
+
+        if ($fatura->gerar_serial) {
+            $serial = new SerialCliente();
+            $serial->id_cliente = $fatura->id_cliente;
+            $serial->vencimento_serial = $fatura->vencimento;
+            $serial->save();
+            $fatura->serial = $serial->serial;
+        }
 
         $fatura->save();
     }

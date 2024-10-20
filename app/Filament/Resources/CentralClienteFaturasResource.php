@@ -3,15 +3,11 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\CentralClienteFaturasResource\Pages;
-use App\Filament\Resources\CentralClienteFaturasResource\RelationManagers;
 use App\Gateway\Bitpag\CobrancaBitpag;
-use App\Models\Cliente\Cliente;
 use App\Models\Cliente\Fatura\Enum\StatusFaturaCliente;
 use App\Models\Cliente\Fatura\FaturaCliente;
-use App\Models\User;
+use App\Models\Cliente\Serial\SerialCliente;
 use Carbon\Carbon;
-use Filament\Actions\ImportAction;
-use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
@@ -21,7 +17,6 @@ use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Columns\TextColumn\TextColumnSize;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Parallax\FilamentComments\Tables\Actions\CommentsAction;
 
 class CentralClienteFaturasResource extends Resource
@@ -64,7 +59,7 @@ class CentralClienteFaturasResource extends Resource
                     ->sortable(),
                 Tables\Columns\TextColumn::make('referencia')
                     ->size(TextColumnSize::ExtraSmall)
-                    ->limit(25)
+                    ->limit(10)
                     ->label('Referência'),
                 Tables\Columns\TextColumn::make('valor')
                     ->size(TextColumnSize::ExtraSmall)
@@ -106,27 +101,38 @@ class CentralClienteFaturasResource extends Resource
             ])
             ->headerActions([])
             ->actions([
+                Action::make('gerarBoleto')
+                    ->label('Gerar Boleto')
+                    ->hidden(fn(FaturaCliente $record) => $record->formapagamento !== 'Boleto' || ($record->formapagamento === 'Boleto' && ! empty($record->cobranca_bitpag_id)))
+                    ->requiresConfirmation()
+                    ->action(function (FaturaCliente $faturaCliente) {
+                        $bitPagCobranca = new CobrancaBitpag();
+                        $bitPagCobranca->cadastrarCobranca($faturaCliente);
+
+                        if (Carbon::parse($faturaCliente->vencimento)->lt(now())) {
+                            $serial = new SerialCliente();
+                            $serial->id_cliente = $faturaCliente->id_cliente;
+                            $serial->vencimento_serial = now()->addDays(2);
+                            $serial->save();
+
+                            $faturaCliente->gerar_serial = false;
+                            $faturaCliente->update([
+                                'serial' => $serial->serial
+                            ]);
+                        }
+
+                        Notification::make()->success()->title('Boleto gerado com suesso.')->icon('heroicon-o-currency-dollar')->send();
+                    })
+                    ->icon('heroicon-o-currency-dollar'),
+                Action::make('boletoGerado')
+                    ->icon('heroicon-o-eye')
+                    ->label('Ver Boleto')
+                    ->hidden(fn(FaturaCliente $record) => $record->formapagamento !== 'Boleto' || ($record->formapagamento == 'Boleto' && empty($record->cobranca_bitpag_id)))
+                    ->url(fn (FaturaCliente $record) => $record->url_boleto)
+                    ->openUrlInNewTab(),
                 ActionGroup::make([
                     CommentsAction::make()
                         ->label('Conversa'),
-                    Action::make('gerarBoleto')
-                        ->label('Gerar Boleto')
-                        ->hidden(fn(FaturaCliente $record) => $record->formapagamento !== 'Boleto' || ($record->formapagamento === 'Boleto' && ! empty($record->cobranca_bitpag_id)))
-                        ->requiresConfirmation()
-                        ->action(function (FaturaCliente $faturaCliente) {
-                            $bitPagCobranca = new CobrancaBitpag();
-                            $bitPagCobranca->cadastrarCobranca($faturaCliente);
-
-                            Notification::make()->success()->title('Boleto gerado com suesso e será enviado por e-mail.')->icon('heroicon-o-currency-dollar')->send();
-                        })
-                        ->icon('heroicon-o-currency-dollar'),
-                    Action::make('boletoGerado')
-                        ->icon('heroicon-o-currency-dollar')
-                        ->label('Boleto Gerado')
-                        ->hidden(fn(FaturaCliente $record) => $record->formapagamento !== 'Boleto' || ($record->formapagamento == 'Boleto' && empty($record->cobranca_bitpag_id)))
-                        ->action(function (FaturaCliente $faturaCliente) {
-                            Notification::make()->success()->title("Boleto já enviado via e-mail. Entre em contato via 'Conversa' para solicitar o boleto atualizado.")->send();
-                        }),
                 ])
             ])
             ->bulkActions([]);

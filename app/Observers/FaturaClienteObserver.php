@@ -75,7 +75,11 @@ class FaturaClienteObserver
                     $serial->save();
                     $faturaCliente->serial = $serial->serial;
                 }
+
+
             }
+
+
             
             $tiposServicosCliente = ServicoCliente::with('servicoCliente')->whereIn('id', $faturaCliente->servicos)->get();
 
@@ -101,8 +105,8 @@ class FaturaClienteObserver
                     }
                 }
     
-                unset($faturaCliente->servicos);
             }
+            unset($faturaCliente->servicos);
 
             DB::commit();
         } catch (\Exception $e) {

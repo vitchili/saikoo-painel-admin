@@ -29,7 +29,6 @@ class FilamentCommentObserver
             Notification::make()
             ->title("O cliente {$cliente->nome} enviou um comentário na fatura de vencimento ". Carbon::parse($faturaCliente->vencimento)->format('d/m/Y'))
             ->sendToDatabase($users);
-
         }
 
     }

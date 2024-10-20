@@ -3,6 +3,7 @@
 namespace App\Gateway\Bitpag;
 
 use App\Models\Cliente\Cliente;
+use App\Models\Cliente\Fatura\Enum\StatusFaturaCliente;
 use App\Models\Cliente\Fatura\FaturaCliente;
 use App\Models\Cliente\Servico\Enum\PeriodicidadeServico;
 use App\Models\Cliente\Servico\ServicoCliente;
@@ -72,6 +73,11 @@ class CobrancaBitpag extends BaseClientBitpag
             }
 
             $cobranca->cobranca_bitpag_id = $response['recurrence']['hash_id'] ?? $response['charge']['hash_id'];
+            $cobranca->status = StatusFaturaCliente::AGUARDANDO_PAGAMENTO->value;
+            if ($response['charge'] && $response['charge']['method_payment'] == 'Boleto') {
+                $cobranca->url_boleto = $response['charge']['payments'][0]['document_url'];
+            }
+
             $cobranca->update();
 
             Log::info($response->json());
@@ -130,7 +136,7 @@ class CobrancaBitpag extends BaseClientBitpag
             'PIX' => 7,
             default => throw new \Exception('Nenhuma forma de pagamento cadastrada'),
         };
-        
+
         return [
             'type' => 'u',
             'leverage_days_single' => 1,
@@ -174,7 +180,7 @@ class CobrancaBitpag extends BaseClientBitpag
 
         return [
             'type' => 'p',
-            'description_installment_amount' => $cobranca->info_add ?? "Cobrança referente a contratação de: '{$periodoServico->referencia}'",
+            'description_installment_amount' => $cobranca->info_add ?? "Cobrança referente a contratação de: '{$periodoServico->servicoCliente->nome}'",
             'recurrence_interval_installment' => $periodicidade,
             'due_date_installment_billing' => $cobranca->vencimento,
             'expiration_day_installments' => (int) Carbon::parse($cobranca->vencimento)->format('d'),

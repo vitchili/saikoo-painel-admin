@@ -108,7 +108,8 @@ class FaturasRelationManager extends RelationManager
                     ->label('URL'),
                 Toggle::make('gerar_serial')
                     ->label('Gerar Serial?')
-                    ->inline(false),
+                    ->inline(false)
+                    ->default(true),
             ]);
     }
 

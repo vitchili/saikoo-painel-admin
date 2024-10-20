@@ -40,11 +40,19 @@ class CentralClienteSerialResource extends Resource
 
     public static function table(Table $table): Table
     {
+        $query = SerialCliente::where('id_cliente', auth()->user()->cliente_id)
+            ->where('vencimento_serial', '>=', now())
+            ->orderBy('vencimento_serial')
+            ->limit(1);
+
+        $registro = $query->get()->first();
+
         return $table
-            ->modifyQueryUsing(function (Builder $query) {
-                return $query->where('id_cliente', auth()->user()->cliente_id)
-                    ->orderBy('vencimento_serial')
-                    ->limit(1);
+            ->modifyQueryUsing(function (Builder $query) use ($registro) {
+                if ($registro) {
+                    return $query->where('id', $registro->id);
+                }
+                return $query->whereNull('id');
             })
             ->columns([
                 Tables\Columns\TextColumn::make('serial')

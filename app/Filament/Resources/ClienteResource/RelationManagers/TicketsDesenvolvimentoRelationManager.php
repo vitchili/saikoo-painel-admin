@@ -29,6 +29,7 @@ use Filament\Tables\Columns\TextColumn\TextColumnSize;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Parallax\FilamentComments\Tables\Actions\CommentsAction;
 
 class TicketsDesenvolvimentoRelationManager extends RelationManager
 {
@@ -233,6 +234,7 @@ class TicketsDesenvolvimentoRelationManager extends RelationManager
                     ->searchable(),
                 Tables\Columns\TextColumn::make('situacao_id')
                     ->size(TextColumnSize::ExtraSmall)
+                    ->formatStateUsing(fn($state) => SituacaoTicketDesenvolvimentoEnum::from($state)->label())
                     ->label('Situação')
                     ->sortable()
                     ->searchable(),
@@ -246,6 +248,8 @@ class TicketsDesenvolvimentoRelationManager extends RelationManager
             ->actions([
                 Tables\Actions\EditAction::make()->slideOver(),
                 Tables\Actions\DeleteAction::make(),
+                CommentsAction::make()
+                    ->label('Conversa'),
             ])
             ->bulkActions([
                 

@@ -33,6 +33,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Collection;
+use Parallax\FilamentComments\Tables\Actions\CommentsAction;
 
 class TicketDesenvolvimentoResource extends Resource
 {
@@ -291,6 +292,8 @@ class TicketDesenvolvimentoResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+                CommentsAction::make()
+                    ->label('Conversa'),
             ])
             ->bulkActions([
                 

@@ -70,6 +70,7 @@ class FaturaCliente extends Model
         'cobranca_bitpag_id',
         'gerar_serial',
         'final_cartao',
+        'url_boleto',
     ];
 
     protected $with = ['cliente', 'servicos'];
