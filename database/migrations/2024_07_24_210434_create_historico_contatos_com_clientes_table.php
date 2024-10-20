@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignIdFor(\App\Models\Cliente\Cliente::class, 'cliente_id');
             $table->text('descricao')->nullable();
             $table->foreignIdFor(\App\Models\User::class, 'cadastrado_por');
+            $table->softDeletes();
             $table->timestamp('cadastrado_em')->useCurrent();
             $table->timestamp('atualizado_em')->useCurrent()->useCurrentOnUpdate();
         });

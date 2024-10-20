@@ -19,6 +19,7 @@ return new class extends Migration
             $table->decimal('valor', 8, 2);
             $table->boolean('calc_por_qtd');
             $table->boolean('cobrar_instalacao');
+            $table->softDeletes();
             $table->timestamp('cadastrado_em')->useCurrent();
             $table->timestamp('atualizado_em')->nullable()->useCurrent()->useCurrentOnUpdate();
         });

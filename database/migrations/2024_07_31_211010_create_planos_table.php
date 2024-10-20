@@ -28,6 +28,7 @@ return new class extends Migration
             $table->decimal('desconto_semestral')->nullable();
             $table->decimal('desconto_anual')->nullable();
             $table->string('tipo_desconto')->nullable();
+            $table->softDeletes();
             $table->timestamp('cadastrado_em')->useCurrent();
             $table->timestamp('atualizado_em')->nullable()->useCurrent()->useCurrentOnUpdate();
         });

@@ -6,10 +6,11 @@ use App\Models\Chamado\Chamado;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Veiculo extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     const CREATED_AT = 'cadastrado_em';
 

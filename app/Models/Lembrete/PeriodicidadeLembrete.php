@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class PeriodicidadeLembrete extends Model
 {
@@ -17,7 +18,7 @@ class PeriodicidadeLembrete extends Model
     public const PERIODICIDADE_MENSAL = 5;
     public const PERIODICIDADE_ANUAL = 6;
 
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $table = 'periodicidades';
 

@@ -29,6 +29,7 @@ return new class extends Migration
             $table->boolean('apresentacao_terminal_comanda_tablet')->nullable()->default(1);
             $table->boolean('apresentacao_requisitos_minimos_instalacao')->nullable()->default(1);
             $table->text('info')->nullable();
+            $table->softDeletes();
             $table->timestamp('cadastrado_em')->useCurrent();
             $table->timestamp('atualizado_em')->nullable()->useCurrent()->useCurrentOnUpdate();
         });

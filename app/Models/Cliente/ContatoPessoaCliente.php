@@ -5,10 +5,11 @@ namespace App\Models\Cliente;
 use App\Models\Cliente\Cliente;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ContatoPessoaCliente extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $table = 'contatos_pessoas_clientes';
 

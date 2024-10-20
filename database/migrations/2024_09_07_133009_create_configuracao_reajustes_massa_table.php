@@ -17,6 +17,7 @@ return new class extends Migration
             $table->foreignId('indice_correcao_generica_id')->nullable()->constrained('indices_correcao_genericos')->onDelete('cascade');
             $table->foreignId('igpm_id')->nullable()->constrained('indices_igpm')->onDelete('cascade');
             $table->date('data_inicio');
+            $table->softDeletes();
             $table->timestamp('cadastrado_em')->useCurrent();
             $table->timestamp('atualizado_em')->nullable()->useCurrent()->useCurrentOnUpdate();
         });

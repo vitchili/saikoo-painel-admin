@@ -31,6 +31,7 @@ return new class extends Migration
             $table->boolean('fatura_foi_alterada')->nullable();
             $table->date('vencimento_fatura')->nullable();
             $table->foreignIdFor(\App\Models\User::class, 'cadastrado_por');
+            $table->softDeletes();
             $table->timestamp('cadastrado_em')->useCurrent();
             $table->timestamp('atualizado_em')->nullable()->useCurrent()->useCurrentOnUpdate();
         });

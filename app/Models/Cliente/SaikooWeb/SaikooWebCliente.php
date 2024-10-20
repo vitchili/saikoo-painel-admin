@@ -5,10 +5,11 @@ namespace App\Models\Cliente\SaikooWeb;
 use App\Models\Cliente\Cliente;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class SaikooWebCliente extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $table = 'conexoes_saikoo_web';
 

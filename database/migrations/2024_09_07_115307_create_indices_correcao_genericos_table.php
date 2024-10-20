@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('nome');
             $table->datetime('data_referencia');
             $table->decimal('valor', 8, 2);
+            $table->softDeletes();
             $table->timestamp('cadastrado_em')->useCurrent();
             $table->timestamp('atualizado_em')->nullable()->useCurrent()->useCurrentOnUpdate();
         });

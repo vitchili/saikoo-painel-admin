@@ -19,6 +19,7 @@ return new class extends Migration
             $table->text('observacoes')->nullable();
             $table->foreignIdFor(\App\Models\User::class, 'periodicidade_id');
             $table->foreignIdFor(\App\Models\User::class, 'criado_por');
+            $table->softDeletes();
             $table->timestamp('cadastrado_em')->useCurrent();
             $table->timestamp('atualizado_em')->nullable()->useCurrent()->useCurrentOnUpdate();
         });

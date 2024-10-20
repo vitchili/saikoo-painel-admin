@@ -4,10 +4,11 @@ namespace App\Models\Implantacao;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class TopicoModeloImplantacao extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
     
     const CREATED_AT = 'cadastrado_em';
 

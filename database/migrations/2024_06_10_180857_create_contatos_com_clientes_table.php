@@ -25,6 +25,7 @@ return new class extends Migration
             $table->string('situacao_id')->nullable()->default(SituacaoContato::ABERTO->value);
             $table->foreignIdFor(\App\Models\User::class, 'cadastrado_por');
             $table->text('descricao')->nullable();
+            $table->softDeletes();
             $table->timestamp('cadastrado_em')->useCurrent();
             $table->timestamp('atualizado_em')->useCurrent()->useCurrentOnUpdate();
         });

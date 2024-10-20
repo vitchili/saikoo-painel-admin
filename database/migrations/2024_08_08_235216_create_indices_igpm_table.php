@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('data');
             $table->decimal('valor');
+            $table->softDeletes();
             $table->timestamp('cadastrado_em')->useCurrent();
             $table->timestamp('atualizado_em')->nullable()->useCurrent()->useCurrentOnUpdate();
         });

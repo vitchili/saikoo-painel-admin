@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('tipo');
             $table->string('nome');
             $table->string('placa');
+            $table->softDeletes();
             $table->timestamp('cadastrado_em')->useCurrent();
             $table->timestamp('atualizado_em')->useCurrent()->useCurrentOnUpdate();
         });

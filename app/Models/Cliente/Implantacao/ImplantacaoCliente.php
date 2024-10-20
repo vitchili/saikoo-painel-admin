@@ -5,10 +5,11 @@ namespace App\Models\Cliente\Implantacao;
 use App\Models\Cliente\Cliente;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ImplantacaoCliente extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     const CREATED_AT = 'cadastrado_em';
 

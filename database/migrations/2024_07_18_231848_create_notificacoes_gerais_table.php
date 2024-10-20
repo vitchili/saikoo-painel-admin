@@ -18,6 +18,7 @@ return new class extends Migration
             $table->datetime('data_hora');
             $table->string('descricao');
             $table->tinyInteger('enviado')->default(0);
+            $table->softDeletes();
             $table->timestamp('cadastrado_em')->useCurrent();
             $table->timestamp('atualizado_em')->nullable()->useCurrent()->useCurrentOnUpdate();
         });

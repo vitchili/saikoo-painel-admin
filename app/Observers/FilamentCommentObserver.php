@@ -19,7 +19,7 @@ class FilamentCommentObserver
 
         $cliente = Cliente::find($user->cliente_id);
 
-        if ($filamentComment->subject_type == 'App\Models\Cliente\Fatura\FaturaCliente') {
+        if (! empty($cliente) && $filamentComment->subject_type == 'App\Models\Cliente\Fatura\FaturaCliente') {
             $faturaCliente = $filamentComment->subject_type::find($filamentComment->subject_id);
             
             $users = User::whereDoesntHave('roles', function($query) {

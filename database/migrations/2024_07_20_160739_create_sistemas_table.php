@@ -15,6 +15,7 @@ return new class extends Migration
         Schema::create('sistemas', function (Blueprint $table) {
             $table->id();
             $table->string('nome');
+            $table->softDeletes();
             $table->timestamp('cadastrado_em')->useCurrent();
             $table->timestamp('atualizado_em')->nullable()->useCurrent()->useCurrentOnUpdate();
         });

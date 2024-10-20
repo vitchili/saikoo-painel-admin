@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('nome');
             $table->string('telefone')->nullable();
             $table->string('email')->nullable();
+            $table->softDeletes();
             $table->timestamp('cadastrado_em')->useCurrent();
             $table->timestamp('atualizado_em')->useCurrent()->useCurrentOnUpdate();
         });

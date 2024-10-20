@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('observacao_atendimento')->nullable();
             $table->string('servicos')->nullable();
             $table->foreignIdFor(\App\Models\User::class, 'cadastrado_por');
+            $table->softDeletes();
             $table->timestamp('cadastrado_em')->useCurrent();
             $table->timestamp('atualizado_em')->useCurrent()->useCurrentOnUpdate();
         });

@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id('id_numero_profissionais_sistema');
             $table->foreignIdFor(\App\Models\Cliente\Cliente::class, 'id_cliente');
             $table->integer('qtd_profissionais');
+            $table->softDeletes();
             $table->timestamp('cadastrado_em')->useCurrent();
             $table->timestamp('dta_atualizacao')->nullable()->useCurrent()->useCurrentOnUpdate();
         });

@@ -22,6 +22,7 @@ return new class extends Migration
             $table->decimal('valor', 8, 2);
             $table->integer('tipo_desconto_id')->nullable()->default(TipoDescontoProposta::NENHUM->value);
             $table->decimal('valor_desconto', 8, 2)->nullable();
+            $table->softDeletes();
             $table->timestamp('cadastrado_em')->useCurrent();
             $table->timestamp('atualizado_em')->nullable()->useCurrent()->useCurrentOnUpdate();
         });

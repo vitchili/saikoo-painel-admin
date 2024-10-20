@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('senha')->nullable();
             $table->string('bd')->nullable();
             $table->boolean('status')->default(1);
+            $table->softDeletes();
             $table->timestamp('cadastrado_em')->useCurrent();
             $table->timestamp('atualizado_em')->nullable()->useCurrent()->useCurrentOnUpdate();
         });

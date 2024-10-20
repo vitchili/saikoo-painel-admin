@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignIdFor(\App\Models\Cliente\TipoRedeSocialCliente::class, 'tipo_rede_social_id');
             $table->foreignIdFor(\App\Models\Cliente\Cliente::class, 'cliente_id');
             $table->string('url');
+            $table->softDeletes();
             $table->timestamp('cadastrado_em')->useCurrent();
             $table->timestamp('atualizado_em')->useCurrent()->useCurrentOnUpdate();
         });

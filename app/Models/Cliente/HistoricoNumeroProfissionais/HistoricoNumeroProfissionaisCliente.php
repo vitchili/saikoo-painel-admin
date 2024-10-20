@@ -5,10 +5,11 @@ namespace App\Models\Cliente\HistoricoNumeroProfissionais;
 use App\Models\Cliente\Cliente;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class HistoricoNumeroProfissionaisCliente extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $table = 'numero_profissionais_sistema';
 

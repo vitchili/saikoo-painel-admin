@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('codigo')->nullable();
             $table->string('login')->nullable();
             $table->string('senha')->nullable();
+            $table->softDeletes();
             $table->timestamp('cadastrado_em')->useCurrent();
             $table->timestamp('atualizado_em')->nullable()->useCurrent()->useCurrentOnUpdate();
         });

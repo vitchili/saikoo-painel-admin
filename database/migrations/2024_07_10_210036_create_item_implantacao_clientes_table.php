@@ -19,6 +19,7 @@ return new class extends Migration
             $table->date('data_treinamento')->nullable();
             $table->string('treinado')->nullable();
             $table->foreignIdFor(\App\Models\User::class, 'treinado_por')->nullable();
+            $table->softDeletes();
             $table->timestamp('cadastrado_em')->useCurrent();
             $table->timestamp('atualizado_em')->nullable()->useCurrent()->useCurrentOnUpdate();
         });

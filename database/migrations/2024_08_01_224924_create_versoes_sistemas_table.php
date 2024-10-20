@@ -18,6 +18,7 @@ return new class extends Migration
             $table->boolean('disponivel_para_atualizacao')->default(0)->nullable();
             $table->date('data_disponivel')->nullable();
             $table->text('obs')->nullable();
+            $table->softDeletes();
             $table->timestamp('cadastrado_em')->useCurrent();
             $table->timestamp('atualizado_em')->nullable()->useCurrent()->useCurrentOnUpdate();
         });
