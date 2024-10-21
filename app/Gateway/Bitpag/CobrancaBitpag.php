@@ -12,6 +12,7 @@ use App\Rules\ValidacaoCpfCnpj;
 use App\Rules\ValidacaoTelefone;
 use App\Services\NotificacaoExceptionBitPagService;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -62,6 +63,8 @@ class CobrancaBitpag extends BaseClientBitpag
         };
 
         try {
+            DB::beginTransaction();
+
             $response = Http::withHeaders($this->getHeaders())->post(
                 $this->getBaseAuth()['baseUrl'] . '/charge',
                 $payload
@@ -81,9 +84,14 @@ class CobrancaBitpag extends BaseClientBitpag
             $cobranca->update();
 
             Log::info($response->json());
+
+            DB::commit();
+
             return $response->json();
         } catch (\Exception $e) {
             new NotificacaoExceptionBitPagService($e->getMessage());
+            DB::rollback();
+
             return [
                 'status' => $e->getCode(),
                 'data' => $e->getMessage(),
