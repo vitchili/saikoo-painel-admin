@@ -14,8 +14,6 @@ use Illuminate\Support\Facades\DB;
 
 class FaturaClienteObserver
 {
-    public $referencia = 'Sistemas';
-
     /**
      * Handle the FaturaCliente "created" event.
      */
@@ -62,12 +60,6 @@ class FaturaClienteObserver
             $faturaCliente->codigo_cliente = Cliente::findOrFail($faturaCliente->id_cliente)->codigo;
 
             if (empty($faturaCliente->incremento_parcela) || $faturaCliente->incremento_parcela == 1) {
-                // if ($faturaCliente->formapagamento !== 'Boleto') {
-                //     $bitPagCobranca = new CobrancaBitpag();
-
-                //     $bitPagCobranca->cadastrarCobranca($faturaCliente);
-                // }
-    
                 if ($faturaCliente->gerar_serial) {
                     $serial = new SerialCliente();
                     $serial->id_cliente = $faturaCliente->id_cliente;
@@ -75,25 +67,19 @@ class FaturaClienteObserver
                     $serial->save();
                     $faturaCliente->serial = $serial->serial;
                 }
-
-
             }
-
-
             
-            $tiposServicosCliente = ServicoCliente::with('servicoCliente')->whereIn('id', $faturaCliente->servicos)->get();
+            $servicosCliente = ServicoCliente::find($faturaCliente->servicos); //Servico do Cliente (contem id_servico e id_cliente)
 
-            $this->referencia = 'Sistemas';
+            foreach ($servicosCliente as $servicoCliente) {
+                $tiposServicosCliente = TipoServicoCliente::find($servicoCliente->id_servico); //Tipo de Servico (id_servico do Servico do cliente)
 
-            foreach ($tiposServicosCliente as $tipoServico) {
-                if ($tipoServico->servicoCliente->nome === 'Sistemas') {
+                if ($tiposServicosCliente->nome === 'Sistemas') {
                     break;
                 }
-
-                $this->referencia = $tipoServico->servicoCliente->nome;
             }
 
-            $faturaCliente->referencia = $this->referencia;
+            $faturaCliente->referencia = $tiposServicosCliente->nome ?? 'Sistemas';
             
             if (! empty($faturaCliente->servicos)) {
                 for($i = 0; $i<$faturaCliente->qtd; $i++) {

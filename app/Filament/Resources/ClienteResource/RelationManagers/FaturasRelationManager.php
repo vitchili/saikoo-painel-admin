@@ -7,6 +7,8 @@ use App\Models\Cliente\Fatura\Enum\StatusFaturaCliente;
 use App\Models\Cliente\Fatura\FaturaCliente;
 use App\Models\Cliente\Servico\Enum\PeriodicidadeServico;
 use App\Models\Cliente\Servico\ServicoCliente;
+use Carbon\Carbon;
+use Closure;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Fieldset;
 use Filament\Forms\Components\RichEditor;
@@ -29,7 +31,7 @@ class FaturasRelationManager extends RelationManager
     public const ID_SERVICO_PRINCIPAL = 1;
 
     protected static string $relationship = 'faturas';
-    
+
     protected int $quantidadeTotalServicosPeriodicidade = 0;
     protected int $quantidadeTotalServicosSelecionados = 0;
 
@@ -157,8 +159,10 @@ class FaturasRelationManager extends RelationManager
         $this->quantidadeTotalServicosPeriodicidade = count($servicos);
         $this->quantidadeTotalServicosSelecionados = count($get('servicos'));
 
-        if ($this->quantidadeTotalServicosSelecionados > 0 && 
-            $this->quantidadeTotalServicosSelecionados < $this->quantidadeTotalServicosPeriodicidade) {
+        if (
+            $this->quantidadeTotalServicosSelecionados > 0 &&
+            $this->quantidadeTotalServicosSelecionados < $this->quantidadeTotalServicosPeriodicidade
+        ) {
             $this->geraNotificacaoServicosIncompletos();
         }
 
@@ -199,10 +203,9 @@ class FaturasRelationManager extends RelationManager
                     ->label('Valor')
                     ->prefix('R$'),
                 TextColumn::make('valor_atualizado')
-                    ->label('Valor Atualizado')
+                    ->label('Valor Att.')
                     ->size(TextColumnSize::ExtraSmall)
-                    ->prefix('R$')
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->prefix('R$'),
                 TextColumn::make('valor_pago')
                     ->size(TextColumnSize::ExtraSmall)
                     ->prefix('R$')
@@ -253,6 +256,101 @@ class FaturasRelationManager extends RelationManager
                 ActionGroup::make([
                     Tables\Actions\EditAction::make()->slideOver(),
                     CommentsAction::make(),
+                    Action::make('gerenciarJurosMulta')
+                        ->label('Gerenciar Juros e Multa')
+                        ->requiresConfirmation()
+                        ->form([
+                            TextInput::make('valor_original')
+                                ->disabled()
+                                ->default(function (FaturaCliente $record): float {
+                                    return $record->valor;
+                                })
+                                ->label('Valor')
+                                ->numeric()
+                                ->prefix('R$'),
+                            Fieldset::make()->schema([
+                                TextInput::make('juros_atraso')
+                                    ->label('Juros')
+                                    ->default(function (FaturaCliente $record): float {
+                                        return $record->juros_atraso ?? 0;
+                                    })
+                                    ->numeric()
+                                    ->minValue(0)
+                                    ->reactive()
+                                    ->suffix('%')
+                                    ->afterStateUpdated(function ($get, $set, $state) {
+                                        $juros = (float) $state ?? 0;
+                                        $multa = (float) $get('multa_atraso') ?? 0;
+                                        $valorOriginal = $get('valor_original') ?? 0;
+
+                                        $valorJuros = $valorOriginal * ($juros / 100);
+                                        $valorMulta = $valorOriginal * ($multa / 100);
+
+                                        $valorAtualizado = $valorOriginal + $valorJuros + $valorMulta;
+                            
+                                        $set('valor_atualizado', (float) number_format($valorAtualizado, 2));
+                                    }),
+                                TextInput::make('multa_atraso')
+                                    ->label('Multa')
+                                    ->default(function (FaturaCliente $record): float {
+                                        return $record->multa_atraso ?? 0;
+                                    })
+                                    ->numeric()
+                                    ->minValue(0)
+                                    ->reactive()
+                                    ->suffix('%')
+                                    ->afterStateUpdated(function ($get, $set, $state) {
+                                        $multa = (float) $state ?? 0;
+                                        $juros = (float) $get('juros_atraso') ?? 0;
+                                        $valorOriginal = $get('valor_original') ?? 0;
+
+                                        $valorJuros = $valorOriginal * ($juros / 100);
+                                        $valorMulta = $valorOriginal * ($multa / 100);
+
+                                        $valorAtualizado = $valorOriginal + $valorJuros + $valorMulta;
+                            
+                                        $set('valor_atualizado', (float) number_format($valorAtualizado, 2));
+                                    }),
+                                TextInput::make('dias_atraso')
+                                    ->disabled()
+                                    ->default(function (FaturaCliente $record): int|string {
+                                        $dataInformada = \Carbon\Carbon::createFromFormat('Y-m-d', $record->vencimento);
+                                        $hoje = \Carbon\Carbon::now();
+
+                                        return $dataInformada->diffInDays($hoje) > 0 ? $dataInformada->diffInDays($hoje) : 0;
+
+                                    })
+                                    ->label('Dias em atraso'),
+                            ])->columns(3),
+                            TextInput::make('valor_atualizado')
+                                ->readOnly()
+                                ->reactive()
+                                ->default(function (FaturaCliente $record): float {
+                                    return $record->valor_atualizado ?? $record->valor;
+                                })
+                                ->label('Valor Atualizado')
+                                ->numeric()
+                                ->prefix('R$')
+                                ->afterStateHydrated(function ($get, $set, $state) {
+                                    $multa = (float) $get('multa_atraso') ?? 0;
+                                    $juros = (float) $get('juros_atraso') ?? 0;
+                                    $valorOriginal = $get('valor_original') ?? 0;
+
+                                    $valorJuros = $valorOriginal * ($juros / 100);
+                                    $valorMulta = $valorOriginal * ($multa / 100);
+
+                                    $valorAtualizado = $valorOriginal + $valorJuros + $valorMulta;
+                        
+                                    $set('valor_atualizado', (float) number_format($valorAtualizado, 2));
+                                }),
+                        ])
+                        ->action(function (array $data, FaturaCliente $record): void {
+                            $record->multa_atraso = $data['multa_atraso'];
+                            $record->juros_atraso = $data['juros_atraso'];
+                            $record->valor_atualizado = $data['valor_atualizado'];
+                            $record->save();
+                        })
+                        ->icon('heroicon-o-calculator'),
                     Action::make('quitarFatura')
                         ->requiresConfirmation()
                         ->hidden(fn(FaturaCliente $record) => $record->formapagamento !== 'Dinheiro')

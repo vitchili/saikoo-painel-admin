@@ -20,6 +20,10 @@ class FaturaCliente extends Model
 
     const UPDATED_AT = 'data_alt_status';
 
+    const JUROS_VALOR_PADRAO_PERCENT = 1;
+    
+    const MULTA_VALOR_PADRAO_PERCENT = 2;
+
     protected $table = 'faturas_clientes';
 
     protected $fillable = [
