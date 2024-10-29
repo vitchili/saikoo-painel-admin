@@ -57,7 +57,7 @@ class FaturasRelationManager extends RelationManager
                             //     return $query->select('serv_cliente.id', 'serv_cliente.periodicidade');
                             // })
                             ->disabled(! empty($this->mountedTableActionRecord) && $this->mountedTableActionRecord > 0)
-                            ->required()
+                            ->required( empty($this->mountedTableActionRecord))
                             ->label('Periodicidade')
                             ->options(collect(PeriodicidadeServico::cases())->mapWithKeys(fn($periodicidade) => [$periodicidade->value => $periodicidade->label()]))
                             ->preload()
@@ -69,8 +69,8 @@ class FaturasRelationManager extends RelationManager
                             //         return $query->join('lista_servico AS ls', 'serv_cliente.id_servico', '=', 'ls.id')
                             //                     ->select('serv_cliente.id', 'ls.nome');
                             // })
-                            ->required()
                             ->disabled(! empty($this->mountedTableActionRecord) && $this->mountedTableActionRecord > 0)
+                            ->required( empty($this->mountedTableActionRecord))
                             ->multiple()
                             ->label('Serviços Referência')
                             ->options(fn($get) => $this->getServicosOptions($get('periodicidade'), $get))
@@ -313,13 +313,16 @@ class FaturasRelationManager extends RelationManager
                                         $juros = (float) $state ?? 0;
                                         $multa = (float) $get('multa_atraso') ?? 0;
                                         $valorOriginal = $get('valor_original') ?? 0;
+                                        $diasAtraso = $get('dias_atraso') ?? 0;
 
                                         $valorJuros = $valorOriginal * ($juros / 100);
                                         $valorMulta = $valorOriginal * ($multa / 100);
 
                                         $valorAtualizado = $valorOriginal + $valorJuros + $valorMulta;
-                            
-                                        $set('valor_atualizado', (float) number_format($valorAtualizado, 2));
+                                        
+                                        if ($diasAtraso > 0) {
+                                            $set('valor_atualizado', (float) number_format($valorAtualizado, 2));
+                                        }
                                     }),
                                 TextInput::make('multa_atraso')
                                     ->label('Multa')
@@ -334,13 +337,16 @@ class FaturasRelationManager extends RelationManager
                                         $multa = (float) $state ?? 0;
                                         $juros = (float) $get('juros_atraso') ?? 0;
                                         $valorOriginal = $get('valor_original') ?? 0;
+                                        $diasAtraso = $get('dias_atraso') ?? 0;
 
                                         $valorJuros = $valorOriginal * ($juros / 100);
                                         $valorMulta = $valorOriginal * ($multa / 100);
 
                                         $valorAtualizado = $valorOriginal + $valorJuros + $valorMulta;
                             
-                                        $set('valor_atualizado', (float) number_format($valorAtualizado, 2));
+                                        if ($diasAtraso > 0) {
+                                            $set('valor_atualizado', (float) number_format($valorAtualizado, 2));
+                                        }
                                     }),
                                 TextInput::make('dias_atraso')
                                     ->disabled()
@@ -366,13 +372,16 @@ class FaturasRelationManager extends RelationManager
                                     $multa = (float) $get('multa_atraso') ?? 0;
                                     $juros = (float) $get('juros_atraso') ?? 0;
                                     $valorOriginal = $get('valor_original') ?? 0;
+                                    $diasAtraso = $get('dias_atraso') ?? 0;
 
                                     $valorJuros = $valorOriginal * ($juros / 100);
                                     $valorMulta = $valorOriginal * ($multa / 100);
 
                                     $valorAtualizado = $valorOriginal + $valorJuros + $valorMulta;
-                        
-                                    $set('valor_atualizado', (float) number_format($valorAtualizado, 2));
+
+                                    if ($diasAtraso > 0) {
+                                        $set('valor_atualizado', (float) number_format($valorAtualizado, 2));
+                                    }
                                 }),
                         ])
                         ->action(function (array $data, FaturaCliente $record): void {

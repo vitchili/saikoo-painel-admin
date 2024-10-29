@@ -43,6 +43,7 @@ class AtualizarStatusFaturaPagamentoVencimento extends Command
 
                 if (Carbon::parse($fatura->vencimento)->lt(now()) && empty($fatura->valor_pago)) {
                     $upatedFatura->status = StatusFaturaCliente::INADIMPLENTE->value;
+                    $this->calcularJurosMulta($fatura);
                 }
 
                 if (! empty($fatura->cobranca_bitpag_id) && Carbon::parse($fatura->vencimento)->gt(now()) && empty($fatura->valor_pago)) {
@@ -64,5 +65,20 @@ class AtualizarStatusFaturaPagamentoVencimento extends Command
                 $upatedFatura->save();
             }
         }
+    }
+
+    public function calcularJurosMulta(FaturaCliente $fatura): void
+    {
+        $juros = (float) $fatura->juros_atraso ?? 0;
+        $multa = (float) $fatura->multa_atraso ?? 0;
+        $valorOriginal = $fatura->valor ?? 0;
+
+        $valorJuros = $valorOriginal * ($juros / 100);
+        $valorMulta = $valorOriginal * ($multa / 100);
+
+        $valorAtualizado = $valorOriginal + $valorJuros + $valorMulta;
+                                        
+        $fatura->valor_atualizado = (float) number_format($valorAtualizado, 2);
+        $fatura->save();
     }
 }
