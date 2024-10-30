@@ -144,7 +144,6 @@ class CobrancaBitpag extends BaseClientBitpag
             'description_single_charge' => $cobranca->info_add ?? "Cobrança referente a contratação de: '{$periodoServico->servicoCliente->nome}'",
             'amount' => number_format($cobranca->valor_atualizado ?? $cobranca->valor, 2, ',', ''),
             'due_date_single_charge' => Carbon::parse($cobranca->vencimento)->format('Y-m-d'),
-            
             'description_installment_amount' => $cobranca->info_add,
             'due_date_installment_billing' => $cobranca->vencimento,
             'expiration_day_installments' => (int) Carbon::parse($cobranca->vencimento)->format('d'),

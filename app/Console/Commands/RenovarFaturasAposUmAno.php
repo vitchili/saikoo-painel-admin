@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Models\Cliente\Cliente;
 use App\Models\Cliente\Fatura\FaturaCliente;
 use App\Models\Cliente\Serial\SerialCliente;
+use App\Models\Cliente\Servico\Enum\PeriodicidadeServico;
 use App\Models\Cliente\Servico\ServicoCliente;
 use App\Models\ConfiguracaoReajusteMassa;
 use Carbon\Carbon;
@@ -55,11 +56,12 @@ class RenovarFaturasAposUmAno extends Command
         $servicosId = [];
 
         foreach ($faturaOriginal->servicos as $servico) {
-            dd($servico);
             $servicosId[] = $servico['id'];
-        }
 
-        //$servicosClientes = ServicoCliente::find();
+            if ($servico['periodicidade'] == PeriodicidadeServico::NENHUM->valur) {
+                return false;
+            }
+        }
 
         $fatura = new FaturaCliente([
             "vencimento" => Carbon::parse($faturaOriginal['vencimento'])->addMonthsNoOverflow((int) 12 / $faturaOriginal['qtd'])->toDateString(),
