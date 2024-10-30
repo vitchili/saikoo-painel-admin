@@ -72,8 +72,8 @@ class FaturaClienteObserver
             $servicosCliente = ServicoCliente::find($faturaCliente->servicos); //Servico do Cliente (contem id_servico e id_cliente)
 
             foreach ($servicosCliente as $servicoCliente) {
-                dd($servicosCliente);
                 $tiposServicosCliente = TipoServicoCliente::find($servicoCliente->id_servico); //Tipo de Servico (id_servico do Servico do cliente)
+                dd($tiposServicosCliente);
 
                 if ($tiposServicosCliente->nome === 'Sistemas') {
                     break;
