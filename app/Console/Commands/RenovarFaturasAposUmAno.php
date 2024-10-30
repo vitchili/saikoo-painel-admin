@@ -55,10 +55,11 @@ class RenovarFaturasAposUmAno extends Command
         $servicosId = [];
 
         foreach ($faturaOriginal->servicos as $servico) {
+            dd($servico);
             $servicosId[] = $servico['id'];
         }
 
-        dd($servicosId);
+        //$servicosClientes = ServicoCliente::find();
 
         $fatura = new FaturaCliente([
             "vencimento" => Carbon::parse($faturaOriginal['vencimento'])->addMonthsNoOverflow((int) 12 / $faturaOriginal['qtd'])->toDateString(),
