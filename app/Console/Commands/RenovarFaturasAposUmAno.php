@@ -58,7 +58,7 @@ class RenovarFaturasAposUmAno extends Command
         foreach ($faturaOriginal->servicos as $servico) {
             $servicosId[] = $servico['id'];
 
-            if ($servico['periodicidade'] == PeriodicidadeServico::NENHUM->valur) {
+            if ($servico['periodicidade'] == PeriodicidadeServico::NENHUM->value) {
                 return false;
             }
         }
