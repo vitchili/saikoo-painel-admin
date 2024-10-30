@@ -35,7 +35,7 @@ class FaturaClienteObserver
             $novoModel->vencimento = Carbon::parse($vencimentoOriginal)->addMonthsNoOverflow((int) 12 / $faturaCliente->qtd)->toDateString(); 
             $novoModel->incremento_parcela = $ultimaParcela->incremento_parcela + 1;
 
-            if ($novoModel->incremento_parcela > 1 && $faturaCliente->referencia != 'Sistemas') {
+            if ($novoModel->incremento_parcela > 1 && $faturaCliente->referencia == 'Tmp') {
                 $novoModel->referencia = $faturaCliente->referencia;
             }
             
@@ -84,7 +84,7 @@ class FaturaClienteObserver
                 }
             }
 
-            $faturaCliente->referencia = $tiposServicosCliente->nome ?? 'Sistemas';
+            $faturaCliente->referencia = $tiposServicosCliente->nome ?? 'Tmp';
 
             if (! empty($faturaCliente->servicos)) {
                 for($i = 0; $i<$faturaCliente->qtd; $i++) {
