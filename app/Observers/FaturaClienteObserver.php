@@ -79,10 +79,12 @@ class FaturaClienteObserver
                 $tiposServicosCliente = TipoServicoCliente::find($servicoCliente->id_servico); //Tipo de Servico (id_servico do Servico do cliente)
 
                 if ($tiposServicosCliente->nome === 'Sistemas') {
-                    $faturaCliente->referencia = 'Sistemas';
+                    $faturaCliente->referencia = $tiposServicosCliente->nome ?? 'Sistemas';
                     break;
                 }
             }
+
+            $faturaCliente->referencia = $tiposServicosCliente->nome ?? 'Sistemas';
 
             if (! empty($faturaCliente->servicos)) {
                 for($i = 0; $i<$faturaCliente->qtd; $i++) {
