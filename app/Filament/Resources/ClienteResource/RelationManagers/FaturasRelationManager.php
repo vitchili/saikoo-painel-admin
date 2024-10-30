@@ -246,7 +246,8 @@ class FaturasRelationManager extends RelationManager
                         '<a href="https://empresa.sandbox.splitpag.com.br/charge/show/%s" target="_blank">Abrir Link</a>',
                         $state
                     ))
-                    ->html(),
+                    ->html()
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 //
