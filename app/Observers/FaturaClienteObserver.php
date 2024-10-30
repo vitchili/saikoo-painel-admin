@@ -34,6 +34,10 @@ class FaturaClienteObserver
             $novoModel = $faturaCliente->replicate();
             $novoModel->vencimento = Carbon::parse($vencimentoOriginal)->addMonthsNoOverflow((int) 12 / $faturaCliente->qtd)->toDateString(); 
             $novoModel->incremento_parcela = $ultimaParcela->incremento_parcela + 1;
+
+            if ($novoModel->incremento_parcela > 1 && $faturaCliente->referencia != 'Sistemas') {
+                $novoModel->referencia = $faturaCliente->referencia;
+            }
             
             if ($novoModel->gerar_serial) {
                 $serial = new SerialCliente();
@@ -73,15 +77,13 @@ class FaturaClienteObserver
 
             foreach ($servicosCliente as $servicoCliente) {
                 $tiposServicosCliente = TipoServicoCliente::find($servicoCliente->id_servico); //Tipo de Servico (id_servico do Servico do cliente)
-                dd($tiposServicosCliente);
 
                 if ($tiposServicosCliente->nome === 'Sistemas') {
+                    $faturaCliente->referencia = 'Sistemas';
                     break;
                 }
             }
 
-            $faturaCliente->referencia = $tiposServicosCliente->nome ?? 'Sistemas';
-            
             if (! empty($faturaCliente->servicos)) {
                 for($i = 0; $i<$faturaCliente->qtd; $i++) {
                     foreach ($faturaCliente->servicos as $servico) {
