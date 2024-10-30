@@ -3,6 +3,7 @@
 namespace App\Models\Cliente\Serial;
 
 use App\Models\Cliente\Cliente;
+use App\Models\Cliente\Fatura\FaturaCliente;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -31,6 +32,11 @@ class SerialCliente extends Model
     public function cliente()
     {
         return $this->belongsTo(Cliente::class, 'id_cliente');
+    }
+
+    public function fatura()
+    {
+        return $this->belongsTo(FaturaCliente::class, 'serial', 'serial');
     }
 
 }

@@ -40,7 +40,6 @@ class AtualizarStatusFaturaPagamentoVencimento extends Command
         foreach ($clientes as $cliente) {
             foreach ($cliente->faturas as $fatura) {
                 $upatedFatura = FaturaCliente::findOrFail($fatura->id);
-
                 if (Carbon::parse($fatura->vencimento)->lt(now()) && empty($fatura->valor_pago)) {
                     $upatedFatura->status = StatusFaturaCliente::INADIMPLENTE->value;
                     $this->calcularJurosMulta($fatura);
@@ -77,8 +76,10 @@ class AtualizarStatusFaturaPagamentoVencimento extends Command
         $valorMulta = $valorOriginal * ($multa / 100);
 
         $valorAtualizado = $valorOriginal + $valorJuros + $valorMulta;
-                                        
-        $fatura->valor_atualizado = (float) number_format($valorAtualizado, 2);
-        $fatura->save();
+
+        if ($valorAtualizado != $fatura->valor_atualizado) {
+            $fatura->valor_atualizado = (float) number_format($valorAtualizado, 2);
+            $fatura->save();
+        }
     }
 }

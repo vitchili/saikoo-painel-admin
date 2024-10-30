@@ -10,6 +10,7 @@ use Filament\Tables;
 use Filament\Tables\Columns\TextColumn\TextColumnSize;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\DB;
 
 class CentralClienteSerialResource extends Resource
 {
@@ -40,11 +41,13 @@ class CentralClienteSerialResource extends Resource
 
     public static function table(Table $table): Table
     {
-        $query = SerialCliente::where('id_cliente', auth()->user()->cliente_id)
-            ->where('vencimento_serial', '>=', now())
+        $query = SerialCliente::with('fatura')->where('id_cliente', auth()->user()->cliente_id)
+            ->whereHas('fatura', function($query) {
+                $query->whereNotNull('valor_pago');
+            })
             ->orderBy('vencimento_serial')
             ->limit(1);
-
+            
         $registro = $query->get()->first();
 
         return $table
