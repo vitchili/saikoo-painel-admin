@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Models\Cliente\Cliente;
 use App\Models\Cliente\Fatura\FaturaCliente;
 use App\Models\Cliente\Serial\SerialCliente;
+use App\Models\Cliente\Servico\ServicoCliente;
 use App\Models\ConfiguracaoReajusteMassa;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
@@ -50,13 +51,14 @@ class RenovarFaturasAposUmAno extends Command
     }
 
     public function renovar(FaturaCliente $faturaOriginal)
-    {   
+    {           
         $servicosId = [];
 
         foreach ($faturaOriginal->servicos as $servico) {
             $servicosId[] = $servico['id'];
         }
 
+        dd($servicosId);
 
         $fatura = new FaturaCliente([
             "vencimento" => Carbon::parse($faturaOriginal['vencimento'])->addMonthsNoOverflow((int) 12 / $faturaOriginal['qtd'])->toDateString(),

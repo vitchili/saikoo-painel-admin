@@ -130,14 +130,6 @@ class CobrancaBitpag extends BaseClientBitpag
 
         $periodoServico = ServicoCliente::with('servicoCliente')->find($servicos[0])->first();
 
-        $periodicidade = match ($periodoServico->periodicidade) {
-            PeriodicidadeServico::MENSAL->value => 'monthly',
-            PeriodicidadeServico::TRIMESTRAL->value => 'quarterly',
-            PeriodicidadeServico::SEMESTRAL->value => 'semester',
-            PeriodicidadeServico::ANUAL->value => 'yearly',
-            default => throw new \Exception('Nenhuma periodicidade cadastrada para o serviço'),
-        };
-
         $tipoPagamento = match ($cobranca->formapagamento) {
             'Boleto' => 4,
             'Cartão de crédito' => 2,
@@ -154,7 +146,6 @@ class CobrancaBitpag extends BaseClientBitpag
             'due_date_single_charge' => Carbon::parse($cobranca->vencimento)->format('Y-m-d'),
             
             'description_installment_amount' => $cobranca->info_add,
-            'recurrence_interval_installment' => $periodicidade,
             'due_date_installment_billing' => $cobranca->vencimento,
             'expiration_day_installments' => (int) Carbon::parse($cobranca->vencimento)->format('d'),
             'total_installment' => PeriodicidadeServico::from($periodoServico->periodicidade)->qtdParcelas(),
