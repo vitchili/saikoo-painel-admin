@@ -36,7 +36,7 @@ class CadastroCartaoCredito extends Page
     {
         $cliente = auth()->user()->cliente;
         $primeirasFaturas = FaturaCliente::where('id_cliente', $cliente->id)
-            ->where('formapagamento', 'Cartão de Crédito')
+            ->where('formapagamento', 'Cartão de crédito')
             ->where('incremento_parcela', '1')
             ->whereNotNull('cobranca_bitpag_id')
             ->get();
@@ -91,7 +91,7 @@ class CadastroCartaoCredito extends Page
     {
         $cliente = auth()->user()->cliente;
         $primeirasFaturas = FaturaCliente::where('id_cliente', $cliente->id)
-            ->where('formapagamento', 'Cartão de Crédito')
+            ->where('formapagamento', 'Cartão de crédito')
             ->where('incremento_parcela', '1')
             ->whereNull('cobranca_bitpag_id')
             ->get();

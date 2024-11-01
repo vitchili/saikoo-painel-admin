@@ -319,6 +319,7 @@ class ClienteResource extends Resource
                                                 ->requiredIf('tornar_cliente', 'S'),
                                             Select::make('uf')
                                                 ->label('UF')
+                                                ->requiredIf('tornar_cliente', 'S')
                                                 ->options(collect(Estado::cases())->mapWithKeys(fn($situacao) => [$situacao->value => $situacao->label()]))
                                                 ->searchable(),
                                         ])->columns(3),

@@ -103,7 +103,7 @@ class CentralClienteFaturasResource extends Resource
             ->actions([
                 Action::make('gerarBoleto')
                     ->label('Gerar Boleto')
-                    ->hidden(fn(FaturaCliente $record) => $record->formapagamento !== 'Boleto' || ($record->formapagamento === 'Boleto' && ! empty($record->cobranca_bitpag_id)))
+                    ->hidden(fn(FaturaCliente $record) => $record->status == StatusFaturaCliente::CANCELADO->value || $record->formapagamento !== 'Boleto' || ($record->formapagamento === 'Boleto' && ! empty($record->cobranca_bitpag_id)))
                     ->requiresConfirmation()
                     ->action(function (FaturaCliente $faturaCliente) {
                         $bitPagCobranca = new CobrancaBitpag();
@@ -127,7 +127,7 @@ class CentralClienteFaturasResource extends Resource
                 Action::make('boletoGerado')
                     ->icon('heroicon-o-eye')
                     ->label('Ver Boleto')
-                    ->hidden(fn(FaturaCliente $record) => $record->formapagamento !== 'Boleto' || ($record->formapagamento == 'Boleto' && empty($record->cobranca_bitpag_id)))
+                    ->hidden(fn(FaturaCliente $record) => $record->status == StatusFaturaCliente::CANCELADO->value || $record->formapagamento !== 'Boleto' || ($record->formapagamento == 'Boleto' && empty($record->cobranca_bitpag_id)))
                     ->url(fn (FaturaCliente $record) => $record->url_boleto)
                     ->openUrlInNewTab(),
                 ActionGroup::make([

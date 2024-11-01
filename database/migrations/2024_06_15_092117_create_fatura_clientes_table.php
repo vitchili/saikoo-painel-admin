@@ -52,6 +52,7 @@ return new class extends Migration
             $table->char('sms_creditado', 1)->default('N');
             $table->char('sms_creditar_automaticamente', 1)->default('S');
             $table->char('pedido_visualizado', 1)->default('N');
+            $table->softDeletes();
         });
     }
 

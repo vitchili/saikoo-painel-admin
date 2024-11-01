@@ -8,14 +8,13 @@ use App\Models\Cliente\Servico\TipoServicoCliente;
 use App\Models\Igpm;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Parallax\FilamentComments\Models\Traits\HasFilamentComments;
 
 class FaturaCliente extends Model
 {
-    use HasFactory;
+    use HasFactory, HasFilamentComments;
     
-    use HasFilamentComments;
-
     const CREATED_AT = 'data';
 
     const UPDATED_AT = 'data_alt_status';

@@ -40,16 +40,25 @@ class AtualizarStatusFaturaPagamentoVencimento extends Command
         foreach ($clientes as $cliente) {
             foreach ($cliente->faturas as $fatura) {
                 $upatedFatura = FaturaCliente::findOrFail($fatura->id);
-                if (Carbon::parse($fatura->vencimento)->lt(now()) && empty($fatura->valor_pago)) {
+                if (
+                    Carbon::parse($fatura->vencimento)
+                        ->lt(Carbon::parse(now()->format('Y-m-d'))) && 
+                        empty($fatura->valor_pago)
+                    ) {
                     $upatedFatura->status = StatusFaturaCliente::INADIMPLENTE->value;
                     $this->calcularJurosMulta($fatura);
                 }
 
-                if (! empty($fatura->cobranca_bitpag_id) && Carbon::parse($fatura->vencimento)->gt(now()) && empty($fatura->valor_pago)) {
+                if (
+                    ! empty($fatura->cobranca_bitpag_id) && 
+                    Carbon::parse($fatura->vencimento)
+                        ->gt(Carbon::parse(now()->format('Y-m-d'))) && 
+                        empty($fatura->valor_pago)
+                    ) {
                     $upatedFatura->status = StatusFaturaCliente::AGUARDANDO_PAGAMENTO->value;
                 }
                 
-                if (empty($fatura->cobranca_bitpag_id) && Carbon::parse($fatura->vencimento)->gt(now()) && empty($fatura->valor_pago)) {
+                if (empty($fatura->cobranca_bitpag_id) && Carbon::parse($fatura->vencimento)->gt(Carbon::parse(now()->format('Y-m-d'))) && empty($fatura->valor_pago)) {
                     $upatedFatura->status = StatusFaturaCliente::EM_ABERTO->value;
                 }
                 
@@ -68,6 +77,11 @@ class AtualizarStatusFaturaPagamentoVencimento extends Command
 
     public function calcularJurosMulta(FaturaCliente $fatura): void
     {
+        $dataVencimento = \Carbon\Carbon::createFromFormat('Y-m-d', $fatura->vencimento);
+        $hoje = \Carbon\Carbon::now();
+
+        $diasAtraso = $dataVencimento->diffInDays($hoje) > 0 ? $dataVencimento->diffInDays($hoje) : 0;
+
         $juros = (float) $fatura->juros_atraso ?? 0;
         $multa = (float) $fatura->multa_atraso ?? 0;
         $valorOriginal = $fatura->valor ?? 0;
@@ -75,7 +89,7 @@ class AtualizarStatusFaturaPagamentoVencimento extends Command
         $valorJuros = $valorOriginal * ($juros / 100);
         $valorMulta = $valorOriginal * ($multa / 100);
 
-        $valorAtualizado = $valorOriginal + $valorJuros + $valorMulta;
+        $valorAtualizado = $valorOriginal + $valorJuros * ($diasAtraso / 30) + $valorMulta;
 
         if ($valorAtualizado != $fatura->valor_atualizado) {
             $fatura->valor_atualizado = (float) number_format($valorAtualizado, 2);

@@ -57,7 +57,7 @@ class FaturasRelationManager extends RelationManager
                             //     return $query->select('serv_cliente.id', 'serv_cliente.periodicidade');
                             // })
                             ->disabled(! empty($this->mountedTableActionRecord) && $this->mountedTableActionRecord > 0)
-                            ->required( empty($this->mountedTableActionRecord))
+                            ->required(empty($this->mountedTableActionRecord))
                             ->label('Periodicidade')
                             ->options(collect(PeriodicidadeServico::cases())->mapWithKeys(fn($periodicidade) => [$periodicidade->value => $periodicidade->label()]))
                             ->preload()
@@ -70,7 +70,7 @@ class FaturasRelationManager extends RelationManager
                             //                     ->select('serv_cliente.id', 'ls.nome');
                             // })
                             ->disabled(! empty($this->mountedTableActionRecord) && $this->mountedTableActionRecord > 0)
-                            ->required( empty($this->mountedTableActionRecord))
+                            ->required(empty($this->mountedTableActionRecord))
                             ->multiple()
                             ->label('Serviços Referência')
                             ->options(fn($get) => $this->getServicosOptions($get('periodicidade'), $get))
@@ -212,6 +212,10 @@ class FaturasRelationManager extends RelationManager
                     ->size(TextColumnSize::ExtraSmall)
                     ->prefix('R$')
                     ->label('Valor Pago'),
+                TextColumn::make('info_add')
+                    ->size(TextColumnSize::ExtraSmall)
+                    ->label('Info Add.')
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('status')
                     ->size(TextColumnSize::ExtraSmall)
                     ->sortable()
@@ -257,39 +261,42 @@ class FaturasRelationManager extends RelationManager
             ])
             ->actions([
                 ActionGroup::make([
-                    Tables\Actions\EditAction::make()->slideOver(),
+                    Tables\Actions\EditAction::make()
+                        ->slideOver()
+                        ->hidden(fn(FaturaCliente $record) => $record->status == StatusFaturaCliente::CANCELADO->value),
                     CommentsAction::make(),
                     Action::make('gerarBoleto')
-                    ->label('Gerar Boleto')
-                    ->hidden(fn(FaturaCliente $record) => $record->formapagamento !== 'Boleto' || ($record->formapagamento === 'Boleto' && ! empty($record->cobranca_bitpag_id)))
-                    ->requiresConfirmation()
-                    ->action(function (FaturaCliente $faturaCliente) {
-                        $bitPagCobranca = new CobrancaBitpag();
-                        $bitPagCobranca->cadastrarCobranca($faturaCliente);
+                        ->label('Gerar Boleto')
+                        ->hidden(fn(FaturaCliente $record) => $record->status == StatusFaturaCliente::CANCELADO->value || $record->formapagamento !== 'Boleto' || ($record->formapagamento === 'Boleto' && ! empty($record->cobranca_bitpag_id)))
+                        ->requiresConfirmation()
+                        ->action(function (FaturaCliente $faturaCliente) {
+                            $bitPagCobranca = new CobrancaBitpag();
+                            $bitPagCobranca->cadastrarCobranca($faturaCliente);
 
-                        if (Carbon::parse($faturaCliente->vencimento)->lt(now())) {
-                            $serial = new SerialCliente();
-                            $serial->id_cliente = $faturaCliente->id_cliente;
-                            $serial->vencimento_serial = now()->addDays(2);
-                            $serial->save();
+                            if (Carbon::parse($faturaCliente->vencimento)->lt(now())) {
+                                $serial = new SerialCliente();
+                                $serial->id_cliente = $faturaCliente->id_cliente;
+                                $serial->vencimento_serial = now()->addDays(2);
+                                $serial->save();
 
-                            $faturaCliente->gerar_serial = false;
-                            $faturaCliente->update([
-                                'serial' => $serial->serial
-                            ]);
-                        }
+                                $faturaCliente->gerar_serial = false;
+                                $faturaCliente->update([
+                                    'serial' => $serial->serial
+                                ]);
+                            }
 
-                        Notification::make()->success()->title('Boleto gerado com suesso.')->icon('heroicon-o-currency-dollar')->send();
-                    })
-                    ->icon('heroicon-o-currency-dollar'),
-                Action::make('boletoGerado')
-                    ->icon('heroicon-o-eye')
-                    ->label('Ver Boleto')
-                    ->hidden(fn(FaturaCliente $record) => $record->formapagamento !== 'Boleto' || ($record->formapagamento == 'Boleto' && empty($record->cobranca_bitpag_id)))
-                    ->url(fn (FaturaCliente $record) => $record->url_boleto)
-                    ->openUrlInNewTab(),
+                            Notification::make()->success()->title('Boleto gerado com suesso.')->icon('heroicon-o-currency-dollar')->send();
+                        })
+                        ->icon('heroicon-o-currency-dollar'),
+                    Action::make('boletoGerado')
+                        ->icon('heroicon-o-eye')
+                        ->label('Ver Boleto')
+                        ->hidden(fn(FaturaCliente $record) => $record->status == StatusFaturaCliente::CANCELADO->value || $record->formapagamento !== 'Boleto' || ($record->formapagamento == 'Boleto' && empty($record->cobranca_bitpag_id)))
+                        ->url(fn(FaturaCliente $record) => $record->url_boleto)
+                        ->openUrlInNewTab(),
                     Action::make('gerenciarJurosMulta')
                         ->label('Gerenciar Juros e Multa')
+                        ->hidden(fn(FaturaCliente $record) => $record->status == StatusFaturaCliente::CANCELADO->value || $record->formapagamento == 'Cartão de crédito')
                         ->requiresConfirmation()
                         ->form([
                             TextInput::make('valor_original')
@@ -319,8 +326,8 @@ class FaturasRelationManager extends RelationManager
                                         $valorJuros = $valorOriginal * ($juros / 100);
                                         $valorMulta = $valorOriginal * ($multa / 100);
 
-                                        $valorAtualizado = $valorOriginal + $valorJuros + $valorMulta;
-                                        
+                                        $valorAtualizado = $valorOriginal + $valorJuros * ($diasAtraso / 30) + $valorMulta;
+
                                         if ($diasAtraso > 0) {
                                             $set('valor_atualizado', (float) number_format($valorAtualizado, 2));
                                         }
@@ -343,8 +350,8 @@ class FaturasRelationManager extends RelationManager
                                         $valorJuros = $valorOriginal * ($juros / 100);
                                         $valorMulta = $valorOriginal * ($multa / 100);
 
-                                        $valorAtualizado = $valorOriginal + $valorJuros + $valorMulta;
-                            
+                                        $valorAtualizado = $valorOriginal + $valorJuros * ($diasAtraso / 30) + $valorMulta;
+
                                         if ($diasAtraso > 0) {
                                             $set('valor_atualizado', (float) number_format($valorAtualizado, 2));
                                         }
@@ -356,7 +363,6 @@ class FaturasRelationManager extends RelationManager
                                         $hoje = \Carbon\Carbon::now();
 
                                         return $dataInformada->diffInDays($hoje) > 0 ? $dataInformada->diffInDays($hoje) : 0;
-
                                     })
                                     ->label('Dias em atraso'),
                             ])->columns(3),
@@ -378,7 +384,7 @@ class FaturasRelationManager extends RelationManager
                                     $valorJuros = $valorOriginal * ($juros / 100);
                                     $valorMulta = $valorOriginal * ($multa / 100);
 
-                                    $valorAtualizado = $valorOriginal + $valorJuros + $valorMulta;
+                                    $valorAtualizado = $valorOriginal + $valorJuros * ($diasAtraso / 30) + $valorMulta;
 
                                     if ($diasAtraso > 0) {
                                         $set('valor_atualizado', (float) number_format($valorAtualizado, 2));
@@ -394,7 +400,7 @@ class FaturasRelationManager extends RelationManager
                         ->icon('heroicon-o-calculator'),
                     Action::make('quitarFatura')
                         ->requiresConfirmation()
-                        ->hidden(fn(FaturaCliente $record) => $record->formapagamento !== 'Dinheiro')
+                        ->hidden(fn(FaturaCliente $record) => $record->formapagamento !== 'Dinheiro' || $record->status == StatusFaturaCliente::CANCELADO->value)
                         ->action(function (FaturaCliente $record) {
                             $record->valor_pago = $record->valor_atualizado ?? $record->valor;
                             $record->status = StatusFaturaCliente::APROVADO;
@@ -402,6 +408,29 @@ class FaturasRelationManager extends RelationManager
                             Notification::make()->success()->title('Fatura quitada com sucesso!')->icon('heroicon-o-currency-dollar')->send();
                         })
                         ->icon('heroicon-o-currency-dollar'),
+                    Action::make('cancelarFatura')
+                        ->requiresConfirmation()
+                        ->hidden(fn(FaturaCliente $record) => $record->status == StatusFaturaCliente::CANCELADO->value || $record->formapagamento == 'Cartão de crédito')
+                        ->form([
+                            TextInput::make('info_add')
+                                ->label('Informação de cancelamento')
+                                ->required()
+                        ])
+                        ->action(function (array $data, FaturaCliente $record): void {
+                            $record->info_add = $data['info_add'];
+                            $record->status = StatusFaturaCliente::CANCELADO->value;
+                            $record->save();
+
+                            Notification::make()->success()->title('Fatura cancelada com sucesso.')->icon('heroicon-o-currency-dollar')->send();
+                            Notification::make()->warning()->title('Necessário cancelar boleto no BitPag!')->icon('heroicon-o-currency-dollar')->duration(100000)->send();
+                        })
+                        ->icon('heroicon-o-x-circle'),
+                    Action::make('delete')
+                        ->label('Excluir Permanentemente')
+                        ->action(fn($record) => $record->delete())
+                        ->requiresConfirmation()
+                        ->color('danger')
+                        ->icon('heroicon-o-trash'),
                 ]),
             ])
             ->bulkActions([

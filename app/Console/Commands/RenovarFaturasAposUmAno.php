@@ -3,13 +3,16 @@
 namespace App\Console\Commands;
 
 use App\Models\Cliente\Cliente;
+use App\Models\Cliente\Fatura\Enum\StatusFaturaCliente;
 use App\Models\Cliente\Fatura\FaturaCliente;
 use App\Models\Cliente\Serial\SerialCliente;
 use App\Models\Cliente\Servico\Enum\PeriodicidadeServico;
 use App\Models\Cliente\Servico\ServicoCliente;
 use App\Models\ConfiguracaoReajusteMassa;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
+use Filament\Notifications\Notification;
 
 class RenovarFaturasAposUmAno extends Command
 {
@@ -44,7 +47,11 @@ class RenovarFaturasAposUmAno extends Command
             }
 
             foreach ($cliente->faturas as $fatura) {
-                if (Carbon::parse(now())->format('Y-m-d') == Carbon::parse($fatura->vencimento)->format('Y-m-d')) {
+                if (
+                    Carbon::parse(now())->format('Y-m-d') == Carbon::parse($fatura->vencimento)->format('Y-m-d') &&
+                    $fatura->periodicidade != PeriodicidadeServico::NENHUM->value &&
+                    $fatura->incremento_parcela == $fatura->qtd
+                ) {
                     $this->renovar($fatura);
                 }
             }
@@ -52,15 +59,11 @@ class RenovarFaturasAposUmAno extends Command
     }
 
     public function renovar(FaturaCliente $faturaOriginal)
-    {           
+    {
         $servicosId = [];
 
         foreach ($faturaOriginal->servicos as $servico) {
             $servicosId[] = $servico['id'];
-
-            if ($servico['periodicidade'] == PeriodicidadeServico::NENHUM->value) {
-                return false;
-            }
         }
 
         $fatura = new FaturaCliente([
@@ -87,5 +90,27 @@ class RenovarFaturasAposUmAno extends Command
         }
 
         $fatura->save();
+
+        $users = User::whereNull('cliente_id')->get();
+        foreach ($users as $user) {
+            Notification::make()
+                ->title("
+                        <div style='
+                            display: flex;
+                            align-items: center;
+                            background-color: #ffe5e5;
+                            color: #b22222;
+                            border: 1px solid #b22222;
+                            padding: 15px;
+                            border-radius: 8px;
+                        '>
+                            <div>
+                                <h2 style='margin: 0; font-weight: 700;'>Plano renovado</h2>
+                                <a href='". env('APP_URL') ." /admin/clientes/{$fatura->cliente->id}'><p style='margin: 5px 0 0 0;'>O cliente {$fatura->cliente->nome} teve seu plano renovado automaticamente.</p></a>
+                            </div>
+                        </div>
+                        ")
+                ->sendToDatabase($user);
+        }
     }
 }
