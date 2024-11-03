@@ -49,8 +49,14 @@ class RenovarFaturasAposUmAno extends Command
             foreach ($cliente->faturas as $fatura) {
                 if (
                     Carbon::parse(now())->format('Y-m-d') == Carbon::parse($fatura->vencimento)->format('Y-m-d') &&
-                    $fatura->periodicidade != PeriodicidadeServico::NENHUM->value &&
-                    $fatura->incremento_parcela == $fatura->qtd
+                    $fatura->servicos[0]->periodicidade != PeriodicidadeServico::NENHUM->value &&
+                    $fatura->incremento_parcela == $fatura->qtd &&
+                    empty(
+                        FaturaCliente::where('id_cliente', $fatura->id_cliente)
+                        ->where('referencia', $fatura->referencia)
+                        ->where('vencimento', Carbon::parse($fatura->vencimento)->addYear()->format('Y-m-d'))
+                        ->first()
+                    )
                 ) {
                     $this->renovar($fatura);
                 }
@@ -79,9 +85,10 @@ class RenovarFaturasAposUmAno extends Command
             "url_checkout" => $faturaOriginal['url_checkout'],
             "gerar_serial" => false,
             "id_cliente" => $faturaOriginal['id_cliente'],
+            //"incremento_parcela" => $faturaOriginal['incremento_parcela'],
         ]);
 
-        if ($fatura->gerar_serial) {
+        if ($faturaOriginal->gerar_serial) {
             $serial = new SerialCliente();
             $serial->id_cliente = $fatura->id_cliente;
             $serial->vencimento_serial = $fatura->vencimento;
@@ -98,9 +105,9 @@ class RenovarFaturasAposUmAno extends Command
                         <div style='
                             display: flex;
                             align-items: center;
-                            background-color: #ffe5e5;
-                            color: #b22222;
-                            border: 1px solid #b22222;
+                            background-color: #e0f7e0;
+                            color: #006400;
+                            border: 1px solid #004d00;
                             padding: 15px;
                             border-radius: 8px;
                         '>

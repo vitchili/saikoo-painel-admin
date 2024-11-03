@@ -54,12 +54,17 @@ class CentralClienteFaturasResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('vencimento')
                     ->size(TextColumnSize::ExtraSmall)
-                    ->label('Vencimento')
+                    ->label('Venc.')
+                    ->dateTime('d/m/Y')
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('vencimento_boleto')
+                    ->size(TextColumnSize::ExtraSmall)
+                    ->label('Venc. Boleto')
                     ->dateTime('d/m/Y')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('referencia')
                     ->size(TextColumnSize::ExtraSmall)
-                    ->limit(10)
+                    ->limit(20)
                     ->label('Referência'),
                 Tables\Columns\TextColumn::make('valor')
                     ->size(TextColumnSize::ExtraSmall)
@@ -102,24 +107,12 @@ class CentralClienteFaturasResource extends Resource
             ->headerActions([])
             ->actions([
                 Action::make('gerarBoleto')
-                    ->label('Gerar Boleto')
-                    ->hidden(fn(FaturaCliente $record) => $record->status == StatusFaturaCliente::CANCELADO->value || $record->formapagamento !== 'Boleto' || ($record->formapagamento === 'Boleto' && ! empty($record->cobranca_bitpag_id)))
+                    ->label('Gerar Boleto Atualizado')
+                    ->hidden(fn(FaturaCliente $record) => Carbon::parse($record->vencimento)->lt(now()) || $record->status == StatusFaturaCliente::CANCELADO->value || $record->formapagamento !== 'Boleto' || ($record->formapagamento === 'Boleto' && ! empty($record->cobranca_bitpag_id)))
                     ->requiresConfirmation()
                     ->action(function (FaturaCliente $faturaCliente) {
                         $bitPagCobranca = new CobrancaBitpag();
                         $bitPagCobranca->cadastrarCobranca($faturaCliente);
-
-                        if (Carbon::parse($faturaCliente->vencimento)->lt(now())) {
-                            $serial = new SerialCliente();
-                            $serial->id_cliente = $faturaCliente->id_cliente;
-                            $serial->vencimento_serial = now()->addDays(2);
-                            $serial->save();
-
-                            $faturaCliente->gerar_serial = false;
-                            $faturaCliente->update([
-                                'serial' => $serial->serial
-                            ]);
-                        }
 
                         Notification::make()->success()->title('Boleto gerado com suesso.')->icon('heroicon-o-currency-dollar')->send();
                     })
@@ -128,7 +121,7 @@ class CentralClienteFaturasResource extends Resource
                     ->icon('heroicon-o-eye')
                     ->label('Ver Boleto')
                     ->hidden(fn(FaturaCliente $record) => $record->status == StatusFaturaCliente::CANCELADO->value || $record->formapagamento !== 'Boleto' || ($record->formapagamento == 'Boleto' && empty($record->cobranca_bitpag_id)))
-                    ->url(fn (FaturaCliente $record) => $record->url_boleto)
+                    ->url(fn(FaturaCliente $record) => $record->url_boleto)
                     ->openUrlInNewTab(),
                 ActionGroup::make([
                     CommentsAction::make()

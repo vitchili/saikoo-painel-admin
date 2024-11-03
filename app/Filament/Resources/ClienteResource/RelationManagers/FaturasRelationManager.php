@@ -187,12 +187,12 @@ class FaturasRelationManager extends RelationManager
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('vencimento')
                     ->size(TextColumnSize::ExtraSmall)
-                    ->label('Vencimento')
+                    ->label('Venc.')
                     ->dateTime('d/m/Y')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('vencimento_boleto')
                     ->size(TextColumnSize::ExtraSmall)
-                    ->label('Vencimento Boleto')
+                    ->label('Venc. Boleto')
                     ->dateTime('d/m/Y')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
@@ -266,10 +266,21 @@ class FaturasRelationManager extends RelationManager
                         ->hidden(fn(FaturaCliente $record) => $record->status == StatusFaturaCliente::CANCELADO->value),
                     CommentsAction::make(),
                     Action::make('gerarBoleto')
-                        ->label('Gerar Boleto')
-                        ->hidden(fn(FaturaCliente $record) => $record->status == StatusFaturaCliente::CANCELADO->value || $record->formapagamento !== 'Boleto' || ($record->formapagamento === 'Boleto' && ! empty($record->cobranca_bitpag_id)))
+                        ->label('Gerar Boleto Atualizado')
+                        ->form([
+                            DatePicker::make('vencimento_boleto')
+                            ->label('Venc. Boleto')
+                            ->after('today')
+                            ->hidden(fn(FaturaCliente $record) => Carbon::parse($record->vencimento)->diffInDays(now()) <= 0)
+                        ])
+                        ->hidden(fn(FaturaCliente $record) => 
+                            $record->status == StatusFaturaCliente::APROVADO->value && 
+                            ! empty($record->valor_pago) && 
+                            $record->formapagamento !== 'Boleto'
+                        )
+                            
                         ->requiresConfirmation()
-                        ->action(function (FaturaCliente $faturaCliente) {
+                        ->action(function (array $data, FaturaCliente $faturaCliente) {
                             $bitPagCobranca = new CobrancaBitpag();
                             $bitPagCobranca->cadastrarCobranca($faturaCliente);
 
@@ -279,6 +290,7 @@ class FaturasRelationManager extends RelationManager
                                 $serial->vencimento_serial = now()->addDays(2);
                                 $serial->save();
 
+                                $faturaCliente->vencimento_boleto = $data['vencimento_boleto'];
                                 $faturaCliente->gerar_serial = false;
                                 $faturaCliente->update([
                                     'serial' => $serial->serial
@@ -290,7 +302,7 @@ class FaturasRelationManager extends RelationManager
                         ->icon('heroicon-o-currency-dollar'),
                     Action::make('boletoGerado')
                         ->icon('heroicon-o-eye')
-                        ->label('Ver Boleto')
+                        ->label('Ver Boleto Atual')
                         ->hidden(fn(FaturaCliente $record) => $record->status == StatusFaturaCliente::CANCELADO->value || $record->formapagamento !== 'Boleto' || ($record->formapagamento == 'Boleto' && empty($record->cobranca_bitpag_id)))
                         ->url(fn(FaturaCliente $record) => $record->url_boleto)
                         ->openUrlInNewTab(),

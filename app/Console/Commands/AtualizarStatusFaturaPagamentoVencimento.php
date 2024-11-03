@@ -29,48 +29,49 @@ class AtualizarStatusFaturaPagamentoVencimento extends Command
      */
     public function handle()
     {
-        $clientes = Cliente::join(
-            "faturas_clientes AS fatura",
-            "fatura.id_cliente",
-            "clientes.id"
-          )
-            ->whereIn("fatura.status", ["Aguardando Pagto", "Em aberto", "Inadimplente"])
-            ->get();
+        $clientes = Cliente::with(['faturas' => function ($query) {
+            $query->whereIn('status', ['Aguardando Pagto', 'Em aberto', 'Inadimplente']);
+        }])->get();
 
         foreach ($clientes as $cliente) {
             foreach ($cliente->faturas as $fatura) {
-                $upatedFatura = FaturaCliente::findOrFail($fatura->id);
+                $updatedFatura = FaturaCliente::findOrFail($fatura->id);
+
                 if (
-                    Carbon::parse($fatura->vencimento)
-                        ->lt(Carbon::parse(now()->format('Y-m-d'))) && 
-                        empty($fatura->valor_pago)
-                    ) {
-                    $upatedFatura->status = StatusFaturaCliente::INADIMPLENTE->value;
+                    (! empty($fatura->vencimento_boleto) && Carbon::parse($fatura->vencimento_boleto)
+                        ->lt(Carbon::parse(now()->format('Y-m-d'))) &&
+                        empty($fatura->valor_pago)) ||
+
+                    (empty($fatura->vencimento_boleto) && Carbon::parse($fatura->vencimento)
+                        ->lt(Carbon::parse(now()->format('Y-m-d'))) &&
+                        empty($fatura->valor_pago))
+                ) {
+                    $updatedFatura->status = StatusFaturaCliente::INADIMPLENTE->value;
                     $this->calcularJurosMulta($fatura);
                 }
 
                 if (
-                    ! empty($fatura->cobranca_bitpag_id) && 
+                    ! empty($fatura->cobranca_bitpag_id) &&
                     Carbon::parse($fatura->vencimento)
-                        ->gt(Carbon::parse(now()->format('Y-m-d'))) && 
-                        empty($fatura->valor_pago)
-                    ) {
-                    $upatedFatura->status = StatusFaturaCliente::AGUARDANDO_PAGAMENTO->value;
-                }
-                
-                if (empty($fatura->cobranca_bitpag_id) && Carbon::parse($fatura->vencimento)->gt(Carbon::parse(now()->format('Y-m-d'))) && empty($fatura->valor_pago)) {
-                    $upatedFatura->status = StatusFaturaCliente::EM_ABERTO->value;
-                }
-                
-                if (! empty($fatura->deleted_at)) {
-                    $upatedFatura->status = StatusFaturaCliente::CANCELADO->value;
-                }
-                
-                if (! empty($fatura->valor_pago)) {
-                    $upatedFatura->status = StatusFaturaCliente::APROVADO->value;
+                    ->gt(Carbon::parse(now()->format('Y-m-d'))) &&
+                    empty($fatura->valor_pago)
+                ) {
+                    $updatedFatura->status = StatusFaturaCliente::AGUARDANDO_PAGAMENTO->value;
                 }
 
-                $upatedFatura->save();
+                if (empty($fatura->cobranca_bitpag_id) && Carbon::parse($fatura->vencimento)->gt(Carbon::parse(now()->format('Y-m-d'))) && empty($fatura->valor_pago)) {
+                    $updatedFatura->status = StatusFaturaCliente::EM_ABERTO->value;
+                }
+
+                if (! empty($fatura->deleted_at)) {
+                    $updatedFatura->status = StatusFaturaCliente::CANCELADO->value;
+                }
+
+                if (! empty($fatura->valor_pago)) {
+                    $updatedFatura->status = StatusFaturaCliente::APROVADO->value;
+                }
+
+                $updatedFatura->save();
             }
         }
     }
