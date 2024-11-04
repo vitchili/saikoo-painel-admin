@@ -61,7 +61,7 @@ class CentralClienteTicketsResource extends Resource
                         Select::make('cliente_id')
                             ->required()
                             ->label('Cliente')
-                            ->options(Cliente::find(Auth::user()->cliente_id)->pluck('nome', 'id'))
+                            ->options([auth()->user()->cliente_id => auth()->user()->name])
                             ->searchable(),
                         Radio::make('tipo_id')
                             ->label('Tipo')

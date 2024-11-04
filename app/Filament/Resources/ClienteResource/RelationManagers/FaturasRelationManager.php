@@ -46,7 +46,7 @@ class FaturasRelationManager extends RelationManager
                         DatePicker::make('vencimento')
                             ->required()
                             ->afterOrEqual('today')
-                            ->label('Vencimento'),
+                            ->label('Venc.'),
                         TextInput::make('valor')
                             ->required()
                             ->label('Valor')
