@@ -4,6 +4,8 @@ namespace App\Console\Commands;
 
 use App\Gateway\Bitpag\CobrancaBitpag;
 use App\Models\Cliente\Cliente;
+use App\Models\Cliente\Fatura\Enum\StatusFaturaCliente;
+use App\Models\Cliente\Fatura\Enum\StatusPagamentoBitPag;
 use App\Models\Cliente\Fatura\FaturaCliente;
 use Illuminate\Console\Command;
 
@@ -36,12 +38,64 @@ class BatimentoCobrancasBitPag extends Command
             ->whereIn("fatura.status", ["Aguardando Pagto", "Em aberto", "Inadimplente"])
             ->get();
 
-        //$bitpag = new CobrancaBitpag();
+        $bitpag = new CobrancaBitpag();
 
+        
         foreach ($clientes as $cliente) {
-            dd($cliente);
-            //$bitpag->consultarCobrancas();
-        }
+            $response = $bitpag->consultarCobrancas(1, ['search' => $cliente->nome]);
+            $qtdPaginas = $response['last_page'];
 
+            for($i = 1; $i <= $qtdPaginas; $i++) {
+                $response = $bitpag->consultarCobrancas($i, ['search' => $cliente->nome]);
+
+                foreach($response['data'] as $cobranca){
+                    $faturaEquivalente = FaturaCliente::where('cobranca_bitpag_id', $cobranca['hash_id'])->first();
+
+                    if ($faturaEquivalente) {
+                        $this->atualizarStatus($faturaEquivalente, $cobranca['payments'][0]['status']);
+                    }
+                }
+            }
+        }
+    }
+
+    public function atualizarStatus(FaturaCliente $fatura, string $status): void
+    {
+        switch ($status) {
+            case StatusPagamentoBitPag::PROCESSANDO->value:
+                $statusFatura = StatusFaturaCliente::AGUARDANDO_PAGAMENTO->value;
+                break;
+            case StatusPagamentoBitPag::PENDENTE->value:
+                $statusFatura = StatusFaturaCliente::AGUARDANDO_PAGAMENTO->value;
+                break;
+            case StatusPagamentoBitPag::PAGO->value:
+                $statusFatura = StatusFaturaCliente::APROVADO->value;
+                break;
+            case StatusPagamentoBitPag::ERRO->value:
+                $statusFatura = StatusFaturaCliente::ERRO->value;
+                break;
+            case StatusPagamentoBitPag::CANCELANDO->value:
+                $statusFatura = StatusFaturaCliente::CANCELADO->value;
+                break;
+            case StatusPagamentoBitPag::CANCELADO->value:
+                $statusFatura = StatusFaturaCliente::CANCELADO->value;
+                break;
+            case StatusPagamentoBitPag::ATRASADO->value:
+                $statusFatura = StatusFaturaCliente::INADIMPLENTE->value;
+                break;
+            case StatusPagamentoBitPag::ESTORNADO->value:
+                $statusFatura = StatusFaturaCliente::ERRO->value;
+                break;
+            case StatusPagamentoBitPag::CONTESTADO->value:
+                $statusFatura = StatusFaturaCliente::ERRO->value;
+                break;
+            default:
+                throw new \Exception('Status de pagamento bitpag não encontrado. Fatura ' . $fatura->id);
+        }
+        
+        $fatura->status_pagamento_bitpag = $status;
+        $fatura->status = $statusFatura;
+
+        $fatura->save();
     }
 }

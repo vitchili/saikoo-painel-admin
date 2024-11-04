@@ -25,6 +25,7 @@ use App\Models\Permission;
 use App\Models\Role;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Artisan;
 
 class DatabaseSeeder extends Seeder
 {
@@ -33,6 +34,8 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        $this->geraCommandsBasicos();
+
         $this->geraBancos();
 
         $this->geraSistemas();
@@ -4280,5 +4283,10 @@ class DatabaseSeeder extends Seeder
             'cadastrado_em' => now(),
             'atualizado_em' => now(),
         ]);
+    }
+
+    public function geraCommandsBasicos()
+    {
+        Artisan::call('app:gerar-indices-igpm');
     }
 }

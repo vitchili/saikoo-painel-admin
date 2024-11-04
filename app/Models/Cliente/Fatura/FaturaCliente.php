@@ -13,7 +13,7 @@ use Parallax\FilamentComments\Models\Traits\HasFilamentComments;
 
 class FaturaCliente extends Model
 {
-    use HasFactory, HasFilamentComments;
+    use HasFactory, HasFilamentComments, SoftDeletes;
     
     const CREATED_AT = 'data';
 
@@ -65,15 +65,13 @@ class FaturaCliente extends Model
         'sms_creditado',
         'sms_creditar_automaticamente',
         'pedido_visualizado',
-        'igpm_id',
-        'reajuste_automatico',
-        'reajuste_aplica_ultimo_igpm',
         'servicos',
         'incremento_parcela',
         'cobranca_bitpag_id',
         'gerar_serial',
         'final_cartao',
         'url_boleto',
+        'status_pagamento_bitpag'
     ];
 
     protected $with = ['cliente', 'servicos'];
@@ -86,10 +84,5 @@ class FaturaCliente extends Model
     public function servicos()
     {
         return $this->belongsToMany(ServicoCliente::class, 'servicos_faturas', 'fatura_id', 'servico_id');
-    }
-
-    public function igpm()
-    {
-        return $this->belongsTo(Igpm::class, 'igpm_id');
     }
 }

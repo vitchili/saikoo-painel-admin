@@ -13,6 +13,8 @@ enum StatusFaturaCliente: string
     case EM_ABERTO = 'Em aberto';
     
     case INADIMPLENTE = 'Inadimplente';
+
+    case ERRO = 'Erro BitPag';
     
     public function label(): string
     {
@@ -21,7 +23,8 @@ enum StatusFaturaCliente: string
             self::APROVADO => 'Aprovado',
             self::CANCELADO => 'Cancelado',
             self::EM_ABERTO => 'Em aberto',
-            self::INADIMPLENTE => 'Inadimplente'
+            self::INADIMPLENTE => 'Inadimplente',
+            self::ERRO => 'Erro'
         };
     }
 
@@ -33,6 +36,7 @@ enum StatusFaturaCliente: string
             self::CANCELADO => 'danger',
             self::EM_ABERTO => 'primary',
             self::INADIMPLENTE => 'danger',
+            self::ERRO => 'danger',
         };
     }
 }

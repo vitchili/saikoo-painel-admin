@@ -5,6 +5,7 @@ namespace App\Filament\Resources\ClienteResource\RelationManagers;
 use App\Gateway\Bitpag\CobrancaBitpag;
 use App\Models\Cliente\Fatura\Enum\FormaPagamento;
 use App\Models\Cliente\Fatura\Enum\StatusFaturaCliente;
+use App\Models\Cliente\Fatura\Enum\StatusPagamentoBitPag;
 use App\Models\Cliente\Fatura\FaturaCliente;
 use App\Models\Cliente\Serial\SerialCliente;
 use App\Models\Cliente\Servico\Enum\PeriodicidadeServico;
@@ -252,6 +253,17 @@ class FaturasRelationManager extends RelationManager
                     ))
                     ->html()
                     ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('status_pagamento_bitpag')
+                    ->size(TextColumnSize::ExtraSmall)
+                    ->label('Status Pagamento BitPag')
+                    ->formatStateUsing(function (string $state): string {
+                        return StatusPagamentoBitPag::tryFrom($state)?->label() ?? $state;
+                    })
+                    ->color(function (string $state): string {
+                        return StatusPagamentoBitPag::tryFrom($state)?->color() ?? 'secondary';
+                    })
+                    ->badge()
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 //
@@ -275,12 +287,13 @@ class FaturasRelationManager extends RelationManager
                         ])
                         ->hidden(fn(FaturaCliente $record) => 
                             $record->status == StatusFaturaCliente::APROVADO->value && 
-                            ! empty($record->valor_pago) && 
+                            ! empty($record->valor_pago) ||
                             $record->formapagamento !== 'Boleto'
                         )
                             
                         ->requiresConfirmation()
                         ->action(function (array $data, FaturaCliente $faturaCliente) {
+                            $faturaCliente->vencimento_boleto = $data['vencimento_boleto'];
                             $bitPagCobranca = new CobrancaBitpag();
                             $bitPagCobranca->cadastrarCobranca($faturaCliente);
 
@@ -290,7 +303,6 @@ class FaturasRelationManager extends RelationManager
                                 $serial->vencimento_serial = now()->addDays(2);
                                 $serial->save();
 
-                                $faturaCliente->vencimento_boleto = $data['vencimento_boleto'];
                                 $faturaCliente->gerar_serial = false;
                                 $faturaCliente->update([
                                     'serial' => $serial->serial

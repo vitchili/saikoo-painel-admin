@@ -26,9 +26,4 @@ class Igpm extends Model
         'data',
         'valor',
     ];
-
-    public function faturas()
-    {
-        return $this->hasMany(FaturaCliente::class, 'igpm_id');
-    }
 }
