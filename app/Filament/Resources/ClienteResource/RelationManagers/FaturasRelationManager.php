@@ -28,6 +28,7 @@ use Filament\Tables\Columns\TextColumn\TextColumnSize;
 use Filament\Tables\Table;
 use Parallax\FilamentComments\Tables\Actions\CommentsAction;
 use Filament\Tables\Actions\ActionGroup;
+use Illuminate\Database\Eloquent\Model;
 
 class FaturasRelationManager extends RelationManager
 {
@@ -46,7 +47,6 @@ class FaturasRelationManager extends RelationManager
                     ->schema([
                         DatePicker::make('vencimento')
                             ->required()
-                            ->afterOrEqual('today')
                             ->label('Venc.'),
                         TextInput::make('valor')
                             ->required()
@@ -275,25 +275,23 @@ class FaturasRelationManager extends RelationManager
                 ActionGroup::make([
                     Tables\Actions\EditAction::make()
                         ->slideOver()
-                        ->hidden(fn(FaturaCliente $record) => $record->status == StatusFaturaCliente::CANCELADO->value),
+                        ->hidden(fn(FaturaCliente $record) => $record->status == StatusFaturaCliente::APROVADO->value),
                     CommentsAction::make(),
                     Action::make('gerarBoleto')
                         ->label('Gerar Boleto Atualizado')
                         ->form([
                             DatePicker::make('vencimento_boleto')
                             ->label('Venc. Boleto')
-                            ->after('today')
-                            ->hidden(fn(FaturaCliente $record) => Carbon::parse($record->vencimento)->diffInDays(now()) <= 0)
+                            ->default('today')
                         ])
                         ->hidden(fn(FaturaCliente $record) => 
                             $record->status == StatusFaturaCliente::APROVADO->value && 
                             ! empty($record->valor_pago) ||
                             $record->formapagamento !== 'Boleto'
                         )
-                            
                         ->requiresConfirmation()
                         ->action(function (array $data, FaturaCliente $faturaCliente) {
-                            $faturaCliente->vencimento_boleto = $data['vencimento_boleto'];
+                            $faturaCliente->vencimento_boleto = $data['vencimento_boleto'] ?? $faturaCliente->vencimento;
                             $bitPagCobranca = new CobrancaBitpag();
                             $bitPagCobranca->cadastrarCobranca($faturaCliente);
 
@@ -320,7 +318,7 @@ class FaturasRelationManager extends RelationManager
                         ->openUrlInNewTab(),
                     Action::make('gerenciarJurosMulta')
                         ->label('Gerenciar Juros e Multa')
-                        ->hidden(fn(FaturaCliente $record) => $record->status == StatusFaturaCliente::CANCELADO->value || $record->formapagamento == 'Cartão de crédito')
+                        ->hidden(fn(FaturaCliente $record) => $record->status == StatusFaturaCliente::APROVADO->value ||  $record->formapagamento == 'Cartão de crédito')
                         ->requiresConfirmation()
                         ->form([
                             TextInput::make('valor_original')
@@ -424,7 +422,7 @@ class FaturasRelationManager extends RelationManager
                         ->icon('heroicon-o-calculator'),
                     Action::make('quitarFatura')
                         ->requiresConfirmation()
-                        ->hidden(fn(FaturaCliente $record) => $record->formapagamento !== 'Dinheiro' || $record->status == StatusFaturaCliente::CANCELADO->value)
+                        ->hidden(fn(FaturaCliente $record) => $record->status == StatusFaturaCliente::APROVADO->value || $record->formapagamento !== 'Dinheiro' || $record->status == StatusFaturaCliente::CANCELADO->value)
                         ->action(function (FaturaCliente $record) {
                             $record->valor_pago = $record->valor_atualizado ?? $record->valor;
                             $record->status = StatusFaturaCliente::APROVADO;
@@ -434,7 +432,7 @@ class FaturasRelationManager extends RelationManager
                         ->icon('heroicon-o-currency-dollar'),
                     Action::make('cancelarFatura')
                         ->requiresConfirmation()
-                        ->hidden(fn(FaturaCliente $record) => $record->status == StatusFaturaCliente::CANCELADO->value || $record->formapagamento == 'Cartão de crédito')
+                        ->hidden(fn(FaturaCliente $record) => $record->status == StatusFaturaCliente::APROVADO->value || $record->status == StatusFaturaCliente::CANCELADO->value || $record->formapagamento == 'Cartão de crédito')
                         ->form([
                             TextInput::make('info_add')
                                 ->label('Informação de cancelamento')
@@ -454,7 +452,8 @@ class FaturasRelationManager extends RelationManager
                         ->action(fn($record) => $record->delete())
                         ->requiresConfirmation()
                         ->color('danger')
-                        ->icon('heroicon-o-trash'),
+                        ->icon('heroicon-o-trash')
+                        ->hidden(fn(FaturaCliente $record) => $record->status == StatusFaturaCliente::APROVADO->value)
                 ]),
             ])
             ->bulkActions([

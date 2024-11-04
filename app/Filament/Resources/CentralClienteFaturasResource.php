@@ -108,9 +108,13 @@ class CentralClienteFaturasResource extends Resource
             ->actions([
                 Action::make('gerarBoleto')
                     ->label('Gerar Boleto')
-                    ->hidden(fn(FaturaCliente $record) => Carbon::parse($record->vencimento)->lt(now()) || $record->status == StatusFaturaCliente::CANCELADO->value || $record->formapagamento !== 'Boleto' || ($record->formapagamento === 'Boleto' && ! empty($record->cobranca_bitpag_id)))
+                    ->hidden(fn(FaturaCliente $record) =>
+                        $record->status == StatusFaturaCliente::APROVADO->value &&
+                        ! empty($record->valor_pago) ||
+                        $record->formapagamento !== 'Boleto')
                     ->requiresConfirmation()
                     ->action(function (FaturaCliente $faturaCliente) {
+                        $faturaCliente->vencimento_boleto = now()->format('Y-m-d');
                         $bitPagCobranca = new CobrancaBitpag();
                         $bitPagCobranca->cadastrarCobranca($faturaCliente);
 

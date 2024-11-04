@@ -22,7 +22,7 @@ class SerialClienteObserver
         $hash = $servicoSerial->gerarSerial();
 
         $serialCliente->serial = $hash;
-        $serialCliente->usuario_gerado = auth()->user()->name;
+        $serialCliente->usuario_gerado = auth()->user()->name ?? 'Sistema';
         $serialCliente->cnpj_serial = $serialCliente->cliente->cpf_cnpj;
         $serialCliente->tipo = 'C';
     }

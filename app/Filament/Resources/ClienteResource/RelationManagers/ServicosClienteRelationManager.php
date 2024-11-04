@@ -144,6 +144,8 @@ class ServicosClienteRelationManager extends RelationManager
         return $table
             ->recordTitleAttribute('servicoCliente.nome')
             ->columns([
+                Tables\Columns\ToggleColumn::make('status')
+                    ->label('Ativo'),
                 Tables\Columns\TextColumn::make('dta_contratada')
                     ->size(TextColumnSize::ExtraSmall)
                     ->date('d/m/Y')

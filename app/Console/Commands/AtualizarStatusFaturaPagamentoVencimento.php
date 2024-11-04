@@ -36,7 +36,10 @@ class AtualizarStatusFaturaPagamentoVencimento extends Command
         foreach ($clientes as $cliente) {
             foreach ($cliente->faturas as $fatura) {
                 $updatedFatura = FaturaCliente::findOrFail($fatura->id);
-
+                if ($updatedFatura->formapagamento == 'Cartão de crédito') {
+                    continue;
+                }
+                
                 if (
                     (! empty($fatura->vencimento_boleto) && Carbon::parse($fatura->vencimento_boleto)
                         ->lt(Carbon::parse(now()->format('Y-m-d'))) &&
