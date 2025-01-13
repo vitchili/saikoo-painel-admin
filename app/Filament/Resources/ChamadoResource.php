@@ -70,7 +70,9 @@ class ChamadoResource extends Resource
                             ->label('Técnicos')
                             ->options(User::whereNull('cliente_id')->get()->pluck('name', 'id'))
                             ->multiple()
-                            ->relationship('tecnicos', 'name')
+                            ->relationship('tecnicos', 'name', function ($query) {
+                                $query->whereNull('cliente_id');
+                            })
                             ->preload()
                             ->searchable(),
                         Select::make('veiculo_id')

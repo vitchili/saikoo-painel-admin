@@ -39,6 +39,18 @@ class AtualizarStatusFaturaPagamentoVencimento extends Command
                 if ($updatedFatura->formapagamento == 'Cartão de crédito') {
                     continue;
                 }
+
+                if (! empty($fatura->deleted_at)) {
+                    $updatedFatura->status = StatusFaturaCliente::CANCELADO->value;
+                    $updatedFatura->save();
+                    continue;
+                }
+
+                if (! empty($fatura->valor_pago)) {
+                    $updatedFatura->status = StatusFaturaCliente::APROVADO->value;
+                    $updatedFatura->save();
+                    continue;
+                }
                 
                 if (
                     (! empty($fatura->vencimento_boleto) && Carbon::parse($fatura->vencimento_boleto)
@@ -51,6 +63,8 @@ class AtualizarStatusFaturaPagamentoVencimento extends Command
                 ) {
                     $updatedFatura->status = StatusFaturaCliente::INADIMPLENTE->value;
                     $this->calcularJurosMulta($fatura);
+                    $updatedFatura->save();
+                    continue;
                 }
 
                 if (
@@ -60,21 +74,14 @@ class AtualizarStatusFaturaPagamentoVencimento extends Command
                     empty($fatura->valor_pago)
                 ) {
                     $updatedFatura->status = StatusFaturaCliente::AGUARDANDO_PAGAMENTO->value;
+                    $updatedFatura->save();
+                    continue;
                 }
 
                 if (empty($fatura->cobranca_bitpag_id) && Carbon::parse($fatura->vencimento)->gt(Carbon::parse(now()->format('Y-m-d'))) && empty($fatura->valor_pago)) {
                     $updatedFatura->status = StatusFaturaCliente::EM_ABERTO->value;
+                    $updatedFatura->save();
                 }
-
-                if (! empty($fatura->deleted_at)) {
-                    $updatedFatura->status = StatusFaturaCliente::CANCELADO->value;
-                }
-
-                if (! empty($fatura->valor_pago)) {
-                    $updatedFatura->status = StatusFaturaCliente::APROVADO->value;
-                }
-
-                $updatedFatura->save();
             }
         }
     }

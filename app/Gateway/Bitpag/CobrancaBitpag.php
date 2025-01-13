@@ -3,6 +3,7 @@
 namespace App\Gateway\Bitpag;
 
 use App\Models\Cliente\Cliente;
+use App\Models\Cliente\Fatura\Enum\FormaPagamento;
 use App\Models\Cliente\Fatura\Enum\StatusFaturaCliente;
 use App\Models\Cliente\Fatura\FaturaCliente;
 use App\Models\Cliente\Servico\Enum\PeriodicidadeServico;
@@ -50,9 +51,12 @@ class CobrancaBitpag extends BaseClientBitpag
     {
         $tipoCobrancaBitPag = 'R';
         
-        if ($cobranca->formapagamento === 'Boleto' || $cobranca->qtd == 1) {
+        if ($cobranca->formapagamento === FormaPagamento::PIX->value || 
+            $cobranca->formapagamento === FormaPagamento::BOLETO->value || 
+            $cobranca->qtd == 1
+        ) {
             $tipoCobrancaBitPag = 'U';
-        } elseif ($cobranca->formapagamento !== 'Boleto' && $cobranca->qtd > 1) {
+        } elseif ($cobranca->formapagamento !== FormaPagamento::BOLETO->value && $cobranca->qtd > 1) {
             $tipoCobrancaBitPag = 'P'; //Verificar se manteremos P ou R.
         }
 
@@ -79,6 +83,12 @@ class CobrancaBitpag extends BaseClientBitpag
             $cobranca->status = StatusFaturaCliente::AGUARDANDO_PAGAMENTO->value;
             if ($response['charge'] && $response['charge']['method_payment'] == 'Boleto') {
                 $cobranca->url_boleto = $response['charge']['payments'][0]['document_url'];
+            }
+
+            if ($response['charge'] && $response['charge']['method_payment'] == 'PIX') {
+                $cobranca->qr_code_pix = $response['charge']['payments'][0]['document_url'];
+                $cobranca->data_expiracao_pix = $response['charge']['payments'][0]['expiration'];
+                $cobranca->digitavel_pix = $response['charge']['payments'][0]['document_hash'];
             }
 
             $cobranca->update();
@@ -131,9 +141,9 @@ class CobrancaBitpag extends BaseClientBitpag
         $periodoServico = ServicoCliente::with('servicoCliente')->find($servicos[0])->first();
 
         $tipoPagamento = match ($cobranca->formapagamento) {
-            'Boleto' => 4,
-            'Cartão de crédito' => 2,
-            'PIX' => 7,
+            FormaPagamento::BOLETO->value => 4,
+            FormaPagamento::CARTAO_DE_CREDITO->value => 2,
+            FormaPagamento::PIX->value => 7,
             default => throw new \Exception('Nenhuma forma de pagamento cadastrada'),
         };
 
@@ -170,9 +180,9 @@ class CobrancaBitpag extends BaseClientBitpag
         };
 
         $tipoPagamento = match ($cobranca->formapagamento) {
-            'Boleto' => 4,
-            'Cartão de crédito' => 2,
-            'PIX' => 7,
+            FormaPagamento::BOLETO->value => 4,
+            FormaPagamento::CARTAO_DE_CREDITO->value => 2,
+            FormaPagamento::PIX->value => 7,
             default => throw new \Exception('Nenhuma forma de pagamento cadastrada'),
         };
 
@@ -206,9 +216,9 @@ class CobrancaBitpag extends BaseClientBitpag
         };
 
         $tipoPagamento = match ($cobranca->formapagamento) {
-            'Boleto' => 4,
-            'Cartão de crédito' => 2,
-            'PIX' => 7,
+            FormaPagamento::BOLETO->value => 4,
+            FormaPagamento::CARTAO_DE_CREDITO->value => 2,
+            FormaPagamento::PIX->value => 7,
             default => throw new \Exception('Nenhuma forma de pagamento cadastrada'),
         };
 

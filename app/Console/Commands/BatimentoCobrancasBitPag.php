@@ -7,6 +7,7 @@ use App\Models\Cliente\Cliente;
 use App\Models\Cliente\Fatura\Enum\StatusFaturaCliente;
 use App\Models\Cliente\Fatura\Enum\StatusPagamentoBitPag;
 use App\Models\Cliente\Fatura\FaturaCliente;
+use Carbon\Carbon;
 use Illuminate\Console\Command;
 
 class BatimentoCobrancasBitPag extends Command
@@ -52,14 +53,14 @@ class BatimentoCobrancasBitPag extends Command
                     $faturaEquivalente = FaturaCliente::where('cobranca_bitpag_id', $cobranca['hash_id'])->first();
 
                     if ($faturaEquivalente) {
-                        $this->atualizarStatus($faturaEquivalente, $cobranca['payments'][0]['status']);
+                        $this->atualizarStatus($faturaEquivalente, $cobranca['payments'][0]['status'], $cobranca['payments'][0]['amount_paid'], $cobranca['payments'][0]['paid_at']);
                     }
                 }
             }
         }
     }
 
-    public function atualizarStatus(FaturaCliente $fatura, string $status): void
+    public function atualizarStatus(FaturaCliente $fatura, string $status, string $valorPago, string $dataPagamento): void
     {
         switch ($status) {
             case StatusPagamentoBitPag::PROCESSANDO->value:
@@ -70,6 +71,8 @@ class BatimentoCobrancasBitPag extends Command
                 break;
             case StatusPagamentoBitPag::PAGO->value:
                 $statusFatura = StatusFaturaCliente::APROVADO->value;
+                $fatura->valor_pago = floatval($valorPago);
+                $fatura->data_alt_status = Carbon::createFromFormat('d/m/Y H:i', $dataPagamento)->format('Y-m-d H:i:s');
                 break;
             case StatusPagamentoBitPag::ERRO->value:
                 $statusFatura = StatusFaturaCliente::ERRO->value;
@@ -93,6 +96,7 @@ class BatimentoCobrancasBitPag extends Command
                 throw new \Exception('Status de pagamento bitpag não encontrado. Fatura ' . $fatura->id);
         }
         
+
         $fatura->status_pagamento_bitpag = $status;
         $fatura->status = $statusFatura;
 

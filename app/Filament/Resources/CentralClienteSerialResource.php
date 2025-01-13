@@ -43,7 +43,8 @@ class CentralClienteSerialResource extends Resource
     {
         $query = SerialCliente::with('fatura')->where('id_cliente', auth()->user()->cliente_id)
             ->whereHas('fatura', function($query) {
-                $query->whereNotNull('valor_pago');
+                $query->where('vencimento', '<', now()->addDays(2)->format('Y-m-d'));
+                $query->orWhere('vencimento_boleto', '<', now()->addDays(2)->format('Y-m-d'));
             })
             ->orderBy('vencimento_serial')
             ->limit(1);

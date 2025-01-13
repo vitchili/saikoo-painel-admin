@@ -12,7 +12,7 @@ enum FormaPagamento: string
     
     case PIX = 'Pix';
     
-    case DINHEIRO = 'Dinheiro';
+    case MANUAL = 'Manual';
     
     //case PAGAMENTO_ONLINE = 'Pagamento Online';
 
@@ -23,7 +23,7 @@ enum FormaPagamento: string
             self::CARTAO_DE_CREDITO => 'Cartão de crédito',
             //self::CHEQUE => 'Cheque',
             self::PIX => 'Pix',
-            self::DINHEIRO => 'Dinheiro',
+            self::MANUAL => 'Manual',
             //self::PAGAMENTO_ONLINE => 'Pagamento Online'
         };
     }

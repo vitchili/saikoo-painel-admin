@@ -4,10 +4,14 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\CentralClienteFaturasResource\Pages;
 use App\Gateway\Bitpag\CobrancaBitpag;
+use App\Models\Cliente\Fatura\Enum\FormaPagamento;
 use App\Models\Cliente\Fatura\Enum\StatusFaturaCliente;
 use App\Models\Cliente\Fatura\FaturaCliente;
 use App\Models\Cliente\Serial\SerialCliente;
 use Carbon\Carbon;
+use Filament\Forms\Components\Placeholder;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
@@ -17,6 +21,7 @@ use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Columns\TextColumn\TextColumnSize;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\HtmlString;
 use Parallax\FilamentComments\Tables\Actions\CommentsAction;
 
 class CentralClienteFaturasResource extends Resource
@@ -50,7 +55,7 @@ class CentralClienteFaturasResource extends Resource
     {
         return $table
             ->modifyQueryUsing(fn(Builder $query) => $query->where('id_cliente', auth()->user()->cliente_id))
-            ->defaultSort('vencimento', 'desc')
+            ->defaultSort('vencimento', 'asc')
             ->columns([
                 Tables\Columns\TextColumn::make('vencimento')
                     ->size(TextColumnSize::ExtraSmall)
@@ -92,7 +97,8 @@ class CentralClienteFaturasResource extends Resource
                 Tables\Columns\TextColumn::make('formapagamento')
                     ->size(TextColumnSize::ExtraSmall)
                     ->sortable()
-                    ->label('Forma pagamento'),
+                    ->label('Forma pagamento')
+                    ->formatStateUsing(fn($state) => $state == FormaPagamento::BOLETO->value ? 'Boleto/PIX' : ''),
                 Tables\Columns\TextColumn::make('final_cartao')
                     ->size(TextColumnSize::ExtraSmall)
                     ->label('Cartão')
@@ -100,33 +106,81 @@ class CentralClienteFaturasResource extends Resource
                         return ! empty($state) ? '.... - .... - .... - ' . $state : '';
                     })
                     ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('info_add')
+                    ->size(TextColumnSize::ExtraSmall)
+                    ->label('Info Add.')
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 //
             ])
             ->headerActions([])
             ->actions([
-                Action::make('gerarBoleto')
-                    ->label('Gerar Boleto')
-                    ->hidden(fn(FaturaCliente $record) =>
-                        $record->status == StatusFaturaCliente::APROVADO->value &&
-                        ! empty($record->valor_pago) ||
-                        $record->formapagamento !== 'Boleto')
+                Action::make('gerarBoletoOuPix')
+                    ->label('Gerar Boleto/PIX')
+                    ->hidden(
+                        fn(FaturaCliente $record) =>
+                        $record->status == StatusFaturaCliente::APROVADO->value ||
+                            $record->status == StatusFaturaCliente::CANCELADO->value ||
+                            ($record->status == 'Aguardando Pagto' && Carbon::parse($record->vencimento_boleto) > now()) ||
+                            ! empty($record->valor_pago) ||
+                            (
+                                $record->formapagamento !== FormaPagamento::BOLETO->value &&
+                                $record->formapagamento !== FormaPagamento::PIX->value
+                            )
+                    )
                     ->requiresConfirmation()
-                    ->action(function (FaturaCliente $faturaCliente) {
-                        $faturaCliente->vencimento_boleto = now()->format('Y-m-d');
+                    ->form([
+                        Select::make('forma_pagamento')
+                            ->label('Forma Pagamento')
+                            ->options([
+                                FormaPagamento::BOLETO->value => FormaPagamento::BOLETO->value,
+                                FormaPagamento::PIX->value => FormaPagamento::PIX->value,
+                            ]),
+                    ])
+                    ->action(function (array $data, FaturaCliente $faturaCliente) {
+                        $faturaCliente->vencimento_boleto = Carbon::parse($faturaCliente->vencimento)->gt(now()) ? $faturaCliente->vencimento : now()->format('Y-m-d');
+                        $faturaCliente->formapagamento = $data['forma_pagamento'];
                         $bitPagCobranca = new CobrancaBitpag();
                         $bitPagCobranca->cadastrarCobranca($faturaCliente);
 
-                        Notification::make()->success()->title('Boleto gerado com suesso.')->icon('heroicon-o-currency-dollar')->send();
+                        Notification::make()->success()->title("$faturaCliente->formapagamento gerado com suesso.")->icon('heroicon-o-currency-dollar')->send();
                     })
                     ->icon('heroicon-o-currency-dollar'),
+
                 Action::make('boletoGerado')
                     ->icon('heroicon-o-eye')
                     ->label('Ver Boleto')
-                    ->hidden(fn(FaturaCliente $record) => $record->status == StatusFaturaCliente::CANCELADO->value || $record->formapagamento !== 'Boleto' || ($record->formapagamento == 'Boleto' && empty($record->cobranca_bitpag_id)))
+                    ->hidden(fn(FaturaCliente $record) => $record->status == StatusFaturaCliente::CANCELADO->value || $record->formapagamento !== FormaPagamento::BOLETO->value || ($record->formapagamento == FormaPagamento::BOLETO->value && empty($record->cobranca_bitpag_id)))
                     ->url(fn(FaturaCliente $record) => $record->url_boleto)
                     ->openUrlInNewTab(),
+                Action::make('verPix')
+                    ->icon('heroicon-o-eye')
+                    ->label('Ver QR Code PIX')
+                    ->hidden(
+                        fn(FaturaCliente $record) =>
+                        $record->status == StatusFaturaCliente::CANCELADO->value ||
+                            $record->formapagamento !== FormaPagamento::PIX->value ||
+                            (
+                                $record->formapagamento == FormaPagamento::PIX->value &&
+                                empty($record->cobranca_bitpag_id)
+                            ) ||
+                            (
+                                !empty($record->data_expiracao_pix) &&
+                                Carbon::createFromFormat('d/m/Y H:i', $record->data_expiracao_pix)->lt(now())
+                            )
+                    )
+                    ->form([
+                        Placeholder::make('qr_code_pix')
+                            ->content((fn(FaturaCliente $record) => new HtmlString('<img src="' . $record->qr_code_pix . '" alt="Image" style="max-width: 100%; height: auto;" />')))
+                            ->label('QR Code PIX'),
+                        Placeholder::make('data_expiracao_pix')
+                            ->label('Válido até')
+                            ->content((fn(FaturaCliente $record) => $record->data_expiracao_pix)),
+                        Placeholder::make('digitavel_pix')
+                            ->label('Linha digitável')
+                            ->content((fn(FaturaCliente $record) => $record->digitavel_pix)),
+                    ]),
                 ActionGroup::make([
                     CommentsAction::make()
                         ->label('Conversa'),

@@ -14,6 +14,7 @@ use Carbon\Carbon;
 use Closure;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Fieldset;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -235,7 +236,9 @@ class FaturasRelationManager extends RelationManager
                 Tables\Columns\TextColumn::make('formapagamento')
                     ->size(TextColumnSize::ExtraSmall)
                     ->sortable()
-                    ->label('Forma pagamento'),
+                    ->label('Forma pagamento')
+                    ->formatStateUsing(fn($state) => $state == FormaPagamento::BOLETO->value ? 'Boleto/PIX' : '')
+                    ->html(),
                 Tables\Columns\TextColumn::make('gerar_boleto')
                     ->size(TextColumnSize::ExtraSmall)
                     ->label('Gerar')
@@ -252,6 +255,20 @@ class FaturasRelationManager extends RelationManager
                         $state
                     ))
                     ->html()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('comprovante')
+                    ->size(TextColumnSize::ExtraSmall)
+                    ->label('Comprovante')
+                    ->formatStateUsing(fn($state) => sprintf(
+                        '<a href="http://localhost:8000/storage/%s" target="_blank">Abrir Comprovante</a>',
+                        $state
+                    ))
+                    ->html()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('data_alt_status')
+                    ->size(TextColumnSize::ExtraSmall)
+                    ->label('Data Pagamento')
+                    ->dateTime('d/m/Y')
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('status_pagamento_bitpag')
                     ->size(TextColumnSize::ExtraSmall)
@@ -281,17 +298,47 @@ class FaturasRelationManager extends RelationManager
                         ->label('Gerar Boleto Atualizado')
                         ->form([
                             DatePicker::make('vencimento_boleto')
-                            ->label('Venc. Boleto')
-                            ->default('today')
+                                ->label('Venc. Boleto')
+                                ->default('today')
                         ])
-                        ->hidden(fn(FaturaCliente $record) => 
-                            $record->status == StatusFaturaCliente::APROVADO->value && 
-                            ! empty($record->valor_pago) ||
-                            $record->formapagamento !== 'Boleto'
+                        ->hidden(
+                            fn(FaturaCliente $record) =>
+                            $record->status == StatusFaturaCliente::APROVADO->value &&
+                                ! empty($record->valor_pago) ||
+                                $record->formapagamento !== 'Boleto'
                         )
                         ->requiresConfirmation()
                         ->action(function (array $data, FaturaCliente $faturaCliente) {
                             $faturaCliente->vencimento_boleto = $data['vencimento_boleto'] ?? $faturaCliente->vencimento;
+                            $bitPagCobranca = new CobrancaBitpag();
+                            $bitPagCobranca->cadastrarCobranca($faturaCliente);
+
+                            if (Carbon::parse($faturaCliente->vencimento)->lt(now())) {
+                                $serial = new SerialCliente();
+                                $serial->id_cliente = $faturaCliente->id_cliente;
+                                $serial->vencimento_serial = now()->addDays(2);
+                                $serial->save();
+
+                                $faturaCliente->gerar_serial = false;
+                                $faturaCliente->update([
+                                    'serial' => $serial->serial
+                                ]);
+                            }
+
+                            Notification::make()->success()->title('Boleto gerado com suesso.')->icon('heroicon-o-currency-dollar')->send();
+                        })
+                        ->icon('heroicon-o-currency-dollar'),
+                    Action::make('gerarPix')
+                        ->label('Gerar PIX')
+                        ->hidden(
+                            fn(FaturaCliente $record) =>
+                            $record->status == StatusFaturaCliente::APROVADO->value &&
+                                ! empty($record->valor_pago) ||
+                                $record->formapagamento !== 'Pix'
+                        )
+                        ->requiresConfirmation()
+                        ->action(function (array $data, FaturaCliente $faturaCliente) {
+                            $faturaCliente->vencimento_boleto = now()->format('Y-m-d');
                             $bitPagCobranca = new CobrancaBitpag();
                             $bitPagCobranca->cadastrarCobranca($faturaCliente);
 
@@ -422,10 +469,35 @@ class FaturasRelationManager extends RelationManager
                         ->icon('heroicon-o-calculator'),
                     Action::make('quitarFatura')
                         ->requiresConfirmation()
-                        ->hidden(fn(FaturaCliente $record) => $record->status == StatusFaturaCliente::APROVADO->value || $record->formapagamento !== 'Dinheiro' || $record->status == StatusFaturaCliente::CANCELADO->value)
-                        ->action(function (FaturaCliente $record) {
-                            $record->valor_pago = $record->valor_atualizado ?? $record->valor;
+                        ->form([
+                            DatePicker::make('data_alt_status')
+                                ->label('Data Pagamento'),
+                            Select::make('formapagamento')
+                                ->label('Forma Pagamento')
+                                ->options([
+                                    'Crédito em conta',
+                                    'Dinheiro',
+                                    'Máquina POS',
+                                    'Pagamento online',
+                                ]),
+                            FileUpload::make('comprovante')
+                                ->label('Comprovante')
+                                ->columnSpanFull()
+                                ->directory('anexo_comprovante_pagamento_manual'),
+                            TextInput::make('valor_pago')
+                                ->prefix('R$')
+                                ->default(function (FaturaCliente $record): float {
+                                    return $record->valor;
+                                })
+                                ->numeric()
+                                ->label('Valor Pago'),
+                        ])
+                        ->hidden(fn(FaturaCliente $record) => $record->status == StatusFaturaCliente::APROVADO->value || $record->formapagamento !== 'Cartão de crédito' || $record->status == StatusFaturaCliente::CANCELADO->value)
+                        ->action(function (array $data, FaturaCliente $record) {
+                            $record->valor_pago = $data['valor_pago'];
                             $record->status = StatusFaturaCliente::APROVADO;
+                            $record->comprovante = $data['comprovante'];
+                            $record->data_alt_status = $data['data_alt_status'];
                             $record->save();
                             Notification::make()->success()->title('Fatura quitada com sucesso!')->icon('heroicon-o-currency-dollar')->send();
                         })

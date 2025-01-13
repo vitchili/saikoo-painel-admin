@@ -17,7 +17,7 @@ class FaturaCliente extends Model
     
     const CREATED_AT = 'data';
 
-    const UPDATED_AT = 'data_alt_status';
+    const UPDATED_AT = 'atualizado_em';
 
     const JUROS_VALOR_PADRAO_PERCENT = 1;
     
@@ -71,7 +71,10 @@ class FaturaCliente extends Model
         'gerar_serial',
         'final_cartao',
         'url_boleto',
-        'status_pagamento_bitpag'
+        'status_pagamento_bitpag',
+        'qr_code_pix',
+        'data_expiracao_pix',
+        'digitavel_pix',
     ];
 
     protected $with = ['cliente', 'servicos'];

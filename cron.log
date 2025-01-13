@@ -1,0 +1,40 @@
+Mon Dec 16 02:39:01 UTC 2024
+Mon Dec 16 02:40:01 UTC 2024
+
+  2024-12-16 00:46:02 Running ['artisan' app:gerar-notificacoes-gerais]  687.10ms DONE
+  ⇂ '/usr/bin/php8.3' 'artisan' app:gerar-notificacoes-gerais > '/dev/null' 2>&1  
+  2024-12-16 00:46:03 Running ['artisan' app:atualizar-status-faturas-vencimento]  709.43ms DONE
+  ⇂ '/usr/bin/php8.3' 'artisan' app:atualizar-status-faturas-vencimento > '/dev/null' 2>&1  
+
+
+  2024-12-16 00:47:01 Running ['artisan' app:gerar-notificacoes-gerais]  768.45ms DONE
+  ⇂ '/usr/bin/php8.3' 'artisan' app:gerar-notificacoes-gerais > '/dev/null' 2>&1  
+  2024-12-16 00:47:02 Running ['artisan' app:atualizar-status-faturas-vencimento]  700.65ms DONE
+  ⇂ '/usr/bin/php8.3' 'artisan' app:atualizar-status-faturas-vencimento > '/dev/null' 2>&1  
+
+
+  2024-12-16 00:48:02 Running ['artisan' app:gerar-notificacoes-gerais]  660.88ms DONE
+  ⇂ '/usr/bin/php8.3' 'artisan' app:gerar-notificacoes-gerais > '/dev/null' 2>&1  
+  2024-12-16 00:48:02 Running ['artisan' app:atualizar-status-faturas-vencimento]  803.85ms DONE
+  ⇂ '/usr/bin/php8.3' 'artisan' app:atualizar-status-faturas-vencimento > '/dev/null' 2>&1  
+
+
+  2024-12-16 00:49:02 Running ['artisan' app:gerar-notificacoes-gerais]  671.54ms DONE
+  ⇂ '/usr/bin/php8.3' 'artisan' app:gerar-notificacoes-gerais > '/dev/null' 2>&1  
+  2024-12-16 00:49:03 Running ['artisan' app:atualizar-status-faturas-vencimento]  676.59ms DONE
+  ⇂ '/usr/bin/php8.3' 'artisan' app:atualizar-status-faturas-vencimento > '/dev/null' 2>&1  
+
+
+  2024-12-16 00:50:02 Running ['artisan' app:gerar-notificacoes-gerais]  664.21ms DONE
+  ⇂ '/usr/bin/php8.3' 'artisan' app:gerar-notificacoes-gerais > '/dev/null' 2>&1  
+  2024-12-16 00:50:03 Running ['artisan' app:atualizar-status-faturas-vencimento]  666.36ms DONE
+  ⇂ '/usr/bin/php8.3' 'artisan' app:atualizar-status-faturas-vencimento > '/dev/null' 2>&1  
+
+
+  2024-12-16 00:51:03 Running ['artisan' app:gerar-notificacoes-gerais]  657.05ms DONE
+  ⇂ '/usr/bin/php8.3' 'artisan' app:gerar-notificacoes-gerais > '/dev/null' 2>&1  
+  2024-12-16 00:51:03 Running ['artisan' app:atualizar-status-faturas-vencimento]  664.69ms DONE
+  ⇂ '/usr/bin/php8.3' 'artisan' app:atualizar-status-faturas-vencimento > '/dev/null' 2>&1  
+
+
+  2024-12-16 00:52:02 Running ['artisan' app:gerar-notificacoes-gerais] 
